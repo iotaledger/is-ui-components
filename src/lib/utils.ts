@@ -1,4 +1,7 @@
+import { browser } from "$app/env";
 import { Converter } from "@iota/util.js";
+import type { Writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 
 export const createJsonDataUrl = (object: unknown): string => {
     const b64 = Converter.bytesToBase64(Converter.utf8ToBytes((JSON.stringify(object, undefined, "\t"))));
@@ -25,4 +28,34 @@ export const syntaxHighlight = (json: string): string => {
                 return `<span class="${cls}">${match}</span>`;
             }
         );
+}
+
+/**
+ * Persist a writable Svelte store to local storage
+ */
+export const persistent = <T>(key: string, initialValue: T): Writable<T> => {
+    if (browser) {
+        let value = initialValue
+
+        try {
+            const json = localStorage.getItem(key)
+            if (json) {
+                value = JSON.parse(json)
+            }
+        } catch (err) {
+            console.error(err)
+        }
+
+        const state = writable(value)
+
+        state.subscribe(($value): void => {
+            if ($value === undefined || $value === null) {
+                localStorage.removeItem(key)
+            } else {
+                localStorage.setItem(key, JSON.stringify($value))
+            }
+        })
+
+        return state
+    }
 }

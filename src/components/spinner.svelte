@@ -34,8 +34,4 @@
 			opacity: 0;
 		}
 	}
-
-	.spinner + * {
-		margin-left: 20px;
-	}
 </style>

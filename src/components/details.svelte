@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { JSONViewer } from '$components';
-	import { identityClient } from '$lib/app';
-	import { jwt } from '$lib/store';
+	import { identityClient } from '$lib/identity';
 	import { createJsonDataUrl } from '$lib/utils';
 	import { onMount } from 'svelte';
 	import { FormGroup, Input } from 'sveltestrap';
@@ -11,7 +10,6 @@
 	let identity;
 
 	onMount(async () => {
-		identityClient.jwtToken = $jwt;
 		identity = await identityClient.find(id);
 	});
 </script>

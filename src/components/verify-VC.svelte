@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { identityClient } from '$lib/app';
-	import { jwt } from '$lib/store';
-	import type { IdentityJson } from 'iota-is-sdk/src';
+	import { identityClient } from '$lib/identity';
+	import type { IdentityJson } from 'iota-is-sdk';
 	import { onMount } from 'svelte';
 	import Dropzone from 'svelte-file-dropzone';
 	import { Badge, Button } from 'sveltestrap';
@@ -36,8 +35,6 @@
 	};
 
 	onMount(() => {
-		identityClient.jwtToken = $jwt;
-
 		fileReader = new FileReader();
 		fileReader.addEventListener('load', loadJson);
 		return () => {

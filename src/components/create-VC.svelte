@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { Spinner } from '$components';
-	import { identityClient, VC_TEMPLATES } from '$lib/app';
-	import { jwt } from '$lib/store';
+	import { VC_TEMPLATES } from '$lib/constants/identity';
+	import { identityClient } from '$lib/identity';
 	import { createJsonDataUrl } from '$lib/utils';
 	import { CredentialTypes, VerifiableCredentialJson } from 'iota-is-sdk';
-	import { onMount } from 'svelte';
 	import { Button, FormGroup, Input } from 'sveltestrap';
 
 	let targetDidId: string;
@@ -13,10 +12,6 @@
 	let loading = false;
 	let selectedTemplate = VC_TEMPLATES[0];
 	let selectedCredential = CredentialTypes.BasicIdentityCredential;
-
-	onMount(() => {
-		identityClient.jwtToken = $jwt;
-	});
 
 	$: isValid = (): boolean => {
 		if (

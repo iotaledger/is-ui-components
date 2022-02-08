@@ -1,12 +1,5 @@
-import { ApiVersion, ClientConfig, IdentityClient, UserType } from 'iota-is-sdk';
-
-export interface IUser {
-    type: UserType;
-    fields: {
-        name: string;
-        required: boolean;
-    }[];
-}
+import type { IUser } from '$lib/types/identity';
+import { UserType } from 'iota-is-sdk';
 
 export const USERS: IUser[] = [
     {
@@ -76,14 +69,6 @@ export const USERS: IUser[] = [
         ]
     }
 ];
-
-const config: ClientConfig = {
-    apiKey: import.meta.env.VITE_API_KEY, // Deployed Integration Services API KEY
-    baseUrl: import.meta.env.VITE_BASE_URL, // URL of the Integration Services API
-    apiVersion: ApiVersion.v01
-};
-
-export const identityClient = new IdentityClient(config);
 
 export const VC_TEMPLATES = [
     {
