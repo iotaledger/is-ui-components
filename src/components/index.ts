@@ -1,5 +1,7 @@
 export { default as CreateVC } from './create-VC.svelte';
 export { default as Details } from './details.svelte';
+export { default as IdentityProfile } from './identity/identity-profile.svelte';
+export { default as IdentityManager } from './identity/identity-manager.svelte';
 export { default as JSONViewer } from './json-viewer.svelte';
 export { default as LoginRegister } from './login-register/login-register.svelte';
 export { default as Search } from './search.svelte';

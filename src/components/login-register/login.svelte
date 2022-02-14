@@ -51,11 +51,8 @@
 		</div>
 		<h1 class="mb-1">Log in with your DID</h1>
 		<div>
-			<!-- TODO: add bootstrap pointer classes -->
-			<!-- source: https://5balloons.info/cursor-pointer-and-other-classes-for-bootstrap-5/ -->
 			or
-			<span class="text-primary cursor-pointer" on:click={switchToRegister}>register a new DID</span
-			>
+			<span class="text-primary cursor-pointer" on:click={switchToRegister}>register a new DID</span>
 		</div>
 	</div>
 	<div class="w-100">

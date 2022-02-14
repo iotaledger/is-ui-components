@@ -1,6 +1,7 @@
+import { MAXIMUM_SEARCH_RESULTS } from '$lib/constants/identity';
 import { persistent } from '$lib/utils';
 import type { ClientConfig, IdentityJson } from 'iota-is-sdk';
-import { ApiVersion, IdentityClient, UserType } from 'iota-is-sdk';
+import { ApiVersion, IdentityClient, searchCriteria, User, UserType } from 'iota-is-sdk';
 import { derived } from 'svelte/store';
 
 const config: ClientConfig = {
@@ -10,9 +11,13 @@ const config: ClientConfig = {
 };
 export const identityClient = new IdentityClient(config);
 
-export const jwt = persistent<string>('jwt', undefined);
+export const jwt = persistent<string>('jwt', null);
 
 export const authenticated = derived(jwt, $jwt => !!$jwt);
+
+jwt?.subscribe($jwt => {
+    identityClient.jwtToken = $jwt;
+})
 
 /**
  * Authenticates the user to the api for requests where authentication is needed
@@ -35,7 +40,6 @@ export async function authenticate(id: string, secret: string): Promise<boolean>
  * @returns void
  */
 export function logout(): void {
-    identityClient.jwtToken = null;
     jwt.set(undefined);
 }
 
@@ -54,4 +58,59 @@ export async function register(username?: string, claimType = UserType.Person, c
         console.error('There was an error authenticating', e)
     }
     return registeredIdentity
+}
+
+export async function searchIdentities(query: string): Promise<(User & { type?: UserType | string; vc?: number })[]> {
+
+    const _isDID = (query: string): boolean => query.startsWith('did:iota:');
+    const _isType = (query: string): boolean => Object.values(UserType).some(userType => userType.toLowerCase() === query.toLowerCase());
+
+    let _searchResult: User[] = [];
+    const searchResult: (User & { type?: UserType | string; vc?: number })[] = [];
+
+    if (_isDID(query)) {
+        try {
+            _searchResult = [await identityClient.find(query)];
+        }
+        catch (e) {
+            console.error('There was an error searching for user', e)
+        }
+    } else if (_isType(query)) {
+        try {
+            _searchResult = await identityClient.search({
+                username: undefined,
+                type: query,
+                limit: MAXIMUM_SEARCH_RESULTS
+            } as searchCriteria)
+        }
+        catch (e) {
+            console.error('There was an error searching for user', e)
+        }
+    } else {
+        try {
+            _searchResult = await identityClient.search({
+                username: query,
+                type: undefined,
+                limit: MAXIMUM_SEARCH_RESULTS
+            } as searchCriteria)
+        }
+        catch (e) {
+            console.error('There was an error searching for user', e)
+        }
+    }
+
+    for await (const identity of _searchResult) {
+        try {
+            const _userDetails = await identityClient.find(identity.id);
+            searchResult.push({
+                ...identity,
+                type: _userDetails?.claim?.type,
+                vc: _userDetails?.verifiableCredentials?.length ?? 0
+            })
+        }
+        catch (e) {
+            console.error('There was an error searching for user', e)
+        }
+    }
+    return searchResult
 }

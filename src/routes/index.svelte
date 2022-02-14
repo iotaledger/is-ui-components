@@ -3,13 +3,8 @@
 </script>
 
 <script lang="ts">
-	import { Container, Row, Col, ListGroup, ListGroupItem } from 'sveltestrap';
-	const SITE_PAGES = [
-		{ title: 'Register and Login', url: '/login-register' },
-		{ title: 'SSI Bridge', url: '/ssi-bridge' },
-		{ title: 'Audit Trail', url: '/audit-trail' },
-		{ title: 'Admin Page', url: '/admin' }
-	];
+	import { Col, Container, ListGroup, ListGroupItem, Row } from 'sveltestrap';
+	import { SITE_PAGES } from './__layout.svelte';
 </script>
 
 <svelte:head>

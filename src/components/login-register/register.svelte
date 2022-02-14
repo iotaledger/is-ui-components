@@ -76,8 +76,6 @@
 			</div>
 			<h1 class="mb-1">Register a new DID</h1>
 			<div>
-				<!-- TODO: add bootstrap pointer classes -->
-				<!-- source: https://5balloons.info/cursor-pointer-and-other-classes-for-bootstrap-5/ -->
 				or
 				<span class="text-primary cursor-pointer" on:click={switchToLogin}>log in with DID</span>
 			</div>

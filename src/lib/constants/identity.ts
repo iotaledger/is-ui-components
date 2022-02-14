@@ -86,3 +86,5 @@ export const VC_TEMPLATES = [
         required: true
     }
 ];
+
+export const MAXIMUM_SEARCH_RESULTS = 100;

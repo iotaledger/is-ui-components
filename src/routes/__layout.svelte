@@ -1,19 +1,24 @@
+<script context="module" lang="ts">
+	export const SITE_PAGES = [
+		{ title: 'Register and Login', url: '/login-register' },
+		{ title: 'Identity Manager', url: '/identity-manager' },
+		{ title: 'SSI Bridge', url: '/ssi-bridge' },
+		{ title: 'Audit Trail', url: '/audit-trail' },
+		{ title: 'Admin Page', url: '/admin' }
+	];
+</script>
+
 <script lang="ts">
 	import { Logo } from '$icons/';
 	import 'bootstrap/dist/css/bootstrap.min.css';
-	import { Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink } from 'sveltestrap';
+	import { Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'sveltestrap';
+	import '../scss/index.scss';
 
 	let isOpen = false;
 
 	function handleCollapse(event) {
 		isOpen = event.detail.isOpen;
 	}
-	const SITE_PAGES = [
-		{ title: 'Register and Login', url: '/login-register' },
-		{ title: 'SSI Bridge', url: '/ssi-bridge' },
-		{ title: 'Audit Trail', url: '/audit-trail' },
-		{ title: 'Admin Page', url: '/admin' }
-	];
 </script>
 
 <Navbar color="light" light expand="md">
@@ -44,6 +49,11 @@
 </main>
 
 <style lang="scss">
+	h1 {
+		font-weight: 600;
+		font-size: 24px;
+		line-height: 32px;
+	}
 	:global(.navbar) {
 		:global(.navbar-brand) {
 			display: flex;

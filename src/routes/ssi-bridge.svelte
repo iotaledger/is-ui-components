@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-	import { CreateVC, VerifyVC, Search, Details } from '$components';
+	import { CreateVC, Details, Search, VerifyVC } from '$components';
 	import { Col, Container, Row } from 'sveltestrap';
 </script>
 
@@ -55,11 +55,8 @@
 			margin-bottom: 30px;
 		}
 		.box {
-			border: 1px solid #cccc;
 			padding: 30px 20px;
-			border-radius: 10px;
 			height: 100%;
-			box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
 		}
 	}
 </style>
