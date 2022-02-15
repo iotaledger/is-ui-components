@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DIDIcon } from '$icons';
+	import { Icon } from '$components';
 	import { logout } from '$lib/identity';
 	import { Button } from 'sveltestrap';
 	import Box from './box.svelte';
@@ -15,7 +15,7 @@
 <Box>
 	<div class="d-flex flex-column align-items-center">
 		<div class="mb-4">
-			<DIDIcon />
+			<Icon type="identity" size={48} />
 		</div>
 		<h1 class="mb-4">Already Authenticated</h1>
 	</div>

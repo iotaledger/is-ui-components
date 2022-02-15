@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DIDIcon } from '$icons';
+	import { Icon } from '$components';
 	import { createJsonDataUrl } from '$lib/utils';
 	import type { IdentityJson, UserType } from 'iota-is-sdk';
 	import Box from './box.svelte';
@@ -21,7 +21,7 @@
 	</div>
 	<div class="info w-100 d-flex flex-column justify-content-center align-items-center p-4">
 		<div class="mb-3">
-			<DIDIcon />
+			<Icon type="identity" size={48} />
 		</div>
 		<span class="text-break px-2 px-md-5 pb-4 text-center mb-4">{identity?.doc?.id}</span>
 		<div class="d-flex justify-content-between align-items-center w-100 mb-1">

@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Spinner } from '$components';
-	import { DIDIcon } from '$icons';
+	import { Icon, Spinner } from '$components';
 	import { USERS } from '$lib/constants/identity';
 	import { register } from '$lib/identity';
 	import type { IUser } from '$lib/types/identity';
@@ -72,7 +71,7 @@
 	<Box>
 		<div class="mb-4 d-flex flex-column align-items-center">
 			<div class="mb-4">
-				<DIDIcon />
+				<Icon type="identity" size={48} />
 			</div>
 			<h1 class="mb-1">Register a new DID</h1>
 			<div>

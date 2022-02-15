@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Spinner } from '$components';
-	import { DIDIcon } from '$icons';
+	import { Icon, Spinner } from '$components';
 	import { authenticate } from '$lib/identity';
 	import type { IdentityJson } from 'iota-is-sdk';
 	import { onMount } from 'svelte';
@@ -47,7 +46,7 @@
 <Box>
 	<div class="mb-4 d-flex flex-column align-items-center">
 		<div class="mb-4">
-			<DIDIcon />
+			<Icon type="identity" size={48} />
 		</div>
 		<h1 class="mb-1">Log in with your DID</h1>
 		<div>

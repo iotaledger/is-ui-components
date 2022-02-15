@@ -1,6 +1,6 @@
 import { MAXIMUM_SEARCH_RESULTS } from '$lib/constants/identity';
 import { persistent } from '$lib/utils';
-import type { ClientConfig, IdentityJson } from 'iota-is-sdk';
+import type { ClientConfig, IdentityJson, VerifiableCredentialInternal } from 'iota-is-sdk';
 import { ApiVersion, IdentityClient, searchCriteria, User, UserType } from 'iota-is-sdk';
 import { derived } from 'svelte/store';
 
@@ -60,13 +60,13 @@ export async function register(username?: string, claimType = UserType.Person, c
     return registeredIdentity
 }
 
-export async function searchIdentities(query: string): Promise<(User & { type?: UserType | string; vc?: number })[]> {
+export async function searchIdentities(query: string): Promise<(User & { type?: UserType | string; vc?: VerifiableCredentialInternal[] })[]> {
 
     const _isDID = (query: string): boolean => query.startsWith('did:iota:');
     const _isType = (query: string): boolean => Object.values(UserType).some(userType => userType.toLowerCase() === query.toLowerCase());
 
     let _searchResult: User[] = [];
-    const searchResult: (User & { type?: UserType | string; vc?: number })[] = [];
+    const searchResult: (User & { type?: UserType | string; vc?: VerifiableCredentialInternal[] })[] = [];
 
     if (_isDID(query)) {
         try {
@@ -105,7 +105,7 @@ export async function searchIdentities(query: string): Promise<(User & { type?: 
             searchResult.push({
                 ...identity,
                 type: _userDetails?.claim?.type,
-                vc: _userDetails?.verifiableCredentials?.length ?? 0
+                vc: _userDetails?.verifiableCredentials
             })
         }
         catch (e) {

@@ -9,7 +9,6 @@
 </script>
 
 <script lang="ts">
-	import { Logo } from '$icons/';
 	import 'bootstrap/dist/css/bootstrap.min.css';
 	import { Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'sveltestrap';
 	import '../scss/index.scss';
@@ -24,7 +23,7 @@
 <Navbar color="light" light expand="md">
 	<NavbarBrand href="/">
 		<div class="logo-wrapper me-4 rounded-1">
-			<Logo />
+			<img alt="IOTA Logo" src="/assets/iota-logo.svg" />
 		</div>
 
 		<div class="info">

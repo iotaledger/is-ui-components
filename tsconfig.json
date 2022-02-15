@@ -21,11 +21,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"baseUrl": ".",
 		"allowJs": true,
-		"checkJs": true,
-		"paths": {
-			"$icons": ["src/icons"],
-			"$icons/*": ["src/icons/*"]
-		}
+		"checkJs": true
 	},
 	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"]
 }
