@@ -1,9 +1,12 @@
 <script lang="ts">
-	import { Dropdown, Icon, IdentityProfile, JSONViewer } from '$components';
+	import { Dropdown, Icon, IdentityProfile, JSONViewer, Spinner } from '$components';
 	import { createJsonDataUrl } from '$lib/utils';
 	import type { VerifiableCredentialBody } from 'iota-is-sdk/src';
+	import { Button } from 'sveltestrap';
 
 	export let vc: VerifiableCredentialBody;
+	export let revoking: boolean;
+	export let onRevoke: (vc: VerifiableCredentialBody) => void;
 
 	let { id, issuer, issuanceDate, credentialSubject } = vc;
 	let type = vc.type?.[1];
@@ -15,18 +18,30 @@
 			<IdentityProfile title="Credential" {type} hideType subtitle={type} size="medium" />
 		</div>
 		<div slot="body">
-			<div class="download position-absolute">
-				<a
-					href={createJsonDataUrl(vc)}
-					download={`verifiable-credential-${id}.json`}
-					class="download text-decoration-none text-primary ms-1"
-				>
-					<Icon type="download" />
-					<span>Download</span>
-				</a>
-			</div>
 			<div class="label pt-4">
-				<span>Credential ID</span>
+				<div class="d-flex justify-content-between align-items-center">
+					Credential ID
+					<div class="actions">
+						<div class="box my-2 py-1 px-2 d-flex align-items-center">
+							<a
+								href={createJsonDataUrl(vc)}
+								download={`verifiable-credential-${id}.json`}
+								class="download text-decoration-none text-primary ms-1"
+							>
+								<Icon type="download" />
+								<span>Download</span>
+							</a>
+						</div>
+						<Button outline color="danger" disabled={revoking}>
+							<div class="d-flex justify-content-center" on:click={() => onRevoke(vc)}>
+								<span>{revoking ? 'Revoking...' : 'Revoke'}</span>
+								{#if revoking}
+									<Spinner compact />
+								{/if}
+							</div>
+						</Button>
+					</div>
+				</div>
 				<div class="text-primary">{id}</div>
 			</div>
 			<div class="label pt-4">
@@ -54,9 +69,7 @@
 			font-size: 12px;
 			color: #828282;
 		}
-		.download {
-			top: 8px;
-			right: 24px;
+		.actions div {
 			font-weight: 600;
 			font-size: 14px;
 		}

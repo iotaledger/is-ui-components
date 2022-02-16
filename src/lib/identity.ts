@@ -1,7 +1,7 @@
 import { MAXIMUM_SEARCH_RESULTS } from '$lib/constants/identity';
 import type { ExtendedUser } from '$lib/types/identity';
 import { persistent } from '$lib/utils';
-import type { ClientConfig, CredentialTypes, IdentityJson, VerifiableCredentialInternal, VerifiableCredentialJson } from 'iota-is-sdk';
+import type { ClientConfig, CredentialTypes, IdentityJson, RevokeVerificationBody, VerifiableCredentialInternal, VerifiableCredentialJson } from 'iota-is-sdk';
 import { ApiVersion, IdentityClient, searchCriteria, User, UserType } from 'iota-is-sdk';
 import type { Writable } from 'svelte/store';
 import { derived, writable } from 'svelte/store';
@@ -143,6 +143,15 @@ export async function createVC(
     }
 
     return credential
+}
+
+export async function revokeVC(signatureValue: RevokeVerificationBody): Promise<void> {
+    try {
+        await identityClient.revokeCredential(signatureValue);
+    }
+    catch (e) {
+        console.error('There was an error revoking the credential', e)
+    }
 }
 
 export function updateSelectedIdentity(identity: ExtendedUser): void {

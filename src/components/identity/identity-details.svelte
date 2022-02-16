@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { CreateCredential, Credential, IdentityProfile } from '$components';
-	import { searchIdentities, updateSelectedIdentity } from '$lib/identity';
+	import { revokeVC, searchIdentities, updateSelectedIdentity } from '$lib/identity';
 	import type { UserType } from 'iota-is-sdk';
 
 	export let username: string;
@@ -14,6 +14,7 @@
 	}
 
 	let state: State = State.Details;
+	let revoking: boolean = false;
 
 	const switchToDetails = () => (state = State.Details);
 	const switchToAddCredential = () => (state = State.AddCredential);
@@ -25,6 +26,13 @@
 			onClick: switchToAddCredential
 		}
 	];
+
+	const handleRevoke = async (vc) => {
+		revoking = true;
+		await revokeVC({ signatureValue: vc.proof.signatureValue });
+		await updateCredentials();
+		revoking = false;
+	};
 
 	const updateCredentials = async () => {
 		const identities = await searchIdentities(id);
@@ -42,7 +50,9 @@
 	<div class="credentials">
 		{#each verifiableCredentials as vc}
 			<div class="credential mt-4">
-				<Credential {vc} />
+				{#key vc}
+					<Credential {vc} {revoking} onRevoke={handleRevoke} />
+				{/key}
 			</div>
 		{/each}
 	</div>
