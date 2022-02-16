@@ -110,7 +110,7 @@ export async function searchIdentities(query: string): Promise<ExtendedUser[]> {
             searchResult.push({
                 ...identity,
                 type: _userDetails?.claim?.type,
-                verifiableCredentials: _userDetails?.verifiableCredentials
+                verifiableCredentials: _userDetails?.verifiableCredentials ?? []
             })
         }
         catch (e) {
