@@ -1,7 +1,7 @@
-import type { IUser } from '$lib/types/identity';
+import type { RegistrationUser } from '$lib/types/identity';
 import { UserType } from 'iota-is-sdk';
 
-export const USERS: IUser[] = [
+export const USERS: RegistrationUser[] = [
     {
         type: UserType.Person,
         fields: [
@@ -72,18 +72,42 @@ export const USERS: IUser[] = [
 
 export const VC_TEMPLATES = [
     {
-        id: 'full_name',
-        name: 'Full name',
-        type: "text",
+        id: 'demo_template_1',
+        name: 'Demo Template 1',
+        fields: [
+            {
+                id: "full_name",
+                label: 'Full name',
+                type: 'text',
+                required: true
+            },
+            {
+                id: "birth_date",
+                label: 'Birth date',
+                type: 'date',
+                required: true
+            }
+        ],
         userType: UserType.Person,
-        required: true
     },
     {
-        id: 'birth_date',
-        name: 'Birth date',
-        type: "date",
+        id: 'demo_template_2',
+        name: 'Demo Template 2',
+        fields: [
+            {
+                id: "country",
+                label: 'Country',
+                type: 'text',
+                required: true
+            },
+            {
+                id: "genre",
+                label: 'Genre',
+                type: 'text',
+                required: false
+            }
+        ],
         userType: UserType.Person,
-        required: true
     }
 ];
 

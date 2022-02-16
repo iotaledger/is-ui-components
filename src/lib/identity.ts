@@ -1,8 +1,10 @@
 import { MAXIMUM_SEARCH_RESULTS } from '$lib/constants/identity';
+import type { ExtendedUser } from '$lib/types/identity';
 import { persistent } from '$lib/utils';
-import type { ClientConfig, IdentityJson, VerifiableCredentialInternal } from 'iota-is-sdk';
+import type { ClientConfig, CredentialTypes, IdentityJson, VerifiableCredentialInternal, VerifiableCredentialJson } from 'iota-is-sdk';
 import { ApiVersion, IdentityClient, searchCriteria, User, UserType } from 'iota-is-sdk';
-import { derived } from 'svelte/store';
+import type { Writable } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
 
 const config: ClientConfig = {
     apiKey: import.meta.env.VITE_API_KEY as string, // Deployed Integration Services API KEY
@@ -10,14 +12,15 @@ const config: ClientConfig = {
     apiVersion: ApiVersion.v01
 };
 export const identityClient = new IdentityClient(config);
-
 export const jwt = persistent<string>('jwt', null);
-
 export const authenticated = derived(jwt, $jwt => !!$jwt);
 
 jwt?.subscribe($jwt => {
     identityClient.jwtToken = $jwt;
 })
+
+export const searchResults: Writable<ExtendedUser[]> = writable([]);
+export const selectedIdentity: Writable<ExtendedUser> = writable(null);
 
 /**
  * Authenticates the user to the api for requests where authentication is needed
@@ -60,17 +63,18 @@ export async function register(username?: string, claimType = UserType.Person, c
     return registeredIdentity
 }
 
-export async function searchIdentities(query: string): Promise<(User & { type?: UserType | string; vc?: VerifiableCredentialInternal[] })[]> {
+export async function searchIdentities(query: string): Promise<ExtendedUser[]> {
 
     const _isDID = (query: string): boolean => query.startsWith('did:iota:');
     const _isType = (query: string): boolean => Object.values(UserType).some(userType => userType.toLowerCase() === query.toLowerCase());
 
     let _searchResult: User[] = [];
-    const searchResult: (User & { type?: UserType | string; vc?: VerifiableCredentialInternal[] })[] = [];
+    const searchResult: ExtendedUser[] = [];
 
     if (_isDID(query)) {
         try {
-            _searchResult = [await identityClient.find(query)];
+            const _identity = await identityClient.find(query);
+            _searchResult.push(_identity);
         }
         catch (e) {
             console.error('There was an error searching for user', e)
@@ -99,13 +103,14 @@ export async function searchIdentities(query: string): Promise<(User & { type?: 
         }
     }
 
+    // TODO: remove when the endpoint is fixed to return the type
     for await (const identity of _searchResult) {
         try {
             const _userDetails = await identityClient.find(identity.id);
             searchResult.push({
                 ...identity,
                 type: _userDetails?.claim?.type,
-                vc: _userDetails?.verifiableCredentials
+                verifiableCredentials: _userDetails?.verifiableCredentials
             })
         }
         catch (e) {
@@ -113,4 +118,40 @@ export async function searchIdentities(query: string): Promise<(User & { type?: 
         }
     }
     return searchResult
+}
+
+export async function createVC(
+    initiatorVC: VerifiableCredentialInternal | undefined,
+    targetDid: string,
+    credentialType: CredentialTypes,
+    claimType: UserType,
+    claim?: any): Promise<VerifiableCredentialJson> {
+
+    let credential
+
+    try {
+        credential = await identityClient.createCredential(
+            initiatorVC,
+            targetDid,
+            credentialType,
+            claimType,
+            claim
+        );
+    }
+    catch (e) {
+        console.error('There was an error creating the credential', e)
+    }
+
+    return credential
+}
+
+export function updateSelectedIdentity(identity: ExtendedUser): void {
+    selectedIdentity.set(identity);
+    searchResults?.update(_searchResults => {
+        const index = _searchResults.findIndex(user => user.id === identity.id);
+        if (index !== -1) {
+            _searchResults[index] = identity;
+        }
+        return _searchResults;
+    })
 }

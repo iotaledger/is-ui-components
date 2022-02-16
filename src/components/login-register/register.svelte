@@ -2,7 +2,7 @@
 	import { Icon, Spinner } from '$components';
 	import { USERS } from '$lib/constants/identity';
 	import { register } from '$lib/identity';
-	import type { IUser } from '$lib/types/identity';
+	import type { RegistrationUser } from '$lib/types/identity';
 	import type { IdentityJson } from 'iota-is-sdk';
 	import { UserType } from 'iota-is-sdk';
 	import { Button, Form, FormGroup, Input, Label } from 'sveltestrap';
@@ -11,7 +11,7 @@
 
 	export let switchToLogin: () => void = () => {};
 
-	let selectedUser: IUser;
+	let selectedUser: RegistrationUser;
 	let inputFields = {};
 	let loading = false;
 	let registeredIdentity: IdentityJson;

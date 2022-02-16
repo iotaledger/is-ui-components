@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { Icon, IdentityDetails, IdentityProfile, Spinner } from '$components';
-	import { searchIdentities } from '$lib/identity';
-	import type { User, UserType, VerifiableCredentialInternal } from 'iota-is-sdk';
+	import {
+		searchIdentities,
+		searchResults,
+		selectedIdentity,
+		updateSelectedIdentity
+	} from '$lib/identity';
+	import type { ExtendedUser } from '$lib/types/identity';
 	import { onMount } from 'svelte';
 	import { Col, Column, Input, Table } from 'sveltestrap';
 	import Box from '../login-register/box.svelte';
@@ -14,28 +19,43 @@
 	let state: State = State.ListIdentities;
 	let loading = false;
 	let query: string = '';
-	let searchResult: (User & { type?: UserType; vc?: VerifiableCredentialInternal[] })[] = [];
 	let message: string;
+
+	$: $selectedIdentity, updateState();
 
 	onMount(async () => {
 		// Pre-load the first 100 identities
-		searchResult = await searchIdentities('');
+		loading = true;
+		$searchResults = await searchIdentities('');
+		loading = false;
 	});
 
 	async function onSearch() {
 		loading = true;
-		searchResult = await searchIdentities(query);
-		if (searchResult?.length) {
+		$searchResults = await searchIdentities(query);
+		if ($searchResults?.length) {
 			message = undefined;
 		} else {
 			message = 'No identities found';
 		}
 		loading = false;
 	}
-	const switchToListIdentities = () => (state = State.ListIdentities);
-	const switchToIdentityDetails = () => (state = State.IdentityDetail);
 
-	let selectedIdentity;
+	function updateState(): void {
+		if ($selectedIdentity) {
+			state = State.IdentityDetail;
+		} else {
+			state = State.ListIdentities;
+		}
+	}
+
+	const handleBlackClick = () => {
+		$selectedIdentity = undefined;
+	};
+
+	function handleSelectIdentity(identity: ExtendedUser) {
+		updateSelectedIdentity(identity);
+	}
 </script>
 
 <Box>
@@ -63,14 +83,13 @@
 					<Icon type="search" />
 				</button>
 			</div>
-			{#if searchResult?.length}
+			{#if $searchResults?.length}
 				<div class="identities-table mt-4">
-					<Table responsive rows={searchResult} let:row>
+					<Table responsive rows={$searchResults} let:row>
 						<div
 							class="data-wrapper"
 							on:click={() => {
-								selectedIdentity = row;
-								switchToIdentityDetails();
+								handleSelectIdentity(row);
 							}}
 						>
 							<Column header="Identity" width="8rem">
@@ -83,7 +102,7 @@
 								{row.registrationDate}
 							</Column>
 							<Column header="Credentials" width="8rem">
-								{row.vc?.length ?? 0}
+								{row.verifiableCredentials?.length ?? 0}
 							</Column>
 						</div>
 					</Table>
@@ -102,17 +121,17 @@
 
 	{#if state === State.IdentityDetail}
 		<div class="mb-4 align-self-start">
-			<button on:click={switchToListIdentities} class="go-back btn d-flex align-items-center">
+			<button on:click={handleBlackClick} class="go-back btn d-flex align-items-center">
 				<Icon type="arrow-left" />
 				<span class="ms-2">Back</span>
 			</button>
 		</div>
 
 		<IdentityDetails
-			username={selectedIdentity.username}
-			type={selectedIdentity.type}
-			id={selectedIdentity.id}
-			verifiableCredentials={selectedIdentity.vc}
+			username={$selectedIdentity.username}
+			type={$selectedIdentity.type}
+			id={$selectedIdentity.id}
+			verifiableCredentials={$selectedIdentity.verifiableCredentials}
 		/>
 	{/if}
 </Box>

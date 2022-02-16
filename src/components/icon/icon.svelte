@@ -8,6 +8,7 @@
 		Identity,
 		Individual,
 		Organization,
+		Plus,
 		Search
 	} from './icons';
 
@@ -20,6 +21,7 @@
 		identity: Identity,
 		individual: Individual,
 		organization: Organization,
+		plus: Plus,
 		search: Search
 	};
 
