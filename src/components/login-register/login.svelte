@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { Icon, Spinner } from '$components';
+	import { Icon } from '$components';
 	import { authenticate } from '$lib/identity';
 	import type { IdentityJson } from 'iota-is-sdk';
 	import { onMount } from 'svelte';
 	import Dropzone from 'svelte-file-dropzone';
-	import { Button } from 'sveltestrap';
+	import { Button, Spinner } from 'sveltestrap';
 	import Box from './box.svelte';
 
 	export let switchToRegister: () => void = () => {};
@@ -51,7 +51,8 @@
 		<h1 class="mb-1">Log in with your DID</h1>
 		<div>
 			or
-			<span class="text-primary cursor-pointer" on:click={switchToRegister}>register a new DID</span>
+			<span class="text-primary cursor-pointer" on:click={switchToRegister}>register a new DID</span
+			>
 		</div>
 	</div>
 	<div class="w-100">
@@ -70,7 +71,7 @@
 		<div class="text-center d-flex flex-row align-items-center justify-content-center">
 			{#if loading}
 				<div class="me-1">Processing...</div>
-				<Spinner compact />
+				<Spinner size="sm" type="border" color="light" />
 			{:else}
 				<div>Log in</div>
 			{/if}

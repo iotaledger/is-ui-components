@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Icon, IdentityDetails, IdentityProfile, Spinner, CreateIdentity } from '$components';
+	import { Icon, IdentityDetails, IdentityProfile, CreateIdentity } from '$components';
 	import {
 		searchIdentities,
 		searchResults,
@@ -10,7 +10,7 @@
 	import type { ExtendedUser } from '$lib/types/identity';
 	import type { IdentityJson } from 'iota-is-sdk/src';
 	import { onMount } from 'svelte';
-	import { Col, Column, Input, Table } from 'sveltestrap';
+	import { Input, Spinner, ListGroup, ListGroupItem } from 'sveltestrap';
 	import Box from '../login-register/box.svelte';
 
 	enum State {
@@ -77,7 +77,7 @@
 
 <Box>
 	{#if state === State.ListIdentities}
-		<div class="identity-manager p-4 w-100 h-100 d-flex flex-column">
+		<div class="identity-manager w-100 h-100 d-flex flex-column">
 			<div class="mb-4 d-flex flex-row align-items-center justify-content-between">
 				<h1>Identities</h1>
 				<div class="box d-flex align-items-center">
@@ -88,15 +88,16 @@
 				</div>
 				{#if loading}
 					<div class="ms-1">
-						<Spinner compact />
+						<Spinner type="border" color="light" />
 					</div>
 				{/if}
 			</div>
-			<div class="position-relative">
+			<div class="search mb-4 position-relative">
 				<Input
 					type="text"
 					placeholder="Search for identities..."
 					autofocus
+					class="position-relative ps-5"
 					bind:value={query}
 					on:keypress={(e) => {
 						if (e.key === 'Enter') onSearch();
@@ -107,37 +108,41 @@
 				</button>
 			</div>
 			{#if $searchResults?.length}
-				<div class="identities-table mt-4">
-					<Table responsive rows={$searchResults} let:row>
-						<div
-							class="data-wrapper"
+				<ListGroup flush>
+					<ListGroupItem>
+						<div class="d-flex justify-content-between align-items-center">
+							<div class="item">Identity</div>
+							<div class="item">Type</div>
+							<div class="item">Date created</div>
+							<div class="item">Credentials</div>
+						</div>
+					</ListGroupItem>
+					{#each $searchResults as identity}
+						<ListGroupItem
+							tag="button"
+							action
+							class="border-bottom"
 							on:click={() => {
-								handleSelectIdentity(row);
+								handleSelectIdentity(identity);
 							}}
 						>
-							<Column header="Identity" width="8rem">
-								<IdentityProfile title={row.username} type={row.type} hideType />
-							</Column>
-							<Column header="Type" width="8rem">
-								{row.type}
-							</Column>
-							<Column header="Date created" width="8rem">
-								{row.registrationDate}
-							</Column>
-							<Column header="Credentials" width="8rem">
-								{row.verifiableCredentials?.length ?? 0}
-							</Column>
-						</div>
-					</Table>
-				</div>
+							<div class="d-flex justify-content-between align-items-center">
+								<div class="item">
+									<IdentityProfile title={identity.username} type={identity.type} hideType />
+								</div>
+								<div class="item">{identity.type}</div>
+								<div class="item">{identity.registrationDate}</div>
+								<div class="item">{identity.verifiableCredentials?.length ?? 0}</div>
+							</div>
+						</ListGroupItem>
+					{/each}
+				</ListGroup>
 			{/if}
 
 			{#if message}
-				<Col sm="12" md={{ size: 10, offset: 1 }} lg={{ size: 6, offset: 3 }}>
-					<div class="mt-4 text-center">
-						{message}
-					</div>
-				</Col>
+				<div class="text-center">
+					{message}
+				</div>
 			{/if}
 		</div>
 	{/if}
@@ -173,64 +178,18 @@
 				transform: translateY(-50%);
 			}
 		}
-
-		button {
-			top: 50%;
-			left: 8px;
-			transform: translateY(-50%);
-		}
-		.table {
-			.data-wrapper {
-				display: grid;
-				grid-template-columns: repeat(4, 0.5fr);
-				align-items: center;
-				border-bottom: 1px solid #f2f2f2;
-				grid-column-gap: 1rem;
-				@media (min-width: 990px) {
-					grid-template-columns: repeat(4, 1fr);
-				}
+		.item {
+			flex: 1 1 0;
+			white-space: nowrap;
+			overflow: hidden !important;
+			text-overflow: ellipsis;
+			margin-right: 20px;
+			&:last-child {
+				margin-right: 0px;
 			}
 		}
 	}
 	.go-back {
 		font-weight: 500;
-		color: #828282;
-	}
-	:global(.form-control) {
-		padding-left: 50px;
-		&:focus {
-			border-color: #ced4d9;
-			box-shadow: none;
-		}
-	}
-
-	:global(.identities-table thead, .identities-table tbody, .identities-table th) {
-		border-top: 0 !important;
-	}
-	:global(tfoot) {
-		display: none;
-	}
-	:global(thead) {
-		:global(th) {
-			font-size: 14px;
-		}
-	}
-	:global(tbody) {
-		:global(tr) {
-			vertical-align: middle;
-			&:hover {
-				background-color: rgb(246, 252, 255);
-			}
-			:global(td) {
-				text-transform: capitalize;
-				font-size: 14px;
-				@media (min-width: 990px) {
-					font-size: 16px;
-				}
-			}
-		}
-	}
-	:global(.table > :not(caption) > * > *) {
-		padding: 16px 6px;
 	}
 </style>

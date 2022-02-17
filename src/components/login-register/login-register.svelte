@@ -32,7 +32,7 @@
 	};
 </script>
 
-<div class="login-register">
+<div>
 	{#if state === State.AlreadyAuthenticated}
 		<Logout {switchToLogin} />
 	{:else if state === State.Login}

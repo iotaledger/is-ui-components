@@ -1,10 +1,18 @@
 <script lang="ts">
-	import { Spinner } from '$components';
 	import { VC_TEMPLATES } from '$lib/constants/identity';
 	import { createVC } from '$lib/identity';
 	import { createJsonDataUrl } from '$lib/utils';
 	import { CredentialTypes, VerifiableCredentialJson } from 'iota-is-sdk';
-	import { Button, FormGroup, Input, Label, Modal, ModalBody, ModalHeader } from 'sveltestrap';
+	import {
+		Button,
+		FormGroup,
+		Input,
+		Label,
+		Modal,
+		ModalBody,
+		ModalHeader,
+		Spinner
+	} from 'sveltestrap';
 
 	export let isOpen: boolean = false;
 	export let onModalClose: () => void = () => {};
@@ -75,7 +83,7 @@
 </script>
 
 <Modal {isOpen} toggle={onModalClose}>
-	<ModalHeader toggle={onModalClose} class="text-primary px-4 pt-3">Add a credential</ModalHeader>
+	<ModalHeader toggle={onModalClose} class="px-4 pt-3">Add a credential</ModalHeader>
 	<ModalBody class="px-4 pb-4">
 		<div>
 			<FormGroup>
@@ -138,7 +146,7 @@
 				<div class="d-flex justify-content-center align-items-center">
 					{loading ? 'Creating VC...' : 'Add a new credential'}
 					{#if loading}
-						<div class="ms-2"><Spinner compact /></div>
+						<div class="ms-2"><Spinner size="sm" type="border" color="light" /></div>
 					{/if}
 				</div>
 			</Button>

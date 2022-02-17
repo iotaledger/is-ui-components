@@ -19,11 +19,15 @@
 			<span class="text-primary cursor-pointer" on:click={switchToLogin}>Log in with DID</span>
 		</div>
 	</div>
-	<div class="info w-100 d-flex flex-column justify-content-center align-items-center p-4">
+	<div
+		class="bg-light rounded w-100 d-flex flex-column justify-content-center align-items-center p-4"
+	>
 		<div class="mb-3">
 			<Icon type="identity" size={48} />
 		</div>
-		<span class="text-break px-2 px-md-5 pb-4 text-center mb-4">{identity?.doc?.id}</span>
+		<span class="border-bottom text-break px-2 px-md-5 pb-4 text-center mb-4"
+			>{identity?.doc?.id}</span
+		>
 		<div class="d-flex justify-content-between align-items-center w-100 mb-1">
 			<p>Type</p>
 			<p>{type}</p>
@@ -42,13 +46,3 @@
 		Save identity
 	</a>
 </Box>
-
-<style lang="scss">
-	.info {
-		background: #f9f9f9;
-		border-radius: 6px;
-		span {
-			border-bottom: 1px solid #e7ebf1;
-		}
-	}
-</style>

@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { Spinner } from '$components';
 	import { VC_TEMPLATES } from '$lib/constants/identity';
 	import { identityClient } from '$lib/identity';
 	import { createJsonDataUrl } from '$lib/utils';
 	import { CredentialTypes, VerifiableCredentialJson } from 'iota-is-sdk';
-	import { Button, FormGroup, Input } from 'sveltestrap';
+	import { Button, FormGroup, Input, Spinner } from 'sveltestrap';
 
 	let targetDidId: string;
 	let verifiableCredential: VerifiableCredentialJson;
@@ -47,7 +46,7 @@
 		<FormGroup floating label={`Target DID id*`}>
 			<Input type="text" placeholder="Target DID" bind:value={targetDidId} />
 		</FormGroup>
-		<Input type="select" name="select" bind:value={selectedCredential}>
+		<Input type="select" name="select" class="mb-4" bind:value={selectedCredential}>
 			{#each Object.values(CredentialTypes) as _credential}
 				<option
 					value={_credential}
@@ -61,7 +60,13 @@
 		</Input>
 	</FormGroup>
 
-	<Input type="select" name="select" bind:value={selectedTemplate} on:change={resetInputFields}>
+	<Input
+		type="select"
+		name="select"
+		bind:value={selectedTemplate}
+		class="mb-4"
+		on:change={resetInputFields}
+	>
 		{#each VC_TEMPLATES as template}
 			<option value={template}>
 				{template.name}
@@ -77,9 +82,9 @@
 	{/if}
 
 	<Button
-		size="lg"
 		color="primary"
 		disabled={!isValid() || loading}
+		class="mt-4"
 		on:click={async () => {
 			deleteEmptyAttributes();
 			loading = true;
@@ -97,30 +102,14 @@
 		<div class="d-flex justify-content-between">
 			{loading ? 'Creating VC...' : 'Create'}
 			{#if loading}
-				<div class="ms-2"><Spinner compact /></div>
+				<div class="ms-2"><Spinner size="sm" type="border" color="light" /></div>
 			{/if}
 		</div>
 	</Button>
 	{#if verifiableCredential}
-		<div class="download">
+		<div class="mt-4">
 			<span>Verifiable credential created. </span>
 			<a href={createJsonDataUrl(verifiableCredential)} download="vc.json">Download</a>
 		</div>
 	{/if}
 </div>
-
-<style lang="scss">
-	div {
-		:global(button) {
-			padding: 8px 24px;
-			font-size: 14px;
-			margin-top: 20px;
-		}
-		:global(select) {
-			margin-bottom: 20px;
-		}
-		.download {
-			margin-top: 30px;
-		}
-	}
-</style>

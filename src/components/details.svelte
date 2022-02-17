@@ -15,7 +15,7 @@
 </script>
 
 {#if identity}
-	<div class="box">
+	<div>
 		<FormGroup floating label="Id">
 			<Input type="text" value={identity?.id} readonly />
 		</FormGroup>

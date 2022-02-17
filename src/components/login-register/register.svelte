@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { Icon, Spinner } from '$components';
+	import { Icon } from '$components';
 	import { USERS } from '$lib/constants/identity';
 	import { register } from '$lib/identity';
 	import type { RegistrationUser } from '$lib/types/identity';
 	import type { IdentityJson } from 'iota-is-sdk';
 	import { UserType } from 'iota-is-sdk';
-	import { Button, Form, FormGroup, Input, Label } from 'sveltestrap';
+	import { Button, Form, FormGroup, Input, Label, Spinner } from 'sveltestrap';
 	import Box from './box.svelte';
 	import RegisterSuccess from './register-success.svelte';
 
@@ -127,7 +127,7 @@
 			<div class="text-center d-flex flex-row align-items-center justify-content-center">
 				{#if loading}
 					<div class="me-1">Registering identity...</div>
-					<Spinner compact />
+					<Spinner size="sm" type="border" color="light" />
 				{:else}
 					<div>Register a new DID</div>
 				{/if}

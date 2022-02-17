@@ -4,7 +4,7 @@
 	export let json: string;
 </script>
 
-<div class="json-viewer text-primary">
+<div class="json-viewer">
 	{@html json === undefined ? 'undefined' : syntaxHighlight(json)}
 </div>
 
