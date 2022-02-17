@@ -79,7 +79,7 @@
 	<ModalHeader toggle={onModalClose} class="px-4 pt-3">Add a credential</ModalHeader>
 	<ModalBody class="px-4 pb-4">
 		<div>
-			<FormGroup>
+			<FormGroup class="mb-4">
 				<Label>Credential type</Label>
 				<Input
 					type="select"
@@ -104,6 +104,7 @@
 			<Input
 				type="select"
 				name="select"
+				class="mb-4"
 				bind:value={selectedTemplate}
 				on:change={handleInputChange}
 			>
@@ -117,7 +118,7 @@
 				{#each selectedTemplate.fields as { id, label, type, required }}
 					<div class="mb-4">
 						<Label>{label}</Label>
-						<FormGroup floating label={`${label}${required ? '*' : ''}`}>
+						<FormGroup class="mb-4" floating label={`${label}${required ? '*' : ''}`}>
 							<Input
 								{type}
 								placeholder={`${label}${required ? '*' : ''}`}
@@ -132,6 +133,7 @@
 			<Button
 				size="lg"
 				block
+				class="mt-4"
 				color="primary"
 				disabled={!isValid() || loading}
 				on:click={handleCreateVC}
@@ -144,7 +146,7 @@
 				</div>
 			</Button>
 			{#if verifiableCredential}
-				<div class="download">
+				<div class="mt-4">
 					<span>Verifiable credential created. </span>
 					<a href={createJsonDataUrl(verifiableCredential)} download="vc.json">Download</a>
 				</div>
@@ -154,21 +156,7 @@
 </Modal>
 
 <style lang="scss">
-	div {
-		:global(button) {
-			margin-top: 20px;
-		}
-		:global(select) {
-			margin-bottom: 20px;
-		}
-		.download {
-			margin-top: 30px;
-		}
-	}
 	:global(.modal-header) {
 		border-bottom: 0 !important;
 	}
-	/* :global(.modal-body) {
-		padding: 32px ;
-	} */
 </style>

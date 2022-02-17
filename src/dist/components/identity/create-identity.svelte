@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { IdentityJson } from 'iota-is-sdk';
 	import { UserType } from 'iota-is-sdk';
-	import { Button, Form, FormGroup, Input, Label, ModalBody, ModalHeader } from 'sveltestrap';
+	import { Button, Spinner, FormGroup, Input, Label, ModalBody, ModalHeader } from 'sveltestrap';
 	// We have to import Modal by this way because with a regular import it has SSR issues.
 	import Modal from 'sveltestrap/src/Modal.svelte';
 	import { USERS } from './../../lib/constants/identity';
@@ -75,40 +75,38 @@
 	<ModalHeader toggle={onModalClose} class="text-primary px-4 pt-3">Create identity</ModalHeader>
 
 	<ModalBody class="px-4 pb-4">
-		<div class="w-100">
-			<Form>
-				<FormGroup class="mb-4">
-					<Label class="mb-2">ID type</Label>
-					<Input
-						class="py-3 ps-3"
-						type="select"
-						name="select"
-						bind:value={selectedUserType}
-						on:change={resetInputFields}
-					>
-						{#each USERS as _user, i}
-							<option value={_user.type}>
-								{_user.type}
-							</option>
-						{/each}
-					</Input>
-				</FormGroup>
-				{#if selectedUser}
-					{#each selectedUser?.fields as { name, required }}
-						<FormGroup class="mb-4">
-							<Label class="text-capitalize mb-2">{`${name}${required ? '*' : ''}`}</Label>
-							<Input
-								id={`input-${name}-${selectedUser.type}`}
-								class="py-3 ps-3"
-								placeholder={name}
-								bind:value={inputFields[name]}
-								{required}
-								on:keydown={() => (registeredIdentity = null)}
-							/>
-						</FormGroup>
+		<div>
+			<FormGroup class="mb-4">
+				<Label class="mb-2">ID type</Label>
+				<Input
+					class="py-3 ps-3"
+					type="select"
+					name="select"
+					bind:value={selectedUserType}
+					on:change={resetInputFields}
+				>
+					{#each USERS as _user, i}
+						<option value={_user.type}>
+							{_user.type}
+						</option>
 					{/each}
-				{/if}
-			</Form>
+				</Input>
+			</FormGroup>
+			{#if selectedUser}
+				{#each selectedUser?.fields as { name, required }}
+					<FormGroup class="mb-4">
+						<Label class="text-capitalize mb-2">{`${name}${required ? '*' : ''}`}</Label>
+						<Input
+							id={`input-${name}-${selectedUser.type}`}
+							class="py-3 ps-3"
+							placeholder={name}
+							bind:value={inputFields[name]}
+							{required}
+							on:keydown={() => (registeredIdentity = null)}
+						/>
+					</FormGroup>
+				{/each}
+			{/if}
 		</div>
 		<Button
 			size="lg"
@@ -118,8 +116,12 @@
 			disabled={!isValid || loading}
 			type="submit"
 			on:click={handleRegister}
-		>
-			{loading ? 'Creating...' : 'Create identity'}
+			><div class="d-flex justify-content-center align-items-center">
+				{loading ? 'Creating...' : 'Create identity'}
+				{#if loading}
+					<div class="ms-2"><Spinner size="sm" type="border" color="light" /></div>
+				{/if}
+			</div>
 		</Button>
 
 		{#if registeredIdentity}
