@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { Icon } from '$components';
-	import { authenticate } from '$lib/identity';
 	import type { IdentityJson } from 'iota-is-sdk';
 	import { onMount } from 'svelte';
 	import Dropzone from 'svelte-file-dropzone';
 	import { Button, Spinner } from 'sveltestrap';
+	import { Icon } from './../../components';
+	import { authenticate } from './../../lib/identity';
 	import Box from './box.svelte';
 
 	export let switchToRegister: () => void = () => {};

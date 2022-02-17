@@ -1,5 +1,5 @@
-import type { RegistrationUser } from '$lib/types/identity';
 import { UserType } from 'iota-is-sdk';
+import type { RegistrationUser } from '../types/identity';
 
 export const USERS: RegistrationUser[] = [
     {

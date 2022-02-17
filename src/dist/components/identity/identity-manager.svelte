@@ -1,17 +1,18 @@
 <script lang="ts">
-	import { Icon, IdentityDetails, IdentityProfile, CreateIdentity } from '$components';
+	import { onMount } from 'svelte';
+	import { ListGroup, ListGroupItem, Spinner } from 'sveltestrap';
+	// We have to import Input by this way because with a regular import it has SSR issues.
+	import Input from 'sveltestrap/src/Input.svelte';
+	import Box from '../login-register/box.svelte';
+	import { CreateIdentity, Icon, IdentityDetails, IdentityProfile } from './../../components';
 	import {
 		searchIdentities,
 		searchResults,
 		selectedIdentity,
-		updateSelectedIdentity,
-		updateIdentities
-	} from '$lib/identity';
-	import type { ExtendedUser } from '$lib/types/identity';
-	import type { IdentityJson } from 'iota-is-sdk/src';
-	import { onMount } from 'svelte';
-	import { Input, Spinner, ListGroup, ListGroupItem } from 'sveltestrap';
-	import Box from '../login-register/box.svelte';
+		updateIdentities,
+		updateSelectedIdentity
+	} from './../../lib/identity';
+	import type { ExtendedUser } from './../../lib/types/identity';
 
 	enum State {
 		ListIdentities = 'listIdentities',

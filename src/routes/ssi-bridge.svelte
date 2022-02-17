@@ -3,8 +3,8 @@
 </script>
 
 <script lang="ts">
-	import { CreateVC, Details, Search, VerifyVC } from '$components';
 	import { Col, Container, Row } from 'sveltestrap';
+	import { CreateVC, Details, Search, VerifyVC } from './../dist/components';
 </script>
 
 <svelte:head>

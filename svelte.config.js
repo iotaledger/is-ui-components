@@ -18,6 +18,13 @@ const config = {
 		methodOverride: {
 			allowed: ['PATCH', 'DELETE']
 		},
+		files: {
+			lib: path.resolve('./src/dist')
+		},
+		package: {
+			dir: 'package',
+			emitTypes: true
+		},
 		vite: {
 			resolve: {
 				alias: {

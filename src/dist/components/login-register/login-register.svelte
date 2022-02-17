@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { authenticated } from '$lib/identity';
+	import { authenticated } from '../../lib/identity';
 	import { onMount } from 'svelte';
 	import Login from './login.svelte';
 	import Register from './register.svelte';

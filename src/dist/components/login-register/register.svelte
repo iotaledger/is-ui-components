@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { Icon } from '$components';
-	import { USERS } from '$lib/constants/identity';
-	import { register } from '$lib/identity';
-	import type { RegistrationUser } from '$lib/types/identity';
 	import type { IdentityJson } from 'iota-is-sdk';
 	import { UserType } from 'iota-is-sdk';
 	import { Button, Form, FormGroup, Input, Label, Spinner } from 'sveltestrap';
+	import { USERS } from '../../lib/constants/identity';
+	import { register } from '../../lib/identity';
+	import type { RegistrationUser } from '../../lib/types/identity';
+	import { Icon } from './../../components';
 	import Box from './box.svelte';
 	import RegisterSuccess from './register-success.svelte';
 

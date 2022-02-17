@@ -1,10 +1,10 @@
-import { MAXIMUM_SEARCH_RESULTS } from '$lib/constants/identity';
-import type { ExtendedUser } from '$lib/types/identity';
-import { persistent } from '$lib/utils';
 import type { ClientConfig, CredentialTypes, IdentityJson, RevokeVerificationBody, VerifiableCredentialInternal, VerifiableCredentialJson } from 'iota-is-sdk';
 import { ApiVersion, IdentityClient, searchCriteria, User, UserType } from 'iota-is-sdk';
 import type { Writable } from 'svelte/store';
 import { derived, writable } from 'svelte/store';
+import { MAXIMUM_SEARCH_RESULTS } from './constants/identity';
+import type { ExtendedUser } from './types/identity';
+import { persistent } from './utils';
 
 const config: ClientConfig = {
     apiKey: import.meta.env.VITE_API_KEY as string, // Deployed Integration Services API KEY

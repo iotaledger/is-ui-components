@@ -1,19 +1,12 @@
 <script lang="ts">
-	import { USERS } from '$lib/constants/identity';
-	import { register } from '$lib/identity';
-	import type { IUser } from '$lib/types/identity';
 	import type { IdentityJson } from 'iota-is-sdk';
 	import { UserType } from 'iota-is-sdk';
-	import {
-		Button,
-		Form,
-		FormGroup,
-		Input,
-		Label,
-		Modal,
-		ModalBody,
-		ModalHeader
-	} from 'sveltestrap';
+	import { Button, Form, FormGroup, Input, Label, ModalBody, ModalHeader } from 'sveltestrap';
+	// We have to import Modal by this way because with a regular import it has SSR issues.
+	import Modal from 'sveltestrap/src/Modal.svelte';
+	import { USERS } from './../../lib/constants/identity';
+	import { register } from './../../lib/identity';
+	import type { IUser } from './../../lib/types/identity';
 
 	export let isOpen: boolean = false;
 	export let onModalClose: () => void = () => {};

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { syntaxHighlight } from '$lib/utils';
+	import { syntaxHighlight } from './../lib/utils';
 
 	export let json: string;
 </script>

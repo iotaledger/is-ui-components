@@ -1,18 +1,11 @@
 <script lang="ts">
-	import { VC_TEMPLATES } from '$lib/constants/identity';
-	import { createVC } from '$lib/identity';
-	import { createJsonDataUrl } from '$lib/utils';
 	import { CredentialTypes, VerifiableCredentialJson } from 'iota-is-sdk';
-	import {
-		Button,
-		FormGroup,
-		Input,
-		Label,
-		Modal,
-		ModalBody,
-		ModalHeader,
-		Spinner
-	} from 'sveltestrap';
+	import { Button, FormGroup, Input, Label, ModalBody, ModalHeader, Spinner } from 'sveltestrap';
+	// We have to import Modal by this way because with a regular import it has SSR issues.
+	import Modal from 'sveltestrap/src/Modal.svelte';
+	import { VC_TEMPLATES } from './../../lib/constants/identity';
+	import { createVC } from './../../lib/identity';
+	import { createJsonDataUrl } from './../../lib/utils';
 
 	export let isOpen: boolean = false;
 	export let onModalClose: () => void = () => {};

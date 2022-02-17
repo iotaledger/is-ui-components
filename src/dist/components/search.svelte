@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { USERS } from '$lib/constants/identity';
-	import { identityClient } from '$lib/identity';
+	import { USERS } from '../lib/constants/identity';
+	import { identityClient } from '../lib/identity';
 	import { searchCriteria, User, UserType } from 'iota-is-sdk';
 	import {
 		Button,

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Icon } from '$components';
-	import { logout } from '$lib/identity';
+	import { Icon } from './../../components';
+	import { logout } from '../../lib/identity';
 	import { Button } from 'sveltestrap';
 	import Box from './box.svelte';
 

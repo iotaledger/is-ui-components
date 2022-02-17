@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Icon } from '$components';
-	import { createJsonDataUrl } from '$lib/utils';
+	import { Icon } from './../../components';
+	import { createJsonDataUrl } from './../../lib/utils';
 	import type { IdentityJson, UserType } from 'iota-is-sdk';
 	import Box from './box.svelte';
 

@@ -4,7 +4,7 @@
 
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { LoginRegister } from '$components';
+	import { LoginRegister } from './../dist/components';
 	import { Col, Container, Row } from 'sveltestrap';
 </script>
 

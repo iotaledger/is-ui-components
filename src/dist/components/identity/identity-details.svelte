@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { CreateCredential, Credential, IdentityProfile } from '$components';
-	import { revokeVC, searchIdentities, updateSelectedIdentity } from '$lib/identity';
+	import { Credential, IdentityProfile, CreateCredential } from './../../components';
+	import { revokeVC, searchIdentities, updateSelectedIdentity } from './../../lib/identity';
 	import type { UserType } from 'iota-is-sdk';
 
 	export let username: string;

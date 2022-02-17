@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Icon } from '$components';
-	import { Size } from '$lib/types/layout';
+	import { Size } from './../../lib/types/layout';
+	import { Icon } from './../../components';
 	import { UserType } from 'iota-is-sdk';
 
 	export let title: string;

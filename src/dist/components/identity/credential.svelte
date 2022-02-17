@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Dropdown, Icon, IdentityProfile, JSONViewer } from '$components';
-	import { createJsonDataUrl } from '$lib/utils';
 	import type { VerifiableCredentialBody } from 'iota-is-sdk/src';
-	import { Button, Spinner, Accordion, AccordionItem } from 'sveltestrap';
+	import { Accordion, AccordionItem, Button, Spinner } from 'sveltestrap';
+	import { Icon, IdentityProfile, JSONViewer } from './../../components';
+	import { createJsonDataUrl } from './../../lib/utils';
 
 	export let vc: VerifiableCredentialBody;
 	export let revoking: boolean;

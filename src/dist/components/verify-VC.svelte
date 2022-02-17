@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { identityClient } from '$lib/identity';
+	import { identityClient } from '../lib/identity';
 	import type { IdentityJson } from 'iota-is-sdk';
 	import { onMount } from 'svelte';
 	import Dropzone from 'svelte-file-dropzone';
