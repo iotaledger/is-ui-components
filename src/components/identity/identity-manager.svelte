@@ -1,12 +1,14 @@
 <script lang="ts">
-	import { Icon, IdentityDetails, IdentityProfile, Spinner } from '$components';
+	import { Icon, IdentityDetails, IdentityProfile, Spinner, CreateIdentity } from '$components';
 	import {
 		searchIdentities,
 		searchResults,
 		selectedIdentity,
-		updateSelectedIdentity
+		updateSelectedIdentity,
+		updateIdentities
 	} from '$lib/identity';
 	import type { ExtendedUser } from '$lib/types/identity';
+	import type { IdentityJson } from 'iota-is-sdk/src';
 	import { onMount } from 'svelte';
 	import { Col, Column, Input, Table } from 'sveltestrap';
 	import Box from '../login-register/box.svelte';
@@ -21,6 +23,7 @@
 	let query: string = '';
 	let message: string;
 
+	let isCreateIdentityOpen = false;
 	$: $selectedIdentity, updateState();
 
 	onMount(async () => {
@@ -56,13 +59,33 @@
 	function handleSelectIdentity(identity: ExtendedUser) {
 		updateSelectedIdentity(identity);
 	}
+
+	function handleCloseModal() {
+		isCreateIdentityOpen = false;
+	}
+
+	function handleOpenModal() {
+		isCreateIdentityOpen = true;
+	}
+
+	async function updateIdentityList(id: string) {
+		const identities = await searchIdentities(id);
+		const foundIdentity = identities?.[0];
+		updateIdentities(foundIdentity);
+	}
 </script>
 
 <Box>
 	{#if state === State.ListIdentities}
 		<div class="identity-manager p-4 w-100 h-100 d-flex flex-column">
-			<div class="mb-4 d-flex flex-row align-items-center">
+			<div class="mb-4 d-flex flex-row align-items-center justify-content-between">
 				<h1>Identities</h1>
+				<div class="box d-flex align-items-center">
+					<button class="btn" on:click={handleOpenModal}>
+						<Icon type="plus" />
+						<span class="ml-1">Create an identity</span>
+					</button>
+				</div>
 				{#if loading}
 					<div class="ms-1">
 						<Spinner compact />
@@ -134,6 +157,11 @@
 			verifiableCredentials={$selectedIdentity.verifiableCredentials}
 		/>
 	{/if}
+	<CreateIdentity
+		isOpen={isCreateIdentityOpen}
+		onModalClose={handleCloseModal}
+		onCreateSuccess={updateIdentityList}
+	/>
 </Box>
 
 <style lang="scss">

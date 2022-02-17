@@ -22,6 +22,10 @@ jwt?.subscribe($jwt => {
 export const searchResults: Writable<ExtendedUser[]> = writable([]);
 export const selectedIdentity: Writable<ExtendedUser> = writable(null);
 
+jwt?.subscribe($jwt => {
+    identityClient.jwtToken = $jwt;
+})
+
 /**
  * Authenticates the user to the api for requests where authentication is needed
  * @param id of the user to authenticate
@@ -128,7 +132,6 @@ export async function createVC(
     claim?: any): Promise<VerifiableCredentialJson> {
 
     let credential
-
     try {
         credential = await identityClient.createCredential(
             initiatorVC,
@@ -141,7 +144,6 @@ export async function createVC(
     catch (e) {
         console.error('There was an error creating the credential', e)
     }
-
     return credential
 }
 
@@ -162,5 +164,11 @@ export function updateSelectedIdentity(identity: ExtendedUser): void {
             _searchResults[index] = identity;
         }
         return _searchResults;
+    })
+}
+
+export function updateIdentities(identity: ExtendedUser): void {
+    searchResults?.update(_searchResults => {
+        return [..._searchResults, identity];
     })
 }
