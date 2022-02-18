@@ -22,6 +22,7 @@ $theme-colors: (
 ## Generate package
 
 To generate a package to be used as a library in other projects, it is necessary to execute:
+
 `npm run package`
 
-This takes all the files in the src/dist folder and generates a package with them which is saved in package folder.
+This takes all the files in the src folder and generates a package with them which is saved in package folder.
