@@ -11,7 +11,7 @@
 <script lang="ts">
 	import 'bootstrap/dist/css/bootstrap.min.css';
 	import { Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'sveltestrap';
-	import './../dist/scss/index.scss';
+	import './../scss/index.scss';
 
 	let isOpen = false;
 

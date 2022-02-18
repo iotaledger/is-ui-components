@@ -18,7 +18,7 @@ const config = {
 			allowed: ['PATCH', 'DELETE']
 		},
 		files: {
-			lib: path.resolve('./src/dist')
+			lib: path.resolve('./src')
 		},
 		package: {
 			dir: 'package',
