@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { CredentialTypes, VerifiableCredentialJson } from 'iota-is-sdk';
+	import type { VerifiableCredentialJson } from 'iota-is-sdk';
 	import { Button, FormGroup, Input, Label, ModalBody, ModalHeader, Spinner } from 'sveltestrap';
 	// We have to import Modal by this way because with a regular import it has SSR issues.
 	import Modal from 'sveltestrap/src/Modal.svelte';
@@ -16,7 +16,6 @@
 	let inputFields = {};
 	let loading = false;
 	let selectedTemplate = VC_TEMPLATES[0];
-	let selectedCredential = CredentialTypes.BasicIdentityCredential;
 
 	$: isValid = (): boolean => {
 		if (
@@ -63,7 +62,7 @@
 		verifiableCredential = await createVC(
 			undefined,
 			targetDid,
-			selectedCredential,
+			selectedTemplate.credentialType,
 			selectedTemplate.userType,
 			inputFields
 		);
@@ -79,27 +78,6 @@
 	<ModalHeader toggle={onModalClose} class="px-4 pt-3">Add a credential</ModalHeader>
 	<ModalBody class="px-4 pb-4">
 		<div>
-			<FormGroup class="mb-4">
-				<Label>Credential type</Label>
-				<Input
-					type="select"
-					name="select"
-					bind:value={selectedCredential}
-					on:change={handleInputChange}
-				>
-					{#each Object.values(CredentialTypes) as _credential}
-						<option
-							value={_credential}
-							on:click={() => {
-								selectedCredential = _credential;
-							}}
-						>
-							{_credential}
-						</option>
-					{/each}
-				</Input>
-			</FormGroup>
-
 			<Label>Template</Label>
 			<Input
 				type="select"
@@ -115,10 +93,13 @@
 				{/each}
 			</Input>
 			{#if selectedTemplate}
+				<FormGroup>
+					<Label>Credential type</Label>
+					<Input type="text" bind:value={selectedTemplate.credentialType} disabled />
+				</FormGroup>
 				{#each selectedTemplate.fields as { id, label, type, required }}
 					<div class="mb-4">
-						<Label>{label}</Label>
-						<FormGroup class="mb-4" floating label={`${label}${required ? '*' : ''}`}>
+						<FormGroup floating label={`${label}${required ? '*' : ''}`}>
 							<Input
 								{type}
 								placeholder={`${label}${required ? '*' : ''}`}
