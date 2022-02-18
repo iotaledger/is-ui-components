@@ -13,7 +13,7 @@
 
 <Container class="my-5">
 	<Row>
-		<Col sm="12">
+		<Col sm="12" md={{ size: 10, offset: 1 }}>
 			<IdentityManager />
 		</Col>
 	</Row>

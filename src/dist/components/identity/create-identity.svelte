@@ -72,7 +72,7 @@
 </script>
 
 <Modal {isOpen} toggle={onModalClose}>
-	<ModalHeader toggle={onModalClose} class="text-primary px-4 pt-3">Create identity</ModalHeader>
+	<ModalHeader toggle={onModalClose} class="px-4 pt-3">Create identity</ModalHeader>
 
 	<ModalBody class="px-4 pb-4">
 		<div>

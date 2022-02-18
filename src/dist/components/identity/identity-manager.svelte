@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { ListGroup, ListGroupItem, Spinner } from 'sveltestrap';
+	import { ListGroup, ListGroupItem, Spinner, Button } from 'sveltestrap';
 	// We have to import Input by this way because with a regular import it has SSR issues.
 	import Input from 'sveltestrap/src/Input.svelte';
 	import Box from '../login-register/box.svelte';
@@ -74,6 +74,13 @@
 		const foundIdentity = identities?.[0];
 		updateIdentities(foundIdentity);
 	}
+
+	// TODO: improve this. It is used to change the icon color when button is hovered.
+	let iconColor = '#333333';
+	const switchIconColor = () => {
+		iconColor = iconColor === '#333333' ? 'white' : '#333333';
+	};
+	// ---------------------------------------------------------------------------------------------
 </script>
 
 <Box>
@@ -81,11 +88,15 @@
 		<div class="identity-manager w-100 h-100 d-flex flex-column">
 			<div class="mb-4 d-flex flex-row align-items-center justify-content-between">
 				<h1>Identities</h1>
-				<div class="box d-flex align-items-center">
-					<button class="btn" on:click={handleOpenModal}>
-						<Icon type="plus" />
+				<div
+					class="box d-flex align-items-center"
+					on:mouseenter={switchIconColor}
+					on:mouseleave={switchIconColor}
+				>
+					<Button size="sm" outline color="dark" on:click={handleOpenModal}>
+						<Icon type="plus" color={iconColor} />
 						<span class="ml-1">Create an identity</span>
-					</button>
+					</Button>
 				</div>
 				{#if loading}
 					<div class="ms-1">

@@ -13,7 +13,7 @@
 </script>
 
 <Box>
-	<div class="d-flex flex-column align-items-center">
+	<div class="d-flex flex-column text-center align-items-center">
 		<div class="mb-4">
 			<Icon type="identity" size={48} />
 		</div>

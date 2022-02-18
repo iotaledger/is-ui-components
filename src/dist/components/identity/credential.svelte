@@ -17,44 +17,46 @@
 		<div slot="header">
 			<IdentityProfile title="Credential" {type} hideType subtitle={type} size="medium" />
 		</div>
-		<div>
-			<div class="label text-secondary pt-4">
-				<div class="d-flex justify-content-between align-items-center">
-					Credential ID
-					<div class="actions">
-						<div class="my-2 py-1 px-2 d-flex align-items-center">
-							<a
-								href={createJsonDataUrl(vc)}
-								download={`verifiable-credential-${id}.json`}
-								class="download text-decoration-none ms-1"
-							>
-								<Icon type="download" />
-								<span>Download</span>
-							</a>
-						</div>
-						<Button outline color="danger" disabled={revoking}>
-							<div class="d-flex justify-content-center" on:click={() => onRevoke(vc)}>
-								<span>{revoking ? 'Revoking...' : 'Revoke'}</span>
-								{#if revoking}
-									<Spinner size="sm" type="border" color="light" />
-								{/if}
-							</div>
-						</Button>
+		<div class="my-4">
+			<div class="d-flex justify-content-between">
+				<div>
+					<div class="label">
+						Credential ID
+						<div class="text-break text-secondary">{id}</div>
+					</div>
+					<div class="label mt-4">
+						Issuer
+						<div class="text-break text-secondary">{issuer}</div>
+					</div>
+					<div class="label mt-4">
+						Issuance date
+						<div class="text-secondary">{issuanceDate}</div>
 					</div>
 				</div>
-				<div>{id}</div>
+				<div class="d-flex flex-column">
+					<a
+						class="btn btn-sm btn-outline-info text-decoration-none ms-auto"
+						href={createJsonDataUrl(vc)}
+						download={`verifiable-credential-${id}.json`}
+					>
+						<Icon type="download" />
+						<span>Download</span>
+					</a>
+					<Button size="sm" outline color="danger" disabled={revoking} class="ms-auto mt-2">
+						<div class="d-flex justify-content-center" on:click={() => onRevoke(vc)}>
+							<span>{revoking ? 'Revoking...' : 'Revoke'}</span>
+							{#if revoking}
+								<Spinner size="sm" type="border" color="light" />
+							{/if}
+						</div>
+					</Button>
+				</div>
 			</div>
-			<div class="label text-secondary pt-4">
-				Issuer
-				<div>{issuer}</div>
-			</div>
-			<div class="label text-secondary pt-4">
-				Issuance date
-				<div>{issuanceDate}</div>
-			</div>
-			<div class="label text-secondary pt-4 d-flex">
-				<span class="me-2">"credentialSubject":</span>
-				<JSONViewer json={JSON.stringify(credentialSubject, null, '\t')} />
+			<div>
+				<div class="label mt-4">JSON content</div>
+				<div class="mt-1 p-4 bg-light rounded">
+					<JSONViewer json={JSON.stringify(credentialSubject, null, '\t')} />
+				</div>
 			</div>
 		</div>
 	</AccordionItem>

@@ -9,7 +9,8 @@
 		Individual,
 		Organization,
 		Plus,
-		Search
+		Search,
+		Credential
 	} from './icons';
 
 	const TYPES = {
@@ -22,7 +23,8 @@
 		individual: Individual,
 		organization: Organization,
 		plus: Plus,
-		search: Search
+		search: Search,
+		credential: Credential
 	};
 
 	export let size: number = 24;

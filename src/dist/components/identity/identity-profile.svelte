@@ -2,6 +2,7 @@
 	import { Size } from './../../lib/types/layout';
 	import { Icon } from './../../components';
 	import { UserType } from 'iota-is-sdk';
+	import { Button } from 'sveltestrap';
 
 	export let title: string;
 	export let type: UserType | string;
@@ -42,7 +43,7 @@
 	};
 
 	const CREDENTIAL_ICON = {
-		icon: 'device',
+		icon: 'credential',
 		shadow: '#f8cfe5'
 	};
 
@@ -63,9 +64,18 @@
 			subtitleFontSize: '14px'
 		}
 	};
+
+	// TODO: improve this. It is used to change the icon color when button is hovered.
+	let iconColor = '#333333';
+	const switchIconColor = () => {
+		iconColor = iconColor === '#333333' ? 'white' : '#333333';
+	};
+	// ---------------------------------------------------------------------------------------------
 </script>
 
-<div class="d-flex align-items-center justify-content-between">
+<div
+	class="d-flex align-items-start align-items-lg-center justify-content-between flex-column flex-lg-row"
+>
 	<div class="d-flex align-items-center">
 		<div
 			class="rounded d-flex justify-content-center align-items-center"
@@ -82,7 +92,7 @@
 			<div class={PROFILE_STYLES[size].titleClasses}>{title}</div>
 			{#if subtitle}
 				<div
-					class="subtitle fw-bolder mt-1"
+					class="subtitle fw-bolder mt-1 text-break"
 					style={`font-size: ${PROFILE_STYLES[size].subtitleFontSize}`}
 				>
 					{subtitle}
@@ -92,13 +102,19 @@
 	</div>
 	{#if actions}
 		{#each actions as { icon, label, onClick }}
-			<div class="d-flex align-items-center">
-				<button class="btn" on:click={onClick}>
+			<div on:mouseenter={switchIconColor} on:mouseleave={switchIconColor}>
+				<Button
+					size="sm"
+					outline
+					color="dark"
+					on:click={onClick}
+					class="mt-3 mt-lg-0  d-flex align-items-center"
+				>
 					{#if icon}
-						<Icon type={icon} size={24} />
+						<Icon type={icon} size={24} color={iconColor} />
 					{/if}
 					<span class="ml-1">{label}</span>
-				</button>
+				</Button>
 			</div>
 		{/each}
 	{/if}
