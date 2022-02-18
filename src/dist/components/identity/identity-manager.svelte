@@ -1,10 +1,13 @@
 <script lang="ts">
+	import { UserType } from 'iota-is-sdk/src';
 	import { onMount } from 'svelte';
 	import { ListGroup, ListGroupItem, Spinner, Button } from 'sveltestrap';
 	// We have to import Input by this way because with a regular import it has SSR issues.
 	import Input from 'sveltestrap/src/Input.svelte';
 	import Box from '../login-register/box.svelte';
-	import { CreateIdentity, Icon, IdentityDetails, IdentityProfile } from './../../components';
+	import { CreateIdentity, Icon, IdentityDetails } from './../../components';
+	import { BoxColor } from './../../lib/constants/colors';
+	import { USER_ICONS } from './../../lib/constants/identity';
 	import {
 		searchIdentities,
 		searchResults,
@@ -139,8 +142,14 @@
 							}}
 						>
 							<div class="d-flex justify-content-between align-items-center">
-								<div class="item">
-									<IdentityProfile title={identity.username} type={identity.type} hideType />
+								<div class="item d-flex align-items-center">
+									<Icon
+										type={USER_ICONS[identity.type].icon ?? UserType.Unknown}
+										boxed
+										boxColor={USER_ICONS[identity.type].shadow ?? BoxColor.Blue}
+										size={24}
+									/>
+									<span class="ms-3">{identity.username}</span>
 								</div>
 								<div class="item">{identity.type}</div>
 								<div class="item">{identity.registrationDate}</div>

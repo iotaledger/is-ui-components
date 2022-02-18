@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { VerifiableCredentialBody } from 'iota-is-sdk/src';
 	import { Accordion, AccordionItem, Button, Spinner } from 'sveltestrap';
-	import { Icon, IdentityProfile, JSONViewer } from './../../components';
+	import { Icon, JSONViewer } from './../../components';
+	import { CREDENTIAL_ICON } from './../../lib/constants/identity';
 	import { createJsonDataUrl } from './../../lib/utils';
 
 	export let vc: VerifiableCredentialBody;
@@ -14,8 +15,14 @@
 
 <Accordion>
 	<AccordionItem>
-		<div slot="header">
-			<IdentityProfile title="Credential" {type} hideType subtitle={type} size="medium" />
+		<div slot="header" class="d-flex align-items-center">
+			<Icon type={CREDENTIAL_ICON.icon} boxed boxColor={CREDENTIAL_ICON.shadow} size={48} />
+			<div class="ms-4">
+				<div class="fs-6 fw-bold">Credential</div>
+				<div class="vc-type fw-bold text-secondary mt-1">
+					{type}
+				</div>
+			</div>
 		</div>
 		<div class="my-4">
 			<div class="d-flex justify-content-between">
@@ -63,6 +70,9 @@
 </Accordion>
 
 <style lang="scss">
+	.vc-type {
+		font-size: 12px;
+	}
 	.label {
 		font-weight: 500;
 		font-size: 12px;

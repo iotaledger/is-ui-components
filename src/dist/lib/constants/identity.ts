@@ -1,5 +1,6 @@
 import { UserType, CredentialTypes } from 'iota-is-sdk';
 import type { RegistrationUser } from '../types/identity';
+import { BoxColor } from './colors';
 
 export const USERS: RegistrationUser[] = [
 	{
@@ -131,5 +132,36 @@ export const VC_TEMPLATES = [
 	}
 ];
 
-export const MAXIMUM_SEARCH_RESULTS = 100;
+export const USER_ICONS = {
+	[UserType.Person]: {
+		icon: 'individual',
+		shadow: BoxColor.Blue
+	},
+	[UserType.Organization]: {
+		icon: 'organization',
+		shadow: BoxColor.Red
+	},
+	[UserType.Device]: {
+		icon: 'device',
+		shadow: BoxColor.Cyan
+	},
+	[UserType.Service]: {
+		icon: 'device',
+		shadow: BoxColor.Green
+	},
+	[UserType.Unknown]: {
+		icon: 'device',
+		shadow: BoxColor.Orange
+	},
+	[UserType.Product]: {
+		icon: 'device',
+		shadow: BoxColor.Teal
+	}
+};
 
+export const CREDENTIAL_ICON = {
+	icon: 'device',
+	shadow: BoxColor.Purple
+}
+
+export const MAXIMUM_SEARCH_RESULTS = 100;

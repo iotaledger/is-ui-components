@@ -6,7 +6,6 @@ export { default as CreateIdentity } from './identity/create-identity.svelte';
 export { default as Credential } from './identity/credential.svelte';
 export { default as IdentityDetails } from './identity/identity-details.svelte';
 export { default as IdentityManager } from './identity/identity-manager.svelte';
-export { default as IdentityProfile } from './identity/identity-profile.svelte';
 export { default as JSONViewer } from './json-viewer.svelte';
 export { default as Box } from './login-register/box.svelte';
 export { default as LoginRegister } from './login-register/login-register.svelte';

@@ -13,6 +13,8 @@
 		Credential
 	} from './icons';
 
+	import { BoxColor } from './../../lib/constants/colors';
+
 	const TYPES = {
 		'arrow-left': ArrowLeft,
 		'chevron-down': ChevronDown,
@@ -30,26 +32,56 @@
 	export let size: number = 24;
 	export let type: string = undefined;
 	export let color: string = '#333333';
+	export let boxed: boolean = false;
+	export let boxColor: BoxColor = BoxColor.Blue;
 
 	$: selected = TYPES[type];
 </script>
 
 {#if selected}
-	<svg
-		class="icon-component"
-		data-label="icon"
-		width={size}
-		height={size}
-		viewBox="0 0 24 24"
-		fill="none"
-		xmlns="http://www.w3.org/2000/svg"
-		style="--color:{color};"
-	>
-		<svelte:component this={selected} />
-	</svg>
+	{#if boxed}
+		<div
+			class={`background-${boxColor} position-relative rounded`}
+			style={`width: ${size * 1.5}px; height: ${size * 1.5}px;`}
+		>
+			<svg
+				class="icon-component position-absolute"
+				data-label="icon"
+				width={size}
+				height={size}
+				viewBox="0 0 24 24"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+				style="--color:{color};"
+			>
+				<svelte:component this={selected} />
+			</svg>
+		</div>
+	{:else}
+		<svg
+			class="icon-component"
+			data-label="icon"
+			width={size}
+			height={size}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			style="--color:{color};"
+		>
+			<svelte:component this={selected} />
+		</svg>
+	{/if}
 {/if}
 
 <style lang="scss">
+	div {
+		.icon-component {
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+	}
+
 	:global(svg.icon-component path) {
 		stroke: var(--color);
 	}

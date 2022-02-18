@@ -1,0 +1,14 @@
+@import '../node_modules/bootstrap/scss/functions';
+@import '../node_modules/bootstrap/scss/variables';
+@import '../node_modules/bootstrap/scss/mixins';
+
+$light_colors: green $green-100, blue $blue-100, red $red-100, indigo $indigo-100,
+	purple $purple-100, orange $orange-100, yellow $yellow-100, teal $teal-100, pink $pink-100,
+	gray $gray-100, cyan $cyan-100;
+
+@each $kvp in $light_colors {
+	// kvp stands for 'key-value pair'
+	.background-#{nth($kvp, 1)} {
+		background-color: nth($kvp, 2);
+	}
+}

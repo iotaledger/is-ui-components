@@ -7,7 +7,6 @@ const config = {
 	// Consult https://github.com/sveltejs/svelte-preprocess
 	// for more information about preprocessors
 	preprocess: preprocess(),
-
 	kit: {
 		adapter: adapter(),
 
@@ -24,15 +23,6 @@ const config = {
 		package: {
 			dir: 'package',
 			emitTypes: true
-		},
-		vite: {
-			resolve: {
-				alias: {
-					$components: path.resolve('./src/components'),
-					$models: path.resolve('./src/models'),
-					$lib: path.resolve('./src/lib')
-				}
-			}
 		}
 	}
 };
