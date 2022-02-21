@@ -114,6 +114,7 @@ export async function searchIdentities(query: string): Promise<ExtendedUser[]> {
             searchResult.push({
                 ...identity,
                 type: _userDetails?.claim?.type,
+                claim: _userDetails?.claim,
                 verifiableCredentials: _userDetails?.verifiableCredentials ?? []
             })
         }

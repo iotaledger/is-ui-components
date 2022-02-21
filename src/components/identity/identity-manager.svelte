@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { UserType } from 'iota-is-sdk/src';
 	import { onMount } from 'svelte';
-	import { ListGroup, ListGroupItem, Spinner, Button } from 'sveltestrap';
+	import { ListGroup, ListGroupItem, Spinner, Button, Badge } from 'sveltestrap';
 	// We have to import Input by this way because with a regular import it has SSR issues.
 	import Input from 'sveltestrap/src/Input.svelte';
 	import Box from '../login-register/box.svelte';
-	import { CreateIdentity, Icon, IdentityDetails } from './../../components';
+	import { CreateIdentity, Icon, IdentityDetails, JSONViewer } from './../../components';
 	import { BoxColor } from './../../lib/constants/colors';
 	import { USER_ICONS } from './../../lib/constants/identity';
 	import {
@@ -181,6 +181,7 @@
 			type={$selectedIdentity.type}
 			id={$selectedIdentity.id}
 			verifiableCredentials={$selectedIdentity.verifiableCredentials}
+			claim={$selectedIdentity.claim}
 		/>
 	{/if}
 	<CreateIdentity
@@ -208,6 +209,10 @@
 			&:last-child {
 				margin-right: 0px;
 			}
+		}
+
+		.claim {
+			font-size: 12px;
 		}
 	}
 	.go-back {

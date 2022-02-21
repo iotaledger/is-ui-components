@@ -1,14 +1,16 @@
 <script lang="ts">
 	import type { UserType } from 'iota-is-sdk';
-	import { Button } from 'sveltestrap';
-	import { CreateCredential, Credential, Icon } from './../../components';
-	import { USER_ICONS } from './../../lib/constants/identity';
+	import { Accordion, AccordionItem, Button } from 'sveltestrap';
+	import { CreateCredential, Credential, Icon, JSONViewer } from './../../components';
+	import { CREDENTIAL_ICON, USER_ICONS } from './../../lib/constants/identity';
 	import { revokeVC, searchIdentities, updateSelectedIdentity } from './../../lib/identity';
+	import { createJsonDataUrl } from './../../lib/utils';
 
 	export let username: string;
 	export let type: UserType;
 	export let id: string;
 	export let verifiableCredentials = [];
+	export let claim = {};
 
 	enum State {
 		Details = 'details',
@@ -69,7 +71,39 @@
 			</div>
 		</div>
 	</div>
+
 	<div class="credentials">
+		<Accordion class="mt-4">
+			<AccordionItem>
+				<div slot="header" class="d-flex align-items-center">
+					<Icon type={CREDENTIAL_ICON.icon} boxed boxColor={CREDENTIAL_ICON.shadow} size={48} />
+					<div class="ms-4">
+						<div class="fs-6 fw-bold">Claim</div>
+						<div class="label fw-bold text-secondary mt-1">
+							{type}
+						</div>
+					</div>
+				</div>
+				<div class="my-4">
+					<div class="d-flex flex-column">
+						<a
+							class="btn btn-sm btn-outline-info text-decoration-none ms-auto"
+							href={createJsonDataUrl(claim)}
+							download={`claim-identity-${id}.json`}
+						>
+							<Icon type="download" />
+							<span>Download</span>
+						</a>
+					</div>
+					<div>
+						<div class="label fw-bold">JSON content</div>
+						<div class="mt-1 p-4 bg-light rounded">
+							<JSONViewer json={JSON.stringify(claim, null, '\t')} />
+						</div>
+					</div>
+				</div>
+			</AccordionItem>
+		</Accordion>
 		{#each verifiableCredentials as vc}
 			<div class="credential mt-4">
 				{#key vc}
@@ -86,3 +120,9 @@
 		onCreateSuccess={updateCredentials}
 	/>
 </div>
+
+<style lang="scss">
+	.label {
+		font-size: 12px;
+	}
+</style>
