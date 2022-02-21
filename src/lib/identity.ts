@@ -148,12 +148,14 @@ export async function createVC(
     return credential
 }
 
-export async function revokeVC(signatureValue: RevokeVerificationBody): Promise<void> {
+export async function revokeVC(signatureValue: RevokeVerificationBody): Promise<boolean> {
     try {
         await identityClient.revokeCredential(signatureValue);
+        return true;
     }
     catch (e) {
         console.error('There was an error revoking the credential', e)
+        return false;
     }
 }
 
@@ -168,8 +170,12 @@ export function updateSelectedIdentity(identity: ExtendedUser): void {
     })
 }
 
-export function updateIdentities(identity: ExtendedUser): void {
-    searchResults?.update(_searchResults => {
-        return [..._searchResults, identity];
-    })
+export async function addIdentityToSearchResults(id: string): Promise<void> {
+    const resuls = await searchIdentities(id);
+    const identity = resuls?.[0];
+    if (identity) {
+        searchResults?.update(_searchResults => {
+            return [..._searchResults, identity];
+        })
+    }
 }

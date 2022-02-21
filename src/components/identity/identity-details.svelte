@@ -25,8 +25,10 @@
 
 	const handleRevoke = async (vc) => {
 		revoking = true;
-		await revokeVC({ signatureValue: vc.proof.signatureValue });
-		await updateCredentials();
+		const success = await revokeVC({ signatureValue: vc.proof.signatureValue });
+		if (success) {
+			await updateCredentials();
+		}
 		revoking = false;
 	};
 
@@ -117,7 +119,7 @@
 		isOpen={state === State.AddCredential}
 		onModalClose={switchToDetails}
 		targetDid={id}
-		onCreateSuccess={updateCredentials}
+		onSuccess={updateCredentials}
 	/>
 </div>
 

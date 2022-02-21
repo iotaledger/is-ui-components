@@ -9,7 +9,7 @@
 
 	export let isOpen: boolean = false;
 	export let onModalClose: () => void = () => {};
-	export let onCreateSuccess: () => void = () => {};
+	export let onSuccess: () => void = () => {};
 	export let targetDid: string = undefined;
 
 	let verifiableCredential: VerifiableCredentialJson;
@@ -67,7 +67,7 @@
 			inputFields
 		);
 		if (verifiableCredential) {
-			onCreateSuccess();
+			onSuccess();
 		}
 		resetFields();
 		loading = false;

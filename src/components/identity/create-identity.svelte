@@ -10,7 +10,7 @@
 
 	export let isOpen: boolean = false;
 	export let onModalClose: () => void = () => {};
-	export let onCreateSuccess: (id: string) => void = () => {};
+	export let onSuccess: (id: string) => void = () => {};
 
 	let selectedUser: IUser;
 	let inputFields = {};
@@ -39,7 +39,7 @@
 		let { username, ...claims } = inputFields;
 		registeredIdentity = await register(inputFields['username'], selectedUser.type, claims);
 		if (registeredIdentity) {
-			onCreateSuccess(registeredIdentity?.doc?.id);
+			onSuccess(registeredIdentity?.doc?.id);
 		}
 		loading = false;
 	}

@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { UserType } from 'iota-is-sdk/src';
 	import { onMount } from 'svelte';
-	import { ListGroup, ListGroupItem, Spinner, Button, Badge } from 'sveltestrap';
+	import { Button, ListGroup, ListGroupItem, Spinner } from 'sveltestrap';
 	// We have to import Input by this way because with a regular import it has SSR issues.
 	import Input from 'sveltestrap/src/Input.svelte';
 	import Box from '../login-register/box.svelte';
-	import { CreateIdentity, Icon, IdentityDetails, JSONViewer } from './../../components';
+	import { CreateIdentity, Icon, IdentityDetails } from './../../components';
 	import { BoxColor } from './../../lib/constants/colors';
 	import { USER_ICONS } from './../../lib/constants/identity';
 	import {
+		addIdentityToSearchResults,
 		searchIdentities,
 		searchResults,
 		selectedIdentity,
-		updateIdentities,
 		updateSelectedIdentity
 	} from './../../lib/identity';
 	import type { ExtendedUser } from './../../lib/types/identity';
@@ -26,9 +26,11 @@
 	let loading = false;
 	let query: string = '';
 	let message: string;
-
 	let isCreateIdentityOpen = false;
+
 	$: $selectedIdentity, updateState();
+
+	$: message = loading || $searchResults?.length ? null : 'No identities found';
 
 	onMount(async () => {
 		// Pre-load the first 100 identities
@@ -40,11 +42,6 @@
 	async function onSearch() {
 		loading = true;
 		$searchResults = await searchIdentities(query);
-		if ($searchResults?.length) {
-			message = undefined;
-		} else {
-			message = 'No identities found';
-		}
 		loading = false;
 	}
 
@@ -72,10 +69,12 @@
 		isCreateIdentityOpen = true;
 	}
 
-	async function updateIdentityList(id: string) {
-		const identities = await searchIdentities(id);
-		const foundIdentity = identities?.[0];
-		updateIdentities(foundIdentity);
+	// Add the newly created identity to the search results
+	async function onCreateIdentitySuccess(id: string) {
+		loading = true;
+		// TODO: improve this by using a query and sorting results
+		await addIdentityToSearchResults(id);
+		loading = false;
 	}
 
 	// TODO: improve this. It is used to change the icon color when button is hovered.
@@ -187,7 +186,7 @@
 	<CreateIdentity
 		isOpen={isCreateIdentityOpen}
 		onModalClose={handleCloseModal}
-		onCreateSuccess={updateIdentityList}
+		onSuccess={onCreateIdentitySuccess}
 	/>
 </Box>
 
