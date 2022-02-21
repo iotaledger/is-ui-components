@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { IdentityJson } from 'iota-is-sdk';
 	import { UserType } from 'iota-is-sdk';
+	import { createJsonDataUrl } from './../../lib/utils';
 	import { Button, Spinner, FormGroup, Input, Label, ModalBody, ModalHeader } from 'sveltestrap';
 	// We have to import Modal by this way because with a regular import it has SSR issues.
 	import Modal from 'sveltestrap/src/Modal.svelte';
@@ -40,6 +41,7 @@
 		registeredIdentity = await register(inputFields['username'], selectedUser.type, claims);
 		if (registeredIdentity) {
 			onSuccess(registeredIdentity?.doc?.id);
+			resetInputFields();
 		}
 		loading = false;
 	}
@@ -125,7 +127,17 @@
 		</Button>
 
 		{#if registeredIdentity}
-			<div class="mt-4">Identity created succesfully</div>
+			<div>
+				<a
+					class="mt-4 btn btn-primary btn-block w-100 btn-lg"
+					href={createJsonDataUrl(registeredIdentity)}
+					role="button"
+					download="identity.json"
+				>
+					Save identity
+				</a>
+				<div class="mt-4">Identity created succesfully</div>
+			</div>
 		{/if}
 	</ModalBody>
 </Modal>

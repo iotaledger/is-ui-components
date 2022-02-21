@@ -51,7 +51,7 @@
 <div class="identity-details w-100">
 	<div class="d-flex align-items-center justify-content-between bg-light rounded p-4">
 		<div class="d-flex">
-			<Icon type={USER_ICONS[type].icon} size={64} boxed boxColor={USER_ICONS[type].shadow} />
+			<Icon type={USER_ICONS[type].icon} size={64} boxed boxColor={USER_ICONS[type].boxColor} />
 			<div class="ms-4">
 				<div class="text-secondary fst-italic">{type}</div>
 				<div class="fs-4 fw-bold">{username}</div>
@@ -78,7 +78,7 @@
 		<Accordion class="mt-4">
 			<AccordionItem>
 				<div slot="header" class="d-flex align-items-center">
-					<Icon type={CREDENTIAL_ICON.icon} boxed boxColor={CREDENTIAL_ICON.shadow} size={48} />
+					<Icon type={CREDENTIAL_ICON.icon} boxed boxColor={CREDENTIAL_ICON.boxColor} size={48} />
 					<div class="ms-4">
 						<div class="fs-6 fw-bold">Claim</div>
 						<div class="label fw-bold text-secondary mt-1">

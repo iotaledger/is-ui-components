@@ -135,33 +135,33 @@ export const VC_TEMPLATES = [
 export const USER_ICONS = {
 	[UserType.Person]: {
 		icon: 'individual',
-		shadow: BoxColor.Blue
+		boxColor: BoxColor.Blue
 	},
 	[UserType.Organization]: {
 		icon: 'organization',
-		shadow: BoxColor.Red
+		boxColor: BoxColor.Red
 	},
 	[UserType.Device]: {
 		icon: 'device',
-		shadow: BoxColor.Cyan
+		boxColor: BoxColor.Cyan
 	},
 	[UserType.Service]: {
 		icon: 'device',
-		shadow: BoxColor.Green
+		boxColor: BoxColor.Green
 	},
 	[UserType.Unknown]: {
 		icon: 'device',
-		shadow: BoxColor.Orange
+		boxColor: BoxColor.Orange
 	},
 	[UserType.Product]: {
 		icon: 'device',
-		shadow: BoxColor.Teal
+		boxColor: BoxColor.Teal
 	}
 };
 
 export const CREDENTIAL_ICON = {
-	icon: 'device',
-	shadow: BoxColor.Purple
+	icon: 'credential',
+	boxColor: BoxColor.Purple
 }
 
 export const MAXIMUM_SEARCH_RESULTS = 100;

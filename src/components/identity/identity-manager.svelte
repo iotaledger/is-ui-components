@@ -53,7 +53,7 @@
 		}
 	}
 
-	const handleBlackClick = () => {
+	const handleBackClick = () => {
 		$selectedIdentity = undefined;
 	};
 
@@ -72,8 +72,13 @@
 	// Add the newly created identity to the search results
 	async function onCreateIdentitySuccess(id: string) {
 		loading = true;
-		// TODO: improve this by using a query and sorting results
-		await addIdentityToSearchResults(id);
+		// If query is not empty, we need to search again to get the match results
+		if (query?.length) {
+			await onSearch();
+		} else {
+			// Adding the identity, improve performance by not searching again
+			await addIdentityToSearchResults(id);
+		}
 		loading = false;
 	}
 
@@ -89,7 +94,14 @@
 	{#if state === State.ListIdentities}
 		<div class="identity-manager w-100 h-100 d-flex flex-column">
 			<div class="mb-4 d-flex flex-row align-items-center justify-content-between">
-				<h1>Identities</h1>
+				<div class="d-flex align-items-center">
+					<h1>Identities</h1>
+					{#if loading}
+						<div class="ms-4">
+							<Spinner type="border" color="secondary" size="sm" />
+						</div>
+					{/if}
+				</div>
 				<div
 					class="box d-flex align-items-center"
 					on:mouseenter={switchIconColor}
@@ -100,11 +112,6 @@
 						<span class="ml-1">Create an identity</span>
 					</Button>
 				</div>
-				{#if loading}
-					<div class="ms-1">
-						<Spinner type="border" color="light" />
-					</div>
-				{/if}
 			</div>
 			<div class="search mb-4 position-relative">
 				<Input
@@ -145,10 +152,10 @@
 									<Icon
 										type={USER_ICONS[identity.type].icon ?? UserType.Unknown}
 										boxed
-										boxColor={USER_ICONS[identity.type].shadow ?? BoxColor.Blue}
+										boxColor={USER_ICONS[identity.type].boxColor ?? BoxColor.Blue}
 										size={24}
 									/>
-									<span class="ms-3">{identity.username}</span>
+									<span class="ms-3 text-truncate">{identity.username}</span>
 								</div>
 								<div class="item">{identity.type}</div>
 								<div class="item">{identity.registrationDate}</div>
@@ -169,7 +176,7 @@
 
 	{#if state === State.IdentityDetail}
 		<div class="mb-4 align-self-start">
-			<button on:click={handleBlackClick} class="go-back btn d-flex align-items-center">
+			<button on:click={handleBackClick} class="go-back btn d-flex align-items-center">
 				<Icon type="arrow-left" />
 				<span class="ms-2">Back</span>
 			</button>

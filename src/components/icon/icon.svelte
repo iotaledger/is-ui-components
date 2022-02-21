@@ -42,7 +42,7 @@
 	{#if boxed}
 		<div
 			class={`background-${boxColor} position-relative rounded`}
-			style={`width: ${size * 1.5}px; height: ${size * 1.5}px;`}
+			style={`min-width: ${size * 1.5}px; height: ${size * 1.5}px;`}
 		>
 			<svg
 				class="icon-component position-absolute"
