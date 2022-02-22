@@ -1,13 +1,15 @@
 <script lang="ts">
 	import type { IdentityJson } from 'iota-is-sdk';
 	import { UserType } from 'iota-is-sdk';
-	import { createJsonDataUrl } from './../../lib/utils';
-	import { Button, Spinner, FormGroup, Input, Label, ModalBody, ModalHeader } from 'sveltestrap';
+	import { Button, FormGroup, Input, Label, ModalBody, ModalHeader, Spinner } from 'sveltestrap';
 	// We have to import Modal by this way because with a regular import it has SSR issues.
 	import Modal from 'sveltestrap/src/Modal.svelte';
+	import Multiselect from '../multiselect.svelte';
 	import { USERS } from './../../lib/constants/identity';
 	import { register } from './../../lib/identity';
 	import type { IUser } from './../../lib/types/identity';
+	import { FieldType } from './../../lib/types/identity';
+	import { createJsonDataUrl } from './../../lib/utils';
 
 	export let isOpen: boolean = false;
 	export let onModalClose: () => void = () => {};
@@ -71,6 +73,15 @@
 			isValid = true;
 		}
 	}
+
+	// Separator for the multiple string option (string array)
+	const STRING_ARRAY_SEPARATOR = ',';
+
+	function handleInput(e: Event, fieldName: string): void {
+		const target = e.target as HTMLInputElement;
+		const value = target.value;
+		inputFields[fieldName] = value.split(STRING_ARRAY_SEPARATOR);
+	}
 </script>
 
 <Modal {isOpen} toggle={onModalClose}>
@@ -87,7 +98,7 @@
 					bind:value={selectedUserType}
 					on:change={resetInputFields}
 				>
-					{#each USERS as _user, i}
+					{#each USERS as _user}
 						<option value={_user.type}>
 							{_user.type}
 						</option>
@@ -95,17 +106,47 @@
 				</Input>
 			</FormGroup>
 			{#if selectedUser}
-				{#each selectedUser?.fields as { name, required }}
+				{#each selectedUser?.fields as { id, name, required, type, options }}
 					<FormGroup class="mb-4">
 						<Label class="text-capitalize mb-2">{`${name}${required ? '*' : ''}`}</Label>
-						<Input
-							id={`input-${name}-${selectedUser.type}`}
-							class="py-3 ps-3"
-							placeholder={name}
-							bind:value={inputFields[name]}
-							{required}
-							on:keydown={() => (registeredIdentity = null)}
-						/>
+						{#if type === FieldType.String}
+							<Input
+								id={`input-${id}-${selectedUser.type}`}
+								class="py-3 ps-3"
+								placeholder={name}
+								bind:value={inputFields[id]}
+								{required}
+								on:keydown={() => {
+									registeredIdentity = null;
+								}}
+							/>
+						{/if}
+						{#if type === FieldType.MultipleSelector}
+							<Multiselect bind:value={inputFields[id]}>
+								{#each options as option}
+									<option value={option}>{option}</option>
+								{/each}
+							</Multiselect>
+						{/if}
+						{#if type === FieldType.StringArray}
+							<Input
+								id={`input-${id}-${selectedUser.type}`}
+								class="py-3 ps-3"
+								placeholder={name}
+								{required}
+								on:keydown={() => {
+									registeredIdentity = null;
+								}}
+								on:input={(e) => {
+									handleInput(e, id);
+								}}
+							/>
+							<Label class="fst-italic text-secondary">
+								Multiple values ​​can be chosen when separated by <span class="fst-italic fw-bold"
+									>"{STRING_ARRAY_SEPARATOR}"</span
+								></Label
+							>
+						{/if}
 					</FormGroup>
 				{/each}
 			{/if}
