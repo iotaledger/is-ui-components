@@ -2,7 +2,7 @@
 	import { UserType } from 'iota-is-sdk/src';
 	import { onMount } from 'svelte';
 	import { Button, ListGroup, ListGroupItem, Spinner } from 'sveltestrap';
-	// We have to import Input by this way because with a regular import it has SSR issues.
+	// We have to import Input this way, otherwise it shouts SSR issues.
 	import Input from 'sveltestrap/src/Input.svelte';
 	import Box from '../login-register/box.svelte';
 	import { CreateIdentity, Icon, IdentityDetails } from './../../components';

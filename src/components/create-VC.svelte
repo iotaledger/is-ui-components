@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { VC_TEMPLATES } from '../lib/constants/identity';
-	import { identityClient } from '../lib/identity';
+	import { identityClient } from '../lib/base';
 	import { createJsonDataUrl } from '../lib/utils';
 	import { CredentialTypes, VerifiableCredentialJson } from 'iota-is-sdk';
 	import { Button, FormGroup, Input, Spinner } from 'sveltestrap';

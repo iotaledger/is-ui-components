@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { JSONViewer } from './../components';
-	import { identityClient } from '../lib/identity';
+	import { identityClient } from '../lib/base';
 	import { createJsonDataUrl } from '../lib/utils';
 	import { onMount } from 'svelte';
 	import { FormGroup, Input } from 'sveltestrap';

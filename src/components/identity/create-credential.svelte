@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { VerifiableCredentialJson } from 'iota-is-sdk';
 	import { Button, FormGroup, Input, Label, ModalBody, ModalHeader, Spinner } from 'sveltestrap';
-	// We have to import Modal by this way because with a regular import it has SSR issues.
+	// We have to import Modal this way, otherwise it shouts SSR issues.
 	import Modal from 'sveltestrap/src/Modal.svelte';
 	import { VC_TEMPLATES } from './../../lib/constants/identity';
 	import { createVC } from './../../lib/identity';

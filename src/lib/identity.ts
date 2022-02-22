@@ -1,30 +1,14 @@
-import type { ClientConfig, CredentialTypes, IdentityJson, RevokeVerificationBody, VerifiableCredentialInternal, VerifiableCredentialJson } from 'iota-is-sdk';
-import { ApiVersion, IdentityClient, searchCriteria, User, UserType } from 'iota-is-sdk';
+import type { CredentialTypes, IdentityJson, RevokeVerificationBody, VerifiableCredentialInternal, VerifiableCredentialJson } from 'iota-is-sdk';
+import { searchCriteria, User, UserType } from 'iota-is-sdk';
 import type { Writable } from 'svelte/store';
-import { derived, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
+import { channelClient, identityClient, authenticationData } from './base';
 import { MAXIMUM_SEARCH_RESULTS } from './constants/identity';
 import type { ExtendedUser } from './types/identity';
-import { persistent } from './utils';
 
-const config: ClientConfig = {
-    apiKey: import.meta.env.VITE_API_KEY as string, // Deployed Integration Services API KEY
-    baseUrl: import.meta.env.VITE_BASE_URL as string, // URL of the Integration Services API
-    apiVersion: ApiVersion.v01
-};
-export const identityClient = new IdentityClient(config);
-export const jwt = persistent<string>('jwt', null);
-export const authenticated = derived(jwt, $jwt => !!$jwt);
-
-jwt?.subscribe($jwt => {
-    identityClient.jwtToken = $jwt;
-})
 
 export const searchResults: Writable<ExtendedUser[]> = writable([]);
 export const selectedIdentity: Writable<ExtendedUser> = writable(null);
-
-jwt?.subscribe($jwt => {
-    identityClient.jwtToken = $jwt;
-})
 
 /**
  * Authenticates the user to the api for requests where authentication is needed
@@ -34,7 +18,8 @@ jwt?.subscribe($jwt => {
 export async function authenticate(id: string, secret: string): Promise<boolean> {
     try {
         await identityClient.authenticate(id, secret);
-        jwt.set(identityClient.jwtToken)
+        await channelClient.authenticate(id, secret);
+        authenticationData.set({ did: id, jwt: identityClient.jwtToken });
         return true
     }
     catch (e) {
@@ -47,7 +32,7 @@ export async function authenticate(id: string, secret: string): Promise<boolean>
  * @returns void
  */
 export function logout(): void {
-    jwt.set(undefined);
+    authenticationData.set(undefined);
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
