@@ -16,4 +16,5 @@ export const authenticated = derived(authenticationData, $authenticationData => 
 
 authenticationData?.subscribe($authenticationData => {
     identityClient.jwtToken = $authenticationData?.jwt;
+    channelClient.jwtToken = $authenticationData?.jwt;
 })
