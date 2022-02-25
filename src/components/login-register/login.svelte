@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { IdentityJson } from 'iota-is-sdk';
-	import { BoxColor } from './../../lib/constants/colors';
 	import { onMount } from 'svelte';
 	import Dropzone from 'svelte-file-dropzone';
 	import { Button, Spinner } from 'sveltestrap';

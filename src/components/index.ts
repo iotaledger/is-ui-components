@@ -1,4 +1,5 @@
 export { default as CreateVC } from './create-VC.svelte';
+export { default as VerifyCredential } from './credential/verify-credential.svelte';
 export { default as Details } from './details.svelte';
 export { default as Icon } from './icon/icon.svelte';
 export { default as CreateCredential } from './identity/create-credential.svelte';
@@ -11,5 +12,4 @@ export { default as Box } from './login-register/box.svelte';
 export { default as LoginRegister } from './login-register/login-register.svelte';
 export { default as Search } from './search.svelte';
 export { default as StreamsManager } from './streams/streams-manager.svelte';
-export { default as VerifyVC } from './verify-VC.svelte';
 

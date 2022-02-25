@@ -164,3 +164,14 @@ export async function addIdentityToSearchResults(id: string): Promise<void> {
         })
     }
 }
+
+export async function verifyVC(json: VerifiableCredentialInternal): Promise<boolean> {
+    try {
+        const { isVerified } = await identityClient.checkCredential(json as VerifiableCredentialInternal);
+        return isVerified
+    }
+    catch (e) {
+        console.error('There was an error revoking the credential', e)
+        return false;
+    }
+}

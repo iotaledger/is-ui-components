@@ -20,12 +20,12 @@
 					<CreateVC />
 				</div>
 			</Col>
-			<Col>
+			<!-- <Col>
 				<div class="box">
 					<h3>VC Verification</h3>
 					<VerifyVC />
 				</div>
-			</Col>
+			</Col> -->
 			<Col>
 				<div class="box">
 					<h3>Search</h3>
