@@ -13,4 +13,5 @@ export { default as LoginRegister } from './login-register/login-register.svelte
 export { default as Search } from './search.svelte';
 export { default as CreateChannel } from './streams/create-channel.svelte';
 export { default as StreamsManager } from './streams/streams-manager.svelte';
+export { default as WriteMessage } from './streams/write-message.svelte';
 

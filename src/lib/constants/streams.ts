@@ -1,0 +1,1 @@
+export const MAXIMUM_SEARCH_RESULTS = 100

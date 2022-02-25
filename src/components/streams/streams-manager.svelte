@@ -4,15 +4,35 @@
 	// We have to import Input this way, otherwise it shouts SSR issues.
 	import Input from 'sveltestrap/src/Input.svelte';
 	import Box from '../login-register/box.svelte';
-	import { Icon, CreateChannel } from './../../components';
+	import { CreateChannel, Icon } from './../../components';
 	import { BoxColor } from './../../lib/constants/colors';
-	import { searchChannels, searchResults, addChannelToSearchResults } from './../../lib/streams';
+	import { addChannelToSearchResults, searchChannels, searchResults } from './../../lib/streams';
+	import type { ExtendedChannelInfo } from './../../lib/types/streams';
+	import ChannelDetails from './channel-details.svelte';
 
 	let loading = false;
 	let query: string = '';
 	let isCreateChannelOpen = false;
 
 	$: message = loading || $searchResults?.length ? null : 'No channels found';
+
+	enum State {
+		ListChannels = 'listChannels',
+		ChannelDetail = 'channelDetail'
+	}
+
+	let state: State = State.ListChannels;
+	let selectedChannel;
+
+	$: selectedChannel, updateState();
+
+	function updateState(): void {
+		if (selectedChannel) {
+			state = State.ChannelDetail;
+		} else {
+			state = State.ListChannels;
+		}
+	}
 
 	onMount(async () => {
 		// Pre-load the first 100 identities
@@ -25,6 +45,14 @@
 		loading = true;
 		$searchResults = await searchChannels(query);
 		loading = false;
+	}
+
+	const handleBackClick = () => {
+		selectedChannel = undefined;
+	};
+
+	function handleSelectChannel(channel: ExtendedChannelInfo) {
+		selectedChannel = channel;
 	}
 
 	function handleCloseModal() {
@@ -57,84 +85,119 @@
 </script>
 
 <Box>
-	<div class="streams-manager w-100 h-100 d-flex flex-column">
-		<div class="mb-4 d-flex flex-row align-items-center justify-content-between">
-			<div class="d-flex align-items-center">
-				<h1>Channels</h1>
-				{#if loading}
-					<div class="ms-4">
-						<Spinner type="border" color="secondary" size="sm" />
-					</div>
-				{/if}
+	{#if state === State.ListChannels}
+		<div class="streams-manager w-100 h-100 d-flex flex-column">
+			<div class="mb-4 d-flex flex-row align-items-center justify-content-between">
+				<div class="d-flex align-items-center">
+					<h1>Channels</h1>
+					{#if loading}
+						<div class="ms-4">
+							<Spinner type="border" color="secondary" size="sm" />
+						</div>
+					{/if}
+				</div>
+				<div
+					class="box d-flex align-items-center"
+					on:mouseenter={switchIconColor}
+					on:mouseleave={switchIconColor}
+				>
+					<Button size="sm" outline color="dark" on:click={handleOpenModal}>
+						<Icon type="plus" color={iconColor} />
+						<span class="ml-1">Create a channel</span>
+					</Button>
+				</div>
 			</div>
-			<div
-				class="box d-flex align-items-center"
-				on:mouseenter={switchIconColor}
-				on:mouseleave={switchIconColor}
-			>
-				<Button size="sm" outline color="dark" on:click={handleOpenModal}>
-					<Icon type="plus" color={iconColor} />
-					<span class="ml-1">Create a channel</span>
-				</Button>
+			<div class="search mb-4 position-relative">
+				<Input
+					type="text"
+					placeholder="Search for channels..."
+					autofocus
+					class="position-relative ps-5"
+					bind:value={query}
+					on:keypress={(e) => {
+						if (e.key === 'Enter') onSearch();
+					}}
+				/>
+				<button class="border-0 bg-transparent position-absolute" on:click={onSearch}>
+					<Icon type="search" />
+				</button>
 			</div>
-		</div>
-		<div class="search mb-4 position-relative">
-			<Input
-				type="text"
-				placeholder="Search for channels..."
-				autofocus
-				class="position-relative ps-5"
-				bind:value={query}
-				on:keypress={(e) => {
-					if (e.key === 'Enter') onSearch();
-				}}
-			/>
-			<button class="border-0 bg-transparent position-absolute" on:click={onSearch}>
-				<Icon type="search" />
-			</button>
-		</div>
-		{#if $searchResults?.length}
-			<ListGroup flush>
-				{#each $searchResults as { channelAddress, isOwner, isSubscriber }}
-					<ListGroupItem
-						tag="button"
-						action
-						class="border-bottom"
-						on:click={() => {
-							// TODO: Go to channel details
-							console.log('Clicked on channel: ', channelAddress);
-						}}
-					>
-						<div class="item d-flex align-items-center">
-							<Icon type="credential" boxed boxColor={BoxColor.Blue} size={24} />
-							<div class="overflow-hidden">
-								<div class="ms-3">
-									<div class="d-flex align-items-center">
-										<!-- TODO: remove this when library is updated and returns channel name -->
-										<span class="fs-6 fw-bold">Channel name</span>
-										<!-- Temporary solution to display if a user is owner / subscriber of a channel -->
-										{#if isOwner}
-											<Badge class="ms-2" color="info">owner</Badge>
-										{/if}
-										{#if isSubscriber}
-											<Badge color="success">subscriber</Badge>
-										{/if}
-									</div>
-								</div>
-								<div class="ms-3 fs-6 text-secondary text-truncate">{channelAddress}</div>
-							</div>
+			{#if $searchResults?.length}
+				<ListGroup flush>
+					<ListGroupItem>
+						<div class="d-flex justify-content-between align-items-center">
+							<div class="item">Channel</div>
+							<div class="item">Address</div>
+							<div class="item">Topic Types</div>
+							<div class="item">Topic sources</div>
+							<div class="item" />
 						</div>
 					</ListGroupItem>
-				{/each}
-			</ListGroup>
-		{/if}
+					{#each $searchResults as channel}
+						<ListGroupItem
+							tag="button"
+							action
+							class="border-bottom"
+							on:click={() => {
+								handleSelectChannel(channel);
+							}}
+						>
+							<div class="d-flex justify-content-between align-items-center">
+								<div class="item d-flex align-items-center">
+									<Icon type="channel" boxed boxColor={BoxColor.Blue} size={24} />
 
-		{#if message}
-			<div class="text-center">
-				{message}
-			</div>
-		{/if}
-	</div>
+									<div class="d-flex flex-column align-items-start">
+										<!-- TODO: remove this when library is updated and returns channel name -->
+										<span class="ms-2 text-truncate">Channel name</span>
+									</div>
+								</div>
+
+								<div class="item">{channel.channelAddress}</div>
+								<div class="item">
+									{#each channel.topics as { type }}
+										<div>{type}</div>
+									{/each}
+								</div>
+								<div class="item">
+									{#each channel.topics as { source }}
+										<div>{source}</div>
+									{/each}
+								</div>
+								<!-- Temporary solution to display if a user is owner / subscriber of a channel -->
+								<div class="item">
+									{#if channel?.isOwner}
+										<Badge class="ms-2" color="info">Owner</Badge>
+									{/if}
+									{#if channel?.isSubscriber}
+										<Badge class="ms-2" color="success">Subscriber</Badge>
+									{/if}
+								</div>
+							</div>
+						</ListGroupItem>
+					{/each}
+				</ListGroup>
+			{/if}
+
+			{#if message}
+				<div class="text-center">
+					{message}
+				</div>
+			{/if}
+		</div>
+	{/if}
+	{#if state === State.ChannelDetail}
+		<div class="mb-4 align-self-start">
+			<button on:click={handleBackClick} class="go-back btn d-flex align-items-center">
+				<Icon type="arrow-left" />
+				<span class="ms-2">Back</span>
+			</button>
+		</div>
+		<ChannelDetails
+			address={selectedChannel.channelAddress}
+			topics={selectedChannel.topics}
+			name="Channel name"
+		/>
+	{/if}
 	<CreateChannel
 		isOpen={isCreateChannelOpen}
 		onModalClose={handleCloseModal}

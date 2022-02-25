@@ -1,20 +1,21 @@
 <script lang="ts">
+	import { BoxColor } from './../../lib/constants/colors';
 	import {
 		ArrowLeft,
+		Channel,
 		ChevronDown,
 		Close,
+		Credential,
 		Device,
 		Download,
 		Identity,
 		Individual,
+		Message,
 		Organization,
 		Plus,
 		Search,
-		Credential,
 		Trash
 	} from './icons';
-
-	import { BoxColor } from './../../lib/constants/colors';
 
 	const TYPES = {
 		'arrow-left': ArrowLeft,
@@ -28,6 +29,8 @@
 		plus: Plus,
 		search: Search,
 		credential: Credential,
+		channel: Channel,
+		message: Message,
 		trash: Trash
 	};
 
