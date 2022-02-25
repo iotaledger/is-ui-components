@@ -10,7 +10,8 @@
 		Organization,
 		Plus,
 		Search,
-		Credential
+		Credential,
+		Trash
 	} from './icons';
 
 	import { BoxColor } from './../../lib/constants/colors';
@@ -26,7 +27,8 @@
 		organization: Organization,
 		plus: Plus,
 		search: Search,
-		credential: Credential
+		credential: Credential,
+		trash: Trash
 	};
 
 	export let size: number = 24;

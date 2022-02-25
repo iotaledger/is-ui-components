@@ -4,12 +4,13 @@
 	// We have to import Input this way, otherwise it shouts SSR issues.
 	import Input from 'sveltestrap/src/Input.svelte';
 	import Box from '../login-register/box.svelte';
-	import { Icon } from './../../components';
+	import { Icon, CreateChannel } from './../../components';
 	import { BoxColor } from './../../lib/constants/colors';
-	import { searchChannels, searchResults } from './../../lib/streams';
+	import { searchChannels, searchResults, addChannelToSearchResults } from './../../lib/streams';
 
 	let loading = false;
 	let query: string = '';
+	let isCreateChannelOpen = false;
 
 	$: message = loading || $searchResults?.length ? null : 'No channels found';
 
@@ -23,6 +24,27 @@
 	async function onSearch() {
 		loading = true;
 		$searchResults = await searchChannels(query);
+		loading = false;
+	}
+
+	function handleCloseModal() {
+		isCreateChannelOpen = false;
+	}
+
+	function handleOpenModal() {
+		isCreateChannelOpen = true;
+	}
+
+	// Add the newly created channel to the search results
+	async function onCreateChannelSuccess(channelAddress: string) {
+		loading = true;
+		// If query is not empty, we need to search again to get the match results
+		if (query?.length) {
+			await onSearch();
+		} else {
+			// Adding the channel, improve performance by not searching again
+			await addChannelToSearchResults(channelAddress);
+		}
 		loading = false;
 	}
 
@@ -50,14 +72,7 @@
 				on:mouseenter={switchIconColor}
 				on:mouseleave={switchIconColor}
 			>
-				<Button
-					size="sm"
-					outline
-					color="dark"
-					on:click={() => {
-						console.log('TODO: Create a channel');
-					}}
-				>
+				<Button size="sm" outline color="dark" on:click={handleOpenModal}>
 					<Icon type="plus" color={iconColor} />
 					<span class="ml-1">Create a channel</span>
 				</Button>
@@ -120,6 +135,11 @@
 			</div>
 		{/if}
 	</div>
+	<CreateChannel
+		isOpen={isCreateChannelOpen}
+		onModalClose={handleCloseModal}
+		onSuccess={onCreateChannelSuccess}
+	/>
 </Box>
 
 <style lang="scss">

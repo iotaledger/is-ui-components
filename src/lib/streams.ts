@@ -1,4 +1,4 @@
-import type { ChannelInfo } from 'iota-is-sdk';
+import type { ChannelInfo, CreateChannelResponse } from 'iota-is-sdk';
 import type { Writable } from 'svelte/store';
 import { get, writable } from 'svelte/store';
 import { channelClient, authenticationData } from './base';
@@ -7,6 +7,8 @@ import type { ExtendedChannelInfo } from './types/streams';
 export const searchResults: Writable<ExtendedChannelInfo[]> = writable([]);
 
 const MAXIMUM_SEARCH_RESULTS = 100
+
+const userDid = get(authenticationData)?.did
 
 // TODO: Improve search algorithm, now it is searching only by author id or topic type
 export async function searchChannels(query: string, onlyOwnedSubscribedChannels = false): Promise<ExtendedChannelInfo[]> {
@@ -38,8 +40,6 @@ export async function searchChannels(query: string, onlyOwnedSubscribedChannels 
         }
     }
 
-    const userDid = get(authenticationData)?.did
-
     // Add to channel if the user logged is owner/subscriber of a channel
     for (const channel of _searchResult) {
         const authorId = channel.authorId;
@@ -57,3 +57,35 @@ export async function searchChannels(query: string, onlyOwnedSubscribedChannels 
     return searchResult
 }
 
+
+export async function createChannel(topics: { type: string, source: string }[]): Promise<CreateChannelResponse> {
+    let channel: CreateChannelResponse;
+
+    try {
+        channel = await channelClient.create({
+            topics
+        });
+    }
+    catch (e) {
+        console.error('There was an error searching for channel', e)
+    }
+    return channel
+}
+
+
+
+export async function addChannelToSearchResults(channelAddress: string): Promise<void> {
+    let channel: ExtendedChannelInfo = await channelClient.info(channelAddress);
+
+    if (channel) {
+        const authorId = channel.authorId;
+
+        channel = {
+            ...channel, isOwner: authorId === userDid,
+            isSubscriber: channel.subscriberIds.includes(userDid)
+        }
+        searchResults?.update(_searchResults => {
+            return [..._searchResults, channel];
+        })
+    }
+}
