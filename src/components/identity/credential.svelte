@@ -1,6 +1,16 @@
 <script lang="ts">
 	import type { VerifiableCredentialBody } from 'iota-is-sdk/src';
-	import { Accordion, AccordionItem, Button, Spinner } from 'sveltestrap';
+	import {
+		Accordion,
+		AccordionItem,
+		Button,
+		Spinner,
+		ModalHeader,
+		ModalBody,
+		ModalFooter
+	} from 'sveltestrap';
+	// We have to import Modal this way, otherwise it shouts SSR issues.
+	import Modal from 'sveltestrap/src/Modal.svelte';
 	import { Icon, JSONViewer } from './../../components';
 	import { CREDENTIAL_ICON } from './../../lib/constants/identity';
 	import { createJsonDataUrl } from './../../lib/utils';
@@ -11,6 +21,8 @@
 
 	let { id, issuer, issuanceDate, credentialSubject } = vc;
 	let type = vc.type?.[1];
+	let isOpen = false;
+	const onModalClose = () => (isOpen = !isOpen);
 </script>
 
 <Accordion>
@@ -49,12 +61,41 @@
 						<Icon type="download" />
 						<span>Download</span>
 					</a>
-					<Button size="sm" outline color="danger" disabled={revoking} class="ms-auto mt-2">
-						<div class="d-flex justify-content-center" on:click={() => onRevoke(vc)}>
+					<Button
+						size="sm"
+						outline
+						color="danger"
+						disabled={revoking}
+						class="ms-auto mt-2"
+						on:click={onModalClose}
+					>
+						<div class="d-flex justify-content-center">
 							<span>{revoking ? 'Revoking...' : 'Revoke'}</span>
-							{#if revoking}
-								<Spinner size="sm" type="border" color="light" />
-							{/if}
+							<Modal {isOpen} toggle={onModalClose}>
+								<div class="p-3 d-flex flex-column">
+									<ModalHeader toggle={onModalClose}>Are you sure?</ModalHeader>
+									<ModalBody>
+										<div class="break-all">
+											Credential with ID <span class="fw-light">{id}</span> is going to be revoked.
+										</div>
+									</ModalBody>
+									<ModalFooter>
+										<Button
+											color="danger"
+											on:click={() => {
+												onRevoke(vc);
+											}}
+											>{#if revoking}
+												<span>Revoking...</span>
+												<Spinner size="sm" type="border" color="light" class="ms-1" />
+											{:else}
+												Yes, revoke
+											{/if}</Button
+										>
+										<Button color="secondary" on:click={onModalClose}>Cancel</Button>
+									</ModalFooter>
+								</div>
+							</Modal>
 						</div>
 					</Button>
 				</div>
@@ -80,5 +121,9 @@
 	.actions div {
 		font-weight: 600;
 		font-size: 14px;
+	}
+
+	.break-all {
+		word-break: break-all;
 	}
 </style>
