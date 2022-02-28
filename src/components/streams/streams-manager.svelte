@@ -1,14 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Badge, Button, ListGroup, ListGroupItem, Spinner } from 'sveltestrap';
-	// We have to import Input this way, otherwise it shouts SSR issues.
-	import Input from 'sveltestrap/src/Input.svelte';
-	import Box from '../login-register/box.svelte';
-	import { CreateChannel, Icon } from './../../components';
+	import { Badge, Button, Input, ListGroup, ListGroupItem, Spinner } from 'sveltestrap';
+	import { Box, ChannelDetails, CreateChannel, Icon } from './../../components';
 	import { BoxColor } from './../../lib/constants/colors';
 	import { addChannelToSearchResults, searchChannels, searchResults } from './../../lib/streams';
 	import type { ExtendedChannelInfo } from './../../lib/types/streams';
-	import ChannelDetails from './channel-details.svelte';
 
 	let loading = false;
 	let query: string = '';
@@ -97,7 +93,7 @@
 					{/if}
 				</div>
 				<div
-					class="box d-flex align-items-center"
+					class="d-flex align-items-center"
 					on:mouseenter={switchIconColor}
 					on:mouseleave={switchIconColor}
 				>
@@ -193,11 +189,13 @@
 			</button>
 		</div>
 		<ChannelDetails
+			isOwner={selectedChannel.isOwner}
 			address={selectedChannel.channelAddress}
 			topics={selectedChannel.topics}
 			name="Channel name"
 		/>
 	{/if}
+
 	<CreateChannel
 		isOpen={isCreateChannelOpen}
 		onModalClose={handleCloseModal}

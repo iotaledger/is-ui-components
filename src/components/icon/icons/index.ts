@@ -12,4 +12,5 @@ export { default as Organization } from './organization.svelte';
 export { default as Plus } from './plus.svelte';
 export { default as Search } from './search.svelte';
 export { default as Trash } from './trash.svelte';
+export { default as Warning } from './warning.svelte';
 

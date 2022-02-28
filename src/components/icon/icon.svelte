@@ -14,7 +14,8 @@
 		Organization,
 		Plus,
 		Search,
-		Trash
+		Trash,
+		Warning
 	} from './icons';
 
 	const TYPES = {
@@ -31,7 +32,8 @@
 		credential: Credential,
 		channel: Channel,
 		message: Message,
-		trash: Trash
+		trash: Trash,
+		warning: Warning
 	};
 
 	export let size: number = 24;
