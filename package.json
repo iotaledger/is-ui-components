@@ -36,7 +36,7 @@
 	"type": "module",
 	"dependencies": {
 		"@iota/util.js": "^1.8.6",
-		"iota-is-sdk": "https://gitpkg.now.sh/boxfish-studio/integration-services/clients/node?feat/browser",
+		"iota-is-sdk": "https://gitpkg.now.sh/boxfish-studio/integration-services/clients/node?feat/browser-compatibility",
 		"svelte-file-dropzone": "^1.0.0-dev.1"
 	}
 }
