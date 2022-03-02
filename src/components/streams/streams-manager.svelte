@@ -140,7 +140,8 @@
 
                                     <div class="d-flex flex-column align-items-start">
                                         <!-- TODO: remove this when library is updated and returns channel name -->
-                                        <span class="ms-2 text-truncate">Channel name</span>
+                                        <div class="ms-2 channel">Channel name</div>
+                                        <div class="ms-2 channel description fw-light">Channel description</div>
                                     </div>
                                 </div>
 
@@ -189,6 +190,11 @@
             address={selectedChannel.channelAddress}
             topics={selectedChannel.topics}
             name="Channel name"
+            description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam pretium massa in odio
+			pellentesque dapibus. Nunc a augue nunc. Morbi fermentum pellentesque quam, nec vulputate
+			neque viverra ornare. Etiam efficitur purus vel finibus consequat. Nunc tincidunt pretium mi,
+			vel ornare leo vestibulum a. Pellentesque habitant morbi tristique senectus et netus et
+			malesuada fames ac turpis egestas."
         />
     {/if}
 
@@ -212,6 +218,21 @@
             margin-right: 20px;
             &:last-child {
                 margin-right: 0px;
+            }
+            .channel {
+                text-overflow: ellipsis;
+                overflow: hidden !important;
+                white-space: nowrap;
+                width: 50px;
+                @media (min-width: 990px) {
+                    width: 80px;
+                }
+                @media (min-width: 1200px) {
+                    width: 120px;
+                }
+                &.description {
+                    font-size: 14px;
+                }
             }
         }
     }
