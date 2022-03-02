@@ -16,23 +16,27 @@
     let inputFields = {}
     let loading = false
     let selectedTemplate = VC_TEMPLATES[0]
+    let isValid = false
 
-    $: isValid = (): boolean => {
+    $: inputFields, validate()
+
+    function validate(): void {
+        isValid = true
         if (inputFields && Object.keys(inputFields).length === 0 && Object.getPrototypeOf(inputFields) === Object.prototype) {
-            return false
+            isValid = false
         } else {
-            for (const key in inputFields) {
-                const isRequired = selectedTemplate.fields.find((field) => field.required)
-                if (!targetDid || (inputFields[key] === '' && isRequired)) {
-                    return false
+            selectedTemplate?.fields?.forEach((field) => {
+                if (field.required && (inputFields[field.id] === '' || !inputFields[field.id])) {
+                    isValid = false
                 }
-            }
-            return true
+            })
         }
     }
 
     function resetFields(): void {
-        inputFields = {}
+        selectedTemplate.fields.forEach((field) => {
+            inputFields[field.id] = ''
+        })
     }
     function resetCredential(): void {
         verifiableCredential = undefined
@@ -101,7 +105,7 @@
                 {/each}
             {/if}
 
-            <Button size="lg" block class="mt-4" color="primary" disabled={!isValid() || loading} on:click={handleCreateVC}>
+            <Button size="lg" block class="mt-4" color="primary" disabled={!isValid || loading} on:click={handleCreateVC}>
                 <div class="d-flex justify-content-center align-items-center">
                     {loading ? 'Creating VC...' : 'Add a new credential'}
                     {#if loading}

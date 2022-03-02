@@ -146,16 +146,16 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="item d-flex align-items-center">
                                     <Icon
-                                        type={USER_ICONS[identity.type].icon ?? UserType.Unknown}
+                                        type={USER_ICONS[identity.claim?.type]?.icon ?? UserType.Unknown}
                                         boxed
-                                        boxColor={USER_ICONS[identity.type].boxColor ?? BoxColor.Blue}
+                                        boxColor={USER_ICONS[identity.claim?.type]?.boxColor ?? BoxColor.Blue}
                                         size={24}
                                     />
                                     <span class="ms-3 text-truncate">{identity.username}</span>
                                 </div>
-                                <div class="item">{identity.type}</div>
+                                <div class="item">{identity.claim?.type}</div>
                                 <div class="item">{identity.registrationDate}</div>
-                                <div class="item">{identity.verifiableCredentials?.length ?? 0}</div>
+                                <div class="item">{identity.numberOfCredentials}</div>
                             </div>
                         </ListGroupItem>
                     {/each}
@@ -178,13 +178,7 @@
             </button>
         </div>
 
-        <IdentityDetails
-            username={$selectedIdentity.username}
-            type={$selectedIdentity.type}
-            id={$selectedIdentity.id}
-            verifiableCredentials={$selectedIdentity.verifiableCredentials}
-            claim={$selectedIdentity.claim}
-        />
+        <IdentityDetails identity={$selectedIdentity} />
     {/if}
     <CreateIdentity isOpen={isCreateIdentityOpen} onModalClose={handleCloseModal} onSuccess={onCreateIdentitySuccess} />
 </Box>

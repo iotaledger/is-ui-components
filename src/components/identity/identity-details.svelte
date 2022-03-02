@@ -1,16 +1,27 @@
 <script lang="ts">
-    import type { UserType } from 'iota-is-sdk'
-    import { Accordion, AccordionItem, Button } from 'sveltestrap'
+    import type { VerifiableCredentialInternal } from 'iota-is-sdk/src'
+    import { onMount } from 'svelte'
+    import { Accordion, AccordionItem, Button, Spinner } from 'sveltestrap'
     import { CreateCredential, Credential, Icon, JSONViewer } from './../../components'
     import { CREDENTIAL_ICON, USER_ICONS } from './../../lib/constants/identity'
-    import { revokeVC, searchIdentities, updateSelectedIdentity } from './../../lib/identity'
+    import { getVerifiableCredentials, revokeVC, searchIdentities, updateSelectedIdentity } from './../../lib/identity'
+    import type { ExtendedUser } from './../../lib/types/identity'
     import { createJsonDataUrl } from './../../lib/utils'
 
-    export let username: string
-    export let type: UserType
-    export let id: string
-    export let verifiableCredentials = []
-    export let claim = {}
+    export let identity: ExtendedUser
+
+    const { username, id, claim } = identity
+    const type = identity?.claim?.type
+
+    let verifiableCredentials: VerifiableCredentialInternal[] = []
+    let loading = false
+
+    onMount(async () => {
+        // Get all credentials
+        loading = true
+        verifiableCredentials = await getVerifiableCredentials(id)
+        loading = false
+    })
 
     enum State {
         Details = 'details',
@@ -33,11 +44,16 @@
     }
 
     const updateCredentials = async () => {
+        loading = true
         const identities = await searchIdentities(id)
-        const foundIdentity = identities?.[0]
+        let foundIdentity = identities?.[0]
+        const numberOfCredentials = foundIdentity?.verifiableCredentials?.length
+        foundIdentity = { ...foundIdentity, numberOfCredentials }
         if (foundIdentity) {
             updateSelectedIdentity(foundIdentity)
         }
+        verifiableCredentials = await getVerifiableCredentials(id)
+        loading = false
     }
 
     // TODO: improve this. It is used to change the icon color when button is hovered.
@@ -113,6 +129,11 @@
                 {/key}
             </div>
         {/each}
+        {#if loading}
+            <div class="d-flex justify-content-center my-4">
+                <Spinner type="border" color="secondary" size="lg" />
+            </div>
+        {/if}
     </div>
 
     <CreateCredential
