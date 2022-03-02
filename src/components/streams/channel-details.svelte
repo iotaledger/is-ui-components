@@ -14,6 +14,7 @@
         stopData,
     } from './../../lib/streams'
     import { SubscriptionState } from './../../lib/types/streams'
+    import { isJson } from './../../lib/utils'
 
     export let address: string
     export let name: string
@@ -196,23 +197,48 @@
     {/if}
     {#each $channelData as msg}
         <div class="p-4 bg-light my-4">
-            <div class="d-flex flex-column flex-lg-row">
-                <div class="info-box my-4 my-lg-0">
-                    <div class="text-secondary">Message id</div>
-                    <div class="text-break">{msg.messageId}</div>
-                </div>
-                <div class="my-4 my-lg-0 mx-lg-4">
+            <div class="d-lg-flex justify-content-between mb-lg-4">
+                <div class="info-box mb-4 mb-lg-0 me-lg-4">
                     <div class="text-secondary">Timestamp</div>
                     <div class="text-break">{msg.imported}</div>
                 </div>
-                <div class="info-box my-4 my-lg-0">
-                    <div class="text-secondary">Link</div>
-                    <div class="text-break">{msg.link}</div>
+                <div class="info-box mb-4 mb-lg-0 me-lg-4">
+                    <div class="text-secondary">Type</div>
+                    <div>{msg.log.type}</div>
                 </div>
             </div>
-            <div class="my-4">
-                <div class="text-secondary">Log</div>
-                <JSONViewer json={JSON.stringify(msg.log, null, '\t')} />
+            <div class="mb-4">
+                <div class="text-secondary">Message id</div>
+                <div class="text-break">{msg.messageId}</div>
+            </div>
+            <div class="mb-4">
+                <div class="text-secondary">Link</div>
+                <div class="text-break">{msg.link}</div>
+            </div>
+
+            <div class="mb-4">
+                <div class="text-secondary">Public data</div>
+                {#if isJson(msg.log.publicPayload)}
+                    <JSONViewer json={msg.log.publicPayload} />
+                {:else}
+                    <span>{msg.log.publicPayload}</span>
+                {/if}
+            </div>
+            <div class="mb-4">
+                <div class="text-secondary">Encrypted data</div>
+                {#if isJson(msg.log.payload)}
+                    <JSONViewer json={msg.log.payload} />
+                {:else}
+                    <span>{msg.log.payload}</span>
+                {/if}
+            </div>
+            <div class="mb-4">
+                <div class="text-secondary">Metadata</div>
+                {#if isJson(msg.log.metadata)}
+                    <JSONViewer json={msg.log.metadata} />
+                {:else}
+                    <span>{msg.log.metadata}</span>
+                {/if}
             </div>
         </div>
     {/each}
