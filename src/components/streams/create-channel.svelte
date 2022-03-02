@@ -16,7 +16,8 @@
             source: '',
         },
     ]
-
+    let name: string = 'Channel name...'
+    let description: string = 'Please, describe your channel here...'
     function resetTopics(): void {
         topics = [
             {
@@ -58,6 +59,12 @@
     <ModalHeader toggle={onModalClose} class="px-4 pt-3">Create channel</ModalHeader>
 
     <ModalBody class="px-4 pb-4">
+        <div class="my-4 p-4 bg-light ">
+            <Label>Name</Label>
+            <Input placeholder={name} type="textarea" />
+            <Label class="mt-3">Description</Label>
+            <Input placeholder={description} type="textarea" />
+        </div>
         {#each topics as topic, i}
             <div class="my-4 p-4 bg-light ">
                 <Label class="d-flex justify-content-between align-items-center">

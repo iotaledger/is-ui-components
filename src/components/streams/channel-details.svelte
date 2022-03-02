@@ -19,6 +19,7 @@
     export let name: string
     export let isOwner = false
     export let topics
+    export let description: string
 
     let loading = false
     let subscriptionState: SubscriptionState
@@ -109,7 +110,7 @@
                     <Badge color="primary" class="me-1">{type}</Badge>
                     <Badge color="secondary" class="me-2">{source}</Badge>
                 {/each}
-                <div class="text-secondary text-break fw-bolder mt-1 text-break">{address}</div>
+                <div class="text-secondary text-break mt-1 text-break">{address}</div>
             </div>
         </div>
         {#if subscriptionState && !isOwner}
@@ -134,6 +135,10 @@
                 </div>
             </div>
         {/if}
+    </div>
+    <div class="bg-light rounded px-4 pt-3 pb-4">
+        <div class="text-secondary">Description</div>
+        <div>{description}</div>
     </div>
     {#if pendingSubscriptions?.length}
         <div class="my-4">
