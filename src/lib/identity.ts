@@ -57,20 +57,19 @@ export async function searchIdentities(query: string): Promise<ExtendedUser[]> {
     const _isDID = (query: string): boolean => query.startsWith('did:iota:');
     const _isType = (query: string): boolean => Object.values(UserType).some(userType => userType.toLowerCase() === query.toLowerCase());
 
-    let _searchResult: User[] = [];
-    const searchResult: ExtendedUser[] = [];
+    let searchResult: User[] = [];
 
     if (_isDID(query)) {
         try {
             const _identity = await identityClient.find(query);
-            _searchResult.push(_identity);
+            searchResult.push(_identity);
         }
         catch (e) {
             console.error('There was an error searching for user', e)
         }
     } else if (_isType(query)) {
         try {
-            _searchResult = await identityClient.search({
+            searchResult = await identityClient.search({
                 username: undefined,
                 type: query,
                 limit: MAXIMUM_SEARCH_RESULTS
@@ -81,7 +80,7 @@ export async function searchIdentities(query: string): Promise<ExtendedUser[]> {
         }
     } else {
         try {
-            _searchResult = await identityClient.search({
+            searchResult = await identityClient.search({
                 username: query,
                 type: undefined,
                 limit: MAXIMUM_SEARCH_RESULTS
@@ -91,22 +90,7 @@ export async function searchIdentities(query: string): Promise<ExtendedUser[]> {
             console.error('There was an error searching for user', e)
         }
     }
-
-    // TODO: remove when the endpoint is fixed to return the type
-    for await (const identity of _searchResult) {
-        try {
-            const _userDetails = await identityClient.find(identity.id);
-            searchResult.push({
-                ...identity,
-                type: _userDetails?.claim?.type,
-                claim: _userDetails?.claim,
-                verifiableCredentials: _userDetails?.verifiableCredentials ?? []
-            })
-        }
-        catch (e) {
-            console.error('There was an error searching for user', e)
-        }
-    }
+    console.log("searchResult", searchResult)
     return searchResult
 }
 
@@ -174,4 +158,9 @@ export async function verifyVC(json: VerifiableCredentialInternal): Promise<bool
         console.error('There was an error revoking the credential', e)
         return false;
     }
+}
+
+export async function getVerifiableCredentials(identityId: string): Promise<VerifiableCredentialInternal[]> {
+    const identityDetails = await identityClient.find(identityId);
+    return identityDetails?.verifiableCredentials ?? []
 }

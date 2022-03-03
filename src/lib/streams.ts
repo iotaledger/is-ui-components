@@ -212,3 +212,4 @@ export async function addChannelToSearchResults(channelAddress: string): Promise
         })
     }
 }
+

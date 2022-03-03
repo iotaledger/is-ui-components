@@ -79,5 +79,5 @@ export type RegistrationUser = {
 
 export interface ExtendedUser extends User {
     type?: UserType | string;
-    vc?: VerifiableCredentialInternal[];
+    numberOfCredentials?: number;
 }
