@@ -6,6 +6,7 @@
     import { Box, Icon, JSONViewer } from './../../components'
     import { verifyVC } from './../../lib/identity'
     import { CREDENTIAL_ICON } from './../../lib/constants/identity'
+    import { BoxColor } from './../../lib/constants/colors'
 
     const MAX_FILES = 10
 
@@ -105,7 +106,7 @@
 
 <Box>
     <div class="d-flex flex-column align-items-center justify-content-center">
-        <Icon type="credential" size={48} />
+        <Icon type={CREDENTIAL_ICON.icon} size={48} />
         <h1 class="mt-3 mb-4">Verify a credential</h1>
     </div>
     <div class="w-100 mb-2">
@@ -150,7 +151,13 @@
         {:else}
             <div class="w-100 border rounded mt-3 py-2 px-3 d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
-                    <Icon type="close" boxed size={48} boxColor="transparent" />
+                    <Icon
+                        type="exclamation-circle
+                    "
+                        boxed
+                        size={48}
+                        boxColor={BoxColor.Transparent}
+                    />
                     <span class="text-break ms-1">{fileName}</span>
                 </div>
                 <div class="d-flex align-items-center ms-2">

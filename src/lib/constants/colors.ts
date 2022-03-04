@@ -11,4 +11,5 @@ export enum BoxColor {
     Teal = 'teal',
     Indigo = 'indigo',
     Cyan = 'cyan',
+    Transparent = 'transparent',
 }

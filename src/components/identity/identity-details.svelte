@@ -66,8 +66,8 @@
 
 <div class="identity-details w-100">
     <div class="d-flex align-items-center justify-content-between bg-light rounded p-4">
-        <div class="d-flex">
-            <Icon type={USER_ICONS[type].icon} size={64} boxed boxColor={USER_ICONS[type].boxColor} />
+        <div class="d-flex align-items-center">
+            <Icon size={64} boxed boxColor={USER_ICONS[type].boxColor} type={USER_ICONS[type].icon} />
             <div class="ms-4">
                 <div class="text-secondary fst-italic">{type}</div>
                 <div class="fs-4 fw-bold">{username}</div>
@@ -83,8 +83,8 @@
                     on:click={switchToAddCredential}
                     class="mt-3 mt-lg-0  d-flex align-items-center"
                 >
-                    <Icon type="plus" size={24} color={iconColor} />
-                    <span class="ml-1">Add credential</span>
+                    <Icon type="plus" color={iconColor} size={16} />
+                    <span class="ms-1">Add credential</span>
                 </Button>
             </div>
         </div>
@@ -94,7 +94,7 @@
         <Accordion class="mt-4">
             <AccordionItem>
                 <div slot="header" class="d-flex align-items-center">
-                    <Icon type={CREDENTIAL_ICON.icon} boxed boxColor={CREDENTIAL_ICON.boxColor} size={48} />
+                    <Icon type="collection" boxed boxColor={CREDENTIAL_ICON.boxColor} size={48} />
                     <div class="ms-4">
                         <div class="fs-6 fw-bold">Claim</div>
                         <div class="label fw-bold text-secondary mt-1">
@@ -105,12 +105,12 @@
                 <div class="my-4">
                     <div class="d-flex flex-column">
                         <a
-                            class="btn btn-sm btn-outline-info text-decoration-none ms-auto"
+                            class="btn btn-sm btn-outline-info text-decoration-none ms-auto d-flex align-items-center"
                             href={createJsonDataUrl(claim)}
                             download={`claim-identity-${id}.json`}
                         >
-                            <Icon type="download" />
-                            <span>Download</span>
+                            <Icon type="download" size={16} />
+                            <span class="ms-2">Download</span>
                         </a>
                     </div>
                     <div>

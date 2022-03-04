@@ -1,10 +1,14 @@
 <script lang="ts">
     import { onMount } from 'svelte'
-    import { Badge, Button, Input, ListGroup, ListGroupItem, Spinner } from 'sveltestrap'
-    import { Box, ChannelDetails, CreateChannel, Icon } from './../../components'
+    import { Badge, Button, ListGroup, ListGroupItem, Spinner } from 'sveltestrap'
+    // We have to import Input this way, otherwise it shouts SSR issues.
+    import Input from 'sveltestrap/src/Input.svelte'
+    import Box from '../login-register/box.svelte'
+    import { CreateChannel, Icon } from './../../components'
     import { BoxColor } from './../../lib/constants/colors'
     import { addChannelToSearchResults, searchChannels, searchResults } from './../../lib/streams'
     import type { ExtendedChannelInfo } from './../../lib/types/streams'
+    import ChannelDetails from './channel-details.svelte'
 
     let loading = false
     let query: string = ''
@@ -93,9 +97,9 @@
                     {/if}
                 </div>
                 <div class="d-flex align-items-center" on:mouseenter={switchIconColor} on:mouseleave={switchIconColor}>
-                    <Button size="sm" outline color="dark" on:click={handleOpenModal}>
-                        <Icon type="plus" color={iconColor} />
-                        <span class="ml-1">Create a channel</span>
+                    <Button size="sm" outline color="dark" on:click={handleOpenModal} class="d-flex align-items-center">
+                        <Icon type="plus" color={iconColor} size={16} />
+                        <span class="ms-1">Create a channel</span>
                     </Button>
                 </div>
             </div>
@@ -111,7 +115,7 @@
                     }}
                 />
                 <button class="border-0 bg-transparent position-absolute" on:click={onSearch}>
-                    <Icon type="search" />
+                    <Icon type="search" size={16} />
                 </button>
             </div>
             {#if $searchResults?.length}
@@ -136,7 +140,7 @@
                         >
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="item d-flex align-items-center">
-                                    <Icon type="channel" boxed boxColor={BoxColor.Blue} size={24} />
+                                    <Icon type="broadcast" boxed boxColor={BoxColor.Blue} />
 
                                     <div class="d-flex flex-column align-items-start">
                                         <!-- TODO: remove this when library is updated and returns channel name -->
@@ -180,8 +184,8 @@
     {/if}
     {#if state === State.ChannelDetail}
         <div class="mb-4 align-self-start">
-            <button on:click={handleBackClick} class="go-back btn d-flex align-items-center">
-                <Icon type="arrow-left" />
+            <button on:click={handleBackClick} class="btn d-flex align-items-center">
+                <Icon type="arrow-left" size={16} />
                 <span class="ms-2">Back</span>
             </button>
         </div>

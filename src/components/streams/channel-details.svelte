@@ -97,7 +97,7 @@
 <div class="w-100">
     <div class="d-flex align-items-center justify-content-between bg-light rounded p-4 flex-column flex-lg-row">
         <div class="d-flex align-items-center">
-            <Icon type="channel" size={64} boxed boxColor={BoxColor.Blue} />
+            <Icon type="broadcast" boxed boxColor={BoxColor.Blue} size={64} />
             <div class="ms-4">
                 <div class="fs-4 fw-bold">
                     <span>{name}</span>
@@ -111,7 +111,7 @@
                     <Badge color="primary" class="me-1">{type}</Badge>
                     <Badge color="secondary" class="me-2">{source}</Badge>
                 {/each}
-                <div class="text-secondary text-break mt-1 text-break">{address}</div>
+                <div class="text-secondary fw-bolder mt-1 text-break">{address}</div>
             </div>
         </div>
         {#if subscriptionState && !isOwner}
@@ -126,7 +126,7 @@
                         disabled={loading || subscriptionState === SubscriptionState.Pending}
                     >
                         {#if subscriptionState != SubscriptionState.Pending}
-                            <Icon type="plus" size={24} color={addIconColor} />
+                            <Icon type="plus" color={addIconColor} size={16} />
                         {/if}
                         <span class="ml-1">{BUTTON_MESSAGE[subscriptionState]}</span>
                         {#if loading}
@@ -146,7 +146,7 @@
             <Accordion>
                 <AccordionItem>
                     <div slot="header" class="d-flex align-items-center">
-                        <Icon type="warning" boxed boxColor={BoxColor.Red} size={48} />
+                        <Icon type="exclamation-circle" boxed boxColor={BoxColor.Red} size={48} />
                         <div class="ms-4 d-flex">
                             <div class="fs-6 fw-bold me-2">Pending subscriptions</div>
                             <Badge color="danger">{pendingSubscriptions.length}</Badge>
@@ -184,9 +184,9 @@
     {#if isOwner || (!isOwner && subscriptionState === SubscriptionState.Subscribed)}
         <div class="d-flex justify-content-end mt-4">
             <div on:mouseenter={() => switchIconColor('message')} on:mouseleave={() => switchIconColor('message')}>
-                <Button size="sm" outline color="dark" class="mt-3 mt-md-0" on:click={onModalClose}>
+                <Button size="sm" outline color="dark" class="d-flex align-items-center mt-3 mt-md-0" on:click={onModalClose}>
                     <span class="me-2">Write a message</span>
-                    <Icon type="message" color={messageIconColor} />
+                    <Icon type="chat-square-dots" color={messageIconColor} size={16} />
                 </Button>
             </div>
         </div>

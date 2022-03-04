@@ -103,9 +103,9 @@
                     {/if}
                 </div>
                 <div class="box d-flex align-items-center" on:mouseenter={switchIconColor} on:mouseleave={switchIconColor}>
-                    <Button size="sm" outline color="dark" on:click={handleOpenModal}>
-                        <Icon type="plus" color={iconColor} />
-                        <span class="ml-1">Create an identity</span>
+                    <Button size="sm" outline color="dark" on:click={handleOpenModal} class="d-flex align-items-center">
+                        <Icon type="plus" color={iconColor} size={16} />
+                        <span class="ms-1">Create an identity</span>
                     </Button>
                 </div>
             </div>
@@ -121,7 +121,7 @@
                     }}
                 />
                 <button class="border-0 bg-transparent position-absolute" on:click={onSearch}>
-                    <Icon type="search" />
+                    <Icon type="search" size={16} />
                 </button>
             </div>
             {#if $searchResults?.length}
@@ -172,8 +172,8 @@
 
     {#if state === State.IdentityDetail}
         <div class="mb-4 align-self-start">
-            <button on:click={handleBackClick} class="go-back btn d-flex align-items-center">
-                <Icon type="arrow-left" />
+            <button on:click={handleBackClick} class="btn d-flex align-items-center">
+                <Icon type="arrow-left" size={16} />
                 <span class="ms-2">Back</span>
             </button>
         </div>
@@ -206,8 +206,5 @@
         .claim {
             font-size: 12px;
         }
-    }
-    .go-back {
-        font-weight: 500;
     }
 </style>

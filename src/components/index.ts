@@ -15,4 +15,3 @@ export { default as ChannelDetails } from './streams/channel-details.svelte';
 export { default as CreateChannel } from './streams/create-channel.svelte';
 export { default as StreamsManager } from './streams/streams-manager.svelte';
 export { default as WriteMessage } from './streams/write-message.svelte';
-

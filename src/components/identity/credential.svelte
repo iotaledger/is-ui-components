@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { VerifiableCredentialBody } from 'iota-is-sdk/src'
-    import { Accordion, AccordionItem, Button, Spinner, ModalHeader, ModalBody, ModalFooter } from 'sveltestrap'
+    import { Accordion, AccordionItem, Button, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
     import { Icon, JSONViewer } from './../../components'
@@ -46,16 +46,20 @@
                 </div>
                 <div class="d-flex flex-column">
                     <a
-                        class="btn btn-sm btn-outline-info text-decoration-none ms-auto"
+                        class="btn btn-sm btn-outline-info text-decoration-none ms-auto d-flex justify-content-center align-items-center"
                         href={createJsonDataUrl(vc)}
                         download={`verifiable-credential-${id}.json`}
                     >
-                        <Icon type="download" />
-                        <span>Download</span>
+                        <Icon type="download" size={16} />
+                        <span class="ms-2">Download</span>
                     </a>
                     <Button size="sm" outline color="danger" disabled={revoking} class="ms-auto mt-2" on:click={onModalClose}>
-                        <div class="d-flex justify-content-center">
-                            <span>{revoking ? 'Revoking...' : 'Revoke'}</span>
+                        <div class="d-flex align-items-center justify-content-center">
+                            {#if !revoking}
+                                <Icon type="trash" size={16} />
+                            {/if}
+                            <span class="ms-2">{revoking ? 'Revoking...' : 'Revoke'}</span>
+
                             <Modal {isOpen} toggle={onModalClose}>
                                 <div class="p-3 d-flex flex-column">
                                     <ModalHeader toggle={onModalClose}>Are you sure?</ModalHeader>

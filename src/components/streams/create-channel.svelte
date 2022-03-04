@@ -2,8 +2,8 @@
     import { Button, FormGroup, Input, Label, ModalBody, ModalHeader, Spinner } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
-    import { createChannel } from './../../lib/streams'
     import { Icon } from '../../components'
+    import { createChannel } from './../../lib/streams'
 
     export let isOpen: boolean = false
     export let onModalClose: () => void = () => {}
@@ -70,8 +70,8 @@
                 <Label class="d-flex justify-content-between align-items-center">
                     Topic
                     {#if topics.length > 1}
-                        <button class="border-0 bg-transparent" on:click={() => handleRemoveTopic(i)}>
-                            <Icon type="trash" boxColor="transparent" boxed size={20} />
+                        <button class="border-0 bg-transparent d-flex align-items-center" on:click={() => handleRemoveTopic(i)}>
+                            <Icon type="trash" size={16} />
                         </button>
                     {/if}
                 </Label>
@@ -85,8 +85,8 @@
             </div>
         {/each}
         <div class="w-100 d-flex align-items-center justify-content-end">
-            <Button size="sm" color="light" on:click={handleAddTopic}>
-                <Icon type="plus" />
+            <Button size="sm" color="light" on:click={handleAddTopic} class="d-flex align-items-center">
+                <Icon type="plus" size={16} />
                 <span class="ml-1">Add new topic</span>
             </Button>
         </div>
@@ -94,7 +94,9 @@
             <div class="d-flex justify-content-center align-items-center">
                 {loading ? 'Creating channel...' : 'Create channel'}
                 {#if loading}
-                    <div class="ms-2"><Spinner size="sm" type="border" color="light" /></div>
+                    <div class="ms-2">
+                        <Spinner size="sm" type="border" color="light" />
+                    </div>
                 {/if}
             </div>
         </Button>
