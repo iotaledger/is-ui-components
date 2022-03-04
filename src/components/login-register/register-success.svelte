@@ -3,7 +3,6 @@
     import { createJsonDataUrl } from './../../lib/utils'
     import type { IdentityJson, UserType } from 'iota-is-sdk'
     import Box from './box.svelte'
-
     export let identity: IdentityJson
     export let type: UserType
     export let username: string
@@ -34,6 +33,7 @@
         </div>
     </div>
     <a class="mt-4 btn btn-primary btn-block w-100 btn-lg" href={jsonDataUrl} role="button" download="identity.json">
-        Save identity
+        <Icon type="download" />
+        <span class="ms-1">Save identity</span>
     </a>
 </Box>
