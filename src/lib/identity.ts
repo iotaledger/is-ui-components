@@ -1,14 +1,19 @@
-import type { CredentialTypes, IdentityJson, RevokeVerificationBody, VerifiableCredentialInternal, VerifiableCredentialJson } from 'iota-is-sdk';
-import { searchCriteria, User, UserType } from 'iota-is-sdk';
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
-import { channelClient, identityClient, authenticationData } from './base';
-import { MAXIMUM_SEARCH_RESULTS } from './constants/identity';
-import type { ExtendedUser } from './types/identity';
+import type {
+    CredentialTypes,
+    IdentityJson,
+    RevokeVerificationBody,
+    VerifiableCredentialInternal,
+    VerifiableCredentialJson,
+} from 'iota-is-sdk'
+import { searchCriteria, User, UserType } from 'iota-is-sdk'
+import type { Writable } from 'svelte/store'
+import { writable } from 'svelte/store'
+import { channelClient, identityClient, authenticationData } from './base'
+import { MAXIMUM_SEARCH_RESULTS } from './constants/identity'
+import type { ExtendedUser } from './types/identity'
 
-
-export const searchResults: Writable<ExtendedUser[]> = writable([]);
-export const selectedIdentity: Writable<ExtendedUser> = writable(null);
+export const searchResults: Writable<ExtendedUser[]> = writable([])
+export const selectedIdentity: Writable<ExtendedUser> = writable(null)
 
 /**
  * Authenticates the user to the api for requests where authentication is needed
@@ -17,12 +22,11 @@ export const selectedIdentity: Writable<ExtendedUser> = writable(null);
  */
 export async function authenticate(id: string, secret: string): Promise<boolean> {
     try {
-        await identityClient.authenticate(id, secret);
-        await channelClient.authenticate(id, secret);
-        authenticationData.set({ did: id, jwt: identityClient.jwtToken });
+        await identityClient.authenticate(id, secret)
+        await channelClient.authenticate(id, secret)
+        authenticationData.set({ did: id, jwt: identityClient.jwtToken })
         return true
-    }
-    catch (e) {
+    } catch (e) {
         console.error('There was an error authenticating', e)
         return false
     }
@@ -32,7 +36,7 @@ export async function authenticate(id: string, secret: string): Promise<boolean>
  * @returns void
  */
 export function logout(): void {
-    authenticationData.set(undefined);
+    authenticationData.set(undefined)
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -40,31 +44,25 @@ export function logout(): void {
 export async function register(username?: string, claimType = UserType.Person, claim?: any): Promise<IdentityJson> {
     let registeredIdentity
     try {
-        registeredIdentity = await identityClient.create(
-            username,
-            claimType,
-            claim
-        );
-    }
-    catch (e) {
+        registeredIdentity = await identityClient.create(username, claimType, claim)
+    } catch (e) {
         console.error('There was an error authenticating', e)
     }
     return registeredIdentity
 }
 
 export async function searchIdentities(query: string): Promise<ExtendedUser[]> {
+    const _isDID = (query: string): boolean => query.startsWith('did:iota:')
+    const _isType = (query: string): boolean =>
+        Object.values(UserType).some((userType) => userType.toLowerCase() === query.toLowerCase())
 
-    const _isDID = (query: string): boolean => query.startsWith('did:iota:');
-    const _isType = (query: string): boolean => Object.values(UserType).some(userType => userType.toLowerCase() === query.toLowerCase());
-
-    let searchResult: User[] = [];
+    let searchResult: User[] = []
 
     if (_isDID(query)) {
         try {
-            const _identity = await identityClient.find(query);
-            searchResult.push(_identity);
-        }
-        catch (e) {
+            const _identity = await identityClient.find(query)
+            searchResult.push(_identity)
+        } catch (e) {
             console.error('There was an error searching for user', e)
         }
     } else if (_isType(query)) {
@@ -72,10 +70,9 @@ export async function searchIdentities(query: string): Promise<ExtendedUser[]> {
             searchResult = await identityClient.search({
                 username: undefined,
                 type: query,
-                limit: MAXIMUM_SEARCH_RESULTS
+                limit: MAXIMUM_SEARCH_RESULTS,
             } as searchCriteria)
-        }
-        catch (e) {
+        } catch (e) {
             console.error('There was an error searching for user', e)
         }
     } else {
@@ -83,14 +80,12 @@ export async function searchIdentities(query: string): Promise<ExtendedUser[]> {
             searchResult = await identityClient.search({
                 username: query,
                 type: undefined,
-                limit: MAXIMUM_SEARCH_RESULTS
+                limit: MAXIMUM_SEARCH_RESULTS,
             } as searchCriteria)
-        }
-        catch (e) {
+        } catch (e) {
             console.error('There was an error searching for user', e)
         }
     }
-    console.log("searchResult", searchResult)
     return searchResult
 }
 
@@ -99,19 +94,12 @@ export async function createVC(
     targetDid: string,
     credentialType: CredentialTypes,
     claimType: UserType,
-    claim?: any): Promise<VerifiableCredentialJson> {
-
+    claim?: any
+): Promise<VerifiableCredentialJson> {
     let credential
     try {
-        credential = await identityClient.createCredential(
-            initiatorVC,
-            targetDid,
-            credentialType,
-            claimType,
-            claim
-        );
-    }
-    catch (e) {
+        credential = await identityClient.createCredential(initiatorVC, targetDid, credentialType, claimType, claim)
+    } catch (e) {
         console.error('There was an error creating the credential', e)
     }
     return credential
@@ -119,48 +107,46 @@ export async function createVC(
 
 export async function revokeVC(signatureValue: RevokeVerificationBody): Promise<boolean> {
     try {
-        await identityClient.revokeCredential(signatureValue);
-        return true;
-    }
-    catch (e) {
+        await identityClient.revokeCredential(signatureValue)
+        return true
+    } catch (e) {
         console.error('There was an error revoking the credential', e)
-        return false;
+        return false
     }
 }
 
 export function updateSelectedIdentity(identity: ExtendedUser): void {
-    selectedIdentity.set(identity);
-    searchResults?.update(_searchResults => {
-        const index = _searchResults.findIndex(user => user.id === identity.id);
+    selectedIdentity.set(identity)
+    searchResults?.update((_searchResults) => {
+        const index = _searchResults.findIndex((user) => user.id === identity.id)
         if (index !== -1) {
-            _searchResults[index] = identity;
+            _searchResults[index] = identity
         }
-        return _searchResults;
+        return _searchResults
     })
 }
 
 export async function addIdentityToSearchResults(id: string): Promise<void> {
-    const resuls = await searchIdentities(id);
-    const identity = resuls?.[0];
+    const resuls = await searchIdentities(id)
+    const identity = resuls?.[0]
     if (identity) {
-        searchResults?.update(_searchResults => {
-            return [..._searchResults, identity];
+        searchResults?.update((_searchResults) => {
+            return [..._searchResults, identity]
         })
     }
 }
 
 export async function verifyVC(json: VerifiableCredentialInternal): Promise<boolean> {
     try {
-        const { isVerified } = await identityClient.checkCredential(json as VerifiableCredentialInternal);
+        const { isVerified } = await identityClient.checkCredential(json as VerifiableCredentialInternal)
         return isVerified
-    }
-    catch (e) {
+    } catch (e) {
         console.error('There was an error revoking the credential', e)
-        return false;
+        return false
     }
 }
 
 export async function getVerifiableCredentials(identityId: string): Promise<VerifiableCredentialInternal[]> {
-    const identityDetails = await identityClient.find(identityId);
+    const identityDetails = await identityClient.find(identityId)
     return identityDetails?.verifiableCredentials ?? []
 }

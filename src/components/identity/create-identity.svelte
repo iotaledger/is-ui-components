@@ -20,13 +20,17 @@
     let loading = false
     let registeredIdentity: IdentityJson
     let selectedUserType = UserType.Person
+    let unsubscribe
+    let formValidated = false
+    let formContainer
 
-    const MIN_USERNAME_LENGTH = 3
+    const minLengthInput = 3
+    const maxLengthInput = 30
+    // Separator for the multiple string option (string array)
+    const STRING_ARRAY_SEPARATOR = ','
 
     $: selectedUser = USERS.find((user) => user.type === selectedUserType)
-
-    let isValid: boolean = false
-    $: inputFields, validate()
+    $: formContainer, manageFormSubscription()
 
     function sanitizeInputFields(): void {
         for (const key in inputFields) {
@@ -34,6 +38,10 @@
                 delete inputFields[key]
             }
         }
+    }
+
+    function resetInputFields(): void {
+        inputFields = {}
     }
 
     async function handleRegister(): Promise<void> {
@@ -44,31 +52,30 @@
         if (registeredIdentity) {
             onSuccess(registeredIdentity?.doc?.id)
             resetInputFields()
+            formValidated = false
         }
         loading = false
     }
 
-    function resetInputFields(): void {
-        inputFields = {}
-    }
-
-    function validate(): void {
-        if (inputFields && Object.keys(inputFields).length === 0 && Object.getPrototypeOf(inputFields) === Object.prototype) {
-            isValid = false
+    function manageFormSubscription() {
+        if (formContainer) {
+            unsubscribe = formContainer.addEventListener(
+                'submit',
+                function (event) {
+                    if (!formContainer.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    } else {
+                        handleRegister()
+                    }
+                    formValidated = true
+                },
+                false
+            )
         } else {
-            for (const key in inputFields) {
-                const isRequired = selectedUser.inputFields?.find((field) => field.name === key)?.required
-                if ((inputFields[key] === '' && isRequired) || inputFields['username']?.length < MIN_USERNAME_LENGTH) {
-                    isValid = false
-                    return
-                }
-            }
-            isValid = true
+            if (unsubscribe) unsubscribe()
         }
     }
-
-    // Separator for the multiple string option (string array)
-    const STRING_ARRAY_SEPARATOR = ','
 
     function handleInput(e: Event, fieldName: string): void {
         const target = e.target as HTMLInputElement
@@ -79,9 +86,8 @@
 
 <Modal {isOpen} toggle={onModalClose}>
     <ModalHeader toggle={onModalClose} class="px-4 pt-3">Create identity</ModalHeader>
-
     <ModalBody class="px-4 pb-4">
-        <div>
+        <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
             <FormGroup class="mb-4">
                 <Label class="mb-2">ID type</Label>
                 <Input class="py-3 ps-3" type="select" name="select" bind:value={selectedUserType} on:change={resetInputFields}>
@@ -95,12 +101,46 @@
             {#if selectedUser}
                 {#each selectedUser?.fields as { id, name, required, type, options }}
                     <FormGroup class="mb-4">
-                        <Label class="text-capitalize mb-2">{`${name}${required ? '*' : ''}`}</Label>
+                        <Label class="text-capitalize mb-2">{name}</Label>
                         {#if type === FieldType.String}
                             <Input
                                 id={`input-${id}-${selectedUser.type}`}
                                 class="py-3 ps-3"
                                 placeholder={name}
+                                type="text"
+                                bind:value={inputFields[id]}
+                                {required}
+                                maxlength={maxLengthInput}
+                                minlength={minLengthInput}
+                                on:keydown={() => {
+                                    registeredIdentity = null
+                                }}
+                            />
+                            <div class="invalid-feedback">
+                                This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthInput}
+                                characters
+                            </div>
+                        {/if}
+                        {#if type === FieldType.Email}
+                            <Input
+                                id={`input-${id}-${selectedUser.type}`}
+                                class="py-3 ps-3"
+                                placeholder={name}
+                                type="email"
+                                bind:value={inputFields[id]}
+                                {required}
+                                on:keydown={() => {
+                                    registeredIdentity = null
+                                }}
+                            />
+                            <div class="invalid-feedback">Please, provide a valid email.</div>
+                        {/if}
+                        {#if type === FieldType.Date}
+                            <Input
+                                id={`input-${id}-${selectedUser.type}`}
+                                class="py-3 ps-3"
+                                placeholder={name}
+                                type="date"
                                 bind:value={inputFields[id]}
                                 {required}
                                 on:keydown={() => {
@@ -137,22 +177,16 @@
                     </FormGroup>
                 {/each}
             {/if}
-        </div>
-        <Button
-            size="lg"
-            color="primary"
-            block
-            class="mt-4"
-            disabled={!isValid || loading}
-            type="submit"
-            on:click={handleRegister}
-            ><div class="d-flex justify-content-center align-items-center">
-                {loading ? 'Creating...' : 'Create identity'}
-                {#if loading}
-                    <div class="ms-2"><Spinner size="sm" type="border" color="light" /></div>
-                {/if}
-            </div>
-        </Button>
+
+            <Button size="lg" color="primary" block class="mt-4" disabled={loading} type="submit"
+                ><div class="d-flex justify-content-center align-items-center">
+                    {loading ? 'Creating...' : 'Create identity'}
+                    {#if loading}
+                        <div class="ms-2"><Spinner size="sm" type="border" color="light" /></div>
+                    {/if}
+                </div>
+            </Button>
+        </form>
 
         {#if registeredIdentity}
             <div>

@@ -18,6 +18,36 @@
     ]
     let name: string = 'Channel name...'
     let description: string = 'Please, describe your channel here...'
+    let unsubscribe
+    let formValidated = false
+    let formContainer
+
+    const minLengthInput = 3
+    const maxLengthInput = 30
+    const maxLengthTextarea = 100
+
+    $: formContainer, manageFormSubscription()
+
+    function manageFormSubscription() {
+        if (formContainer) {
+            unsubscribe = formContainer.addEventListener(
+                'submit',
+                function (event) {
+                    if (!formContainer.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    } else {
+                        handleCreateChannel()
+                    }
+                    formValidated = true
+                },
+                false
+            )
+        } else {
+            if (unsubscribe) unsubscribe()
+        }
+    }
+
     function resetTopics(): void {
         topics = [
             {
@@ -26,12 +56,14 @@
             },
         ]
     }
+
     async function handleCreateChannel() {
         loading = true
         let channel = await createChannel(topics)
         if (channel) {
             resetTopics()
             onSuccess(channel.channelAddress)
+            formValidated = false
         }
         loading = false
     }
@@ -49,56 +81,89 @@
     function handleRemoveTopic(i) {
         topics = [...topics.slice(0, i), ...topics.slice(i + 1)]
     }
-
-    $: isValid = (): boolean => {
-        return topics.find((topic) => topic['type'] === '' || topic['source'] === '') === undefined
-    }
 </script>
 
 <Modal {isOpen} toggle={onModalClose}>
     <ModalHeader toggle={onModalClose} class="px-4 pt-3">Create channel</ModalHeader>
 
     <ModalBody class="px-4 pb-4">
-        <div class="my-4 p-4 bg-light ">
-            <Label>Name</Label>
-            <Input placeholder={name} type="textarea" />
-            <Label class="mt-3">Description</Label>
-            <Input placeholder={description} type="textarea" />
-        </div>
-        {#each topics as topic, i}
+        <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
             <div class="my-4 p-4 bg-light ">
-                <Label class="d-flex justify-content-between align-items-center">
-                    Topic
-                    {#if topics.length > 1}
-                        <button class="border-0 bg-transparent d-flex align-items-center" on:click={() => handleRemoveTopic(i)}>
-                            <Icon type="trash" size={16} />
-                        </button>
-                    {/if}
-                </Label>
+                <Label>Name</Label>
+                <Input placeholder={name} required type="textarea" minlength={minLengthInput} maxlength={maxLengthInput} />
+                <div class="invalid-feedback">
+                    This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthInput}
+                    characters.
+                </div>
 
-                <FormGroup floating label="Type*">
-                    <Input placeholder="Type" type="text" bind:value={topic['type']} required />
-                </FormGroup>
-                <FormGroup floating label="Source*">
-                    <Input placeholder="Source" type="text" bind:value={topic['source']} required />
-                </FormGroup>
+                <Label class="mt-3">Description</Label>
+                <Input
+                    placeholder={description}
+                    required
+                    type="textarea"
+                    minlength={minLengthInput}
+                    maxlength={maxLengthTextarea}
+                />
+                <div class="invalid-feedback">
+                    This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthTextarea}
+                    characters.
+                </div>
             </div>
-        {/each}
-        <div class="w-100 d-flex align-items-center justify-content-end">
-            <Button size="sm" color="light" on:click={handleAddTopic} class="d-flex align-items-center">
-                <Icon type="plus" size={16} />
-                <span class="ml-1">Add new topic</span>
+            {#each topics as topic, i}
+                <div class="my-4 p-4 bg-light ">
+                    <Label class="d-flex justify-content-between align-items-center">
+                        Topic
+                        {#if topics.length > 1}
+                            <button class="border-0 bg-transparent" on:click={() => handleRemoveTopic(i)}>
+                                <Icon type="trash" boxColor="transparent" boxed size={20} />
+                            </button>
+                        {/if}
+                    </Label>
+
+                    <FormGroup floating label="Type*">
+                        <Input
+                            placeholder="Type"
+                            type="text"
+                            bind:value={topic['type']}
+                            required
+                            minlength={minLengthInput}
+                            maxlength={maxLengthInput}
+                        />
+                        <div class="invalid-feedback">
+                            This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthInput}
+                            characters.
+                        </div>
+                    </FormGroup>
+                    <FormGroup floating label="Source*">
+                        <Input
+                            placeholder="Source"
+                            type="text"
+                            bind:value={topic['source']}
+                            required
+                            minlength={minLengthInput}
+                            maxlength={maxLengthInput}
+                        />
+                        <div class="invalid-feedback">
+                            This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthInput}
+                            characters.
+                        </div>
+                    </FormGroup>
+                </div>
+            {/each}
+            <div class="w-100 d-flex align-items-center justify-content-end">
+                <Button size="sm" color="light" on:click={handleAddTopic} class="d-flex align-items-center">
+                    <Icon type="plus" size={16} />
+                    <span class="ms-1">Add new topic</span>
+                </Button>
+            </div>
+            <Button size="lg" block class="mt-4" color="primary" disabled={loading}>
+                <div class="d-flex justify-content-center align-items-center">
+                    {loading ? 'Creating channel...' : 'Create channel'}
+                    {#if loading}
+                        <div class="ms-2"><Spinner size="sm" type="border" color="light" /></div>
+                    {/if}
+                </div>
             </Button>
-        </div>
-        <Button size="lg" block class="mt-4" color="primary" disabled={!isValid() || loading} on:click={handleCreateChannel}>
-            <div class="d-flex justify-content-center align-items-center">
-                {loading ? 'Creating channel...' : 'Create channel'}
-                {#if loading}
-                    <div class="ms-2">
-                        <Spinner size="sm" type="border" color="light" />
-                    </div>
-                {/if}
-            </div>
-        </Button>
+        </form>
     </ModalBody>
 </Modal>

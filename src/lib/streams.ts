@@ -168,8 +168,8 @@ export async function writeMessage(
     address: string,
     payload: string,
     publicPayload: string,
-    metadata: string,
-    type: string
+    metadata?: string,
+    type?: string
 ): Promise<void> {
     try {
         await channelClient.write(address, {

@@ -16,13 +16,35 @@
     let loading = false
     let registeredIdentity: IdentityJson
     let selectedUserType = UserType.Person
+    let unsubscribe
+    let formValidated = false
+    let formContainer
 
-    const MIN_USERNAME_LENGTH = 3
+    const minLengthInput = 3
+    const maxLengthInput = 30
 
     $: selectedUser = USERS.find((user) => user.type === selectedUserType)
+    $: formContainer, manageFormSubscription()
 
-    let isValid: boolean = false
-    $: inputFields, validate()
+    function manageFormSubscription() {
+        if (formContainer) {
+            unsubscribe = formContainer.addEventListener(
+                'submit',
+                function (event) {
+                    if (!formContainer.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    } else {
+                        handleRegister()
+                    }
+                    formValidated = true
+                },
+                false
+            )
+        } else {
+            if (unsubscribe) unsubscribe()
+        }
+    }
 
     function deleteEmptyAttributes(): void {
         for (const key in inputFields) {
@@ -37,26 +59,13 @@
         deleteEmptyAttributes()
         let { username, ...claims } = inputFields
         registeredIdentity = await register(inputFields['username'], selectedUser.type, claims)
+        formValidated = false
+
         loading = false
     }
 
     function resetInputFields(): void {
         inputFields = {}
-    }
-
-    function validate(): void {
-        if (inputFields && Object.keys(inputFields).length === 0 && Object.getPrototypeOf(inputFields) === Object.prototype) {
-            isValid = false
-        } else {
-            for (const key in inputFields) {
-                const isRequired = selectedUser.inputFields?.find((field) => field.name === key)?.required
-                if ((inputFields[key] === '' && isRequired) || inputFields['username']?.length < MIN_USERNAME_LENGTH) {
-                    isValid = false
-                    return
-                }
-            }
-            isValid = true
-        }
     }
 </script>
 
@@ -74,7 +83,7 @@
         </div>
 
         <div class="w-100">
-            <Form>
+            <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
                 <FormGroup class="mb-4">
                     <Label class="mb-2">ID type</Label>
                     <Input
@@ -94,38 +103,36 @@
                 {#if selectedUser}
                     {#each selectedUser?.fields as { name, required }}
                         <FormGroup class="mb-4">
-                            <Label class="text-capitalize mb-2">{`${name}${required ? '*' : ''}`}</Label>
+                            <Label class="text-capitalize mb-2">{name}</Label>
                             <Input
                                 id={`input-${name}-${selectedUser.type}`}
                                 class="py-3 ps-3"
                                 placeholder={name}
                                 bind:value={inputFields[name]}
                                 {required}
+                                maxlength={maxLengthInput}
+                                minlength={minLengthInput}
                                 on:keydown={() => (registeredIdentity = null)}
                             />
+                            <div class="invalid-feedback">
+                                This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthInput}
+                                characters.
+                            </div>
                         </FormGroup>
                     {/each}
                 {/if}
-            </Form>
+                <Button size="lg" color="primary" block class="mt-4" disabled={loading} type="submit">
+                    <div class="text-center d-flex flex-row align-items-center justify-content-center">
+                        {#if loading}
+                            <div class="me-1">Registering identity...</div>
+                            <Spinner size="sm" type="border" color="light" />
+                        {:else}
+                            <div>Register a new DID</div>
+                        {/if}
+                    </div>
+                </Button>
+            </form>
         </div>
-        <Button
-            size="lg"
-            color="primary"
-            block
-            class="mt-4"
-            disabled={!isValid || loading}
-            type="submit"
-            on:click={handleRegister}
-        >
-            <div class="text-center d-flex flex-row align-items-center justify-content-center">
-                {#if loading}
-                    <div class="me-1">Registering identity...</div>
-                    <Spinner size="sm" type="border" color="light" />
-                {:else}
-                    <div>Register a new DID</div>
-                {/if}
-            </div>
-        </Button>
     </Box>
 {:else}
     <RegisterSuccess identity={registeredIdentity} type={selectedUser.type} username={selectedUser.username} {switchToLogin} />

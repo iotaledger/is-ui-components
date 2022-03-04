@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { VerifiableCredentialJson } from 'iota-is-sdk'
     import { Button, FormGroup, Input, Label, ModalBody, ModalHeader, Spinner } from 'sveltestrap'
+    import Input from 'sveltestrap/src/Input.svelte'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
     import { VC_TEMPLATES } from './../../lib/constants/identity'
@@ -16,20 +17,33 @@
     let inputFields = {}
     let loading = false
     let selectedTemplate = VC_TEMPLATES[0]
-    let isValid = false
 
-    $: inputFields, validate()
+    let unsubscribe
+    let formValidated = false
+    let formContainer
 
-    function validate(): void {
-        isValid = true
-        if (inputFields && Object.keys(inputFields).length === 0 && Object.getPrototypeOf(inputFields) === Object.prototype) {
-            isValid = false
+    const minLengthInput = 3
+    const maxLengthInput = 30
+
+    $: formContainer, manageFormSubscription()
+
+    function manageFormSubscription() {
+        if (formContainer) {
+            unsubscribe = formContainer.addEventListener(
+                'submit',
+                function (event) {
+                    if (!formContainer.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    } else {
+                        handleCreateVC()
+                    }
+                    formValidated = true
+                },
+                false
+            )
         } else {
-            selectedTemplate?.fields?.forEach((field) => {
-                if (field.required && (inputFields[field.id] === '' || !inputFields[field.id])) {
-                    isValid = false
-                }
-            })
+            if (unsubscribe) unsubscribe()
         }
     }
 
@@ -68,6 +82,7 @@
         )
         if (verifiableCredential) {
             onSuccess()
+            formValidated = false
         }
         resetFields()
         loading = false
@@ -77,7 +92,7 @@
 <Modal {isOpen} toggle={onModalClose}>
     <ModalHeader toggle={onModalClose} class="px-4 pt-3">Add a credential</ModalHeader>
     <ModalBody class="px-4 pb-4">
-        <div>
+        <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
             <Label>Template</Label>
             <Input type="select" name="select" class="mb-4" bind:value={selectedTemplate} on:change={handleInputChange}>
                 {#each VC_TEMPLATES as template}
@@ -93,19 +108,26 @@
                 </FormGroup>
                 {#each selectedTemplate.fields as { id, label, type, required }}
                     <div class="mb-4">
-                        <FormGroup floating label={`${label}${required ? '*' : ''}`}>
+                        <FormGroup floating {label}>
                             <Input
                                 {type}
-                                placeholder={`${label}${required ? '*' : ''}`}
+                                placeholder={label}
                                 bind:value={inputFields[id]}
                                 on:keydown={resetCredential}
+                                {required}
+                                maxlength={maxLengthInput}
+                                minlength={minLengthInput}
                             />
+                            <div class="invalid-feedback">
+                                This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthInput}
+                                characters.
+                            </div>
                         </FormGroup>
                     </div>
                 {/each}
             {/if}
 
-            <Button size="lg" block class="mt-4" color="primary" disabled={!isValid || loading} on:click={handleCreateVC}>
+            <Button size="lg" block class="mt-4" color="primary" disabled={loading}>
                 <div class="d-flex justify-content-center align-items-center">
                     {loading ? 'Creating VC...' : 'Add a new credential'}
                     {#if loading}
@@ -119,7 +141,7 @@
                     <a href={createJsonDataUrl(verifiableCredential)} download="vc.json">Download</a>
                 </div>
             {/if}
-        </div>
+        </form>
     </ModalBody>
 </Modal>
 
