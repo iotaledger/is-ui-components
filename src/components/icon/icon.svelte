@@ -1,6 +1,6 @@
 <script lang="ts">
     import { BoxColor } from './../../lib/constants/colors'
-    import { Close, Credential, Identity } from './icons'
+    import { Close, Credential, Identity, IotaLogo } from './icons'
     import { Icon } from 'sveltestrap'
     import CustomIcon from './custom-icon.svelte'
 
@@ -8,6 +8,7 @@
         close: Close,
         identity: Identity,
         credential: Credential,
+        'iota-logo': IotaLogo,
     }
 
     export let size: number = 24

@@ -12,6 +12,7 @@
 
 <script lang="ts">
     import 'bootstrap/dist/css/bootstrap.min.css'
+    import { Icon } from '../components'
     import { Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'sveltestrap'
     import './../scss/index.scss'
 
@@ -24,10 +25,9 @@
 
 <Navbar color="light" light expand="md">
     <NavbarBrand href="/">
-        <div class="logo-wrapper me-4 rounded-1">
-            <img alt="IOTA Logo" src="/assets/iota-logo.svg" />
+        <div class="bg-primary rounded me-2 d-flex align-items-center">
+            <Icon type="iota-logo" size={48} color="transparent" />
         </div>
-
         <div class="info">
             <h1 class="mb-0">Integration Services</h1>
             <h2 class="mb-0">UI Components</h2>
@@ -50,21 +50,14 @@
 </main>
 
 <style lang="scss">
-    h1 {
-        font-weight: 600;
-        font-size: 24px;
-        line-height: 32px;
-    }
     :global(.navbar) {
         :global(.navbar-brand) {
             display: flex;
 
-            .logo-wrapper {
-                background-color: #108cff;
-            }
             .info {
                 h1 {
                     font-size: 20px;
+                    font-weight: 600;
                 }
                 h2 {
                     font-size: 16px;
