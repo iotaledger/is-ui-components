@@ -1,12 +1,13 @@
 <script lang="ts">
-    import { onMount } from 'svelte'
+    import { onMount, onDestroy } from 'svelte'
     import { Badge, Button, ListGroup, ListGroupItem, Spinner } from 'sveltestrap'
     // We have to import Input this way, otherwise it shouts SSR issues.
     import Input from 'sveltestrap/src/Input.svelte'
     import Box from '../login-register/box.svelte'
+    import Paginator from '../paginator.svelte'
     import { CreateChannel, Icon } from './../../components'
     import { BoxColor } from './../../lib/constants/colors'
-    import { addChannelToSearchResults, searchChannels, searchResults } from './../../lib/streams'
+    import { addChannelToSearchResults, searchChannels, searchResults, stopSearch } from './../../lib/streams'
     import type { ExtendedChannelInfo } from './../../lib/types/streams'
     import ChannelDetails from './channel-details.svelte'
 
@@ -23,6 +24,15 @@
 
     let state: State = State.ListChannels
     let selectedChannel
+    let results = []
+
+    const MAX_CHANNELS_PER_PAGE = 4
+    const WELCOME_CHANNELS_NUMBER = 3
+
+    // Pagination
+    let currentPage = 1
+    let startAt = 0
+    let endAt = MAX_CHANNELS_PER_PAGE
 
     $: selectedChannel, updateState()
 
@@ -35,16 +45,31 @@
     }
 
     onMount(async () => {
-        // Pre-load the first 100 identities
         loading = true
-        $searchResults = await searchChannels('', true)
+        await searchChannels('', { maxResults: WELCOME_CHANNELS_NUMBER })
         loading = false
     })
 
-    async function onSearch() {
+    onDestroy(() => {
+        stopSearch()
+    })
+
+    async function onSearch(resetPage = false) {
+        if (resetPage) {
+            currentPage = 1
+        }
         loading = true
-        $searchResults = await searchChannels(query)
+        $searchResults = [] // Reset search results
+        await searchChannels(query)
         loading = false
+    }
+
+    $: $searchResults, currentPage, updateResults()
+
+    function updateResults() {
+        startAt = (currentPage - 1) * MAX_CHANNELS_PER_PAGE
+        endAt = startAt + MAX_CHANNELS_PER_PAGE
+        results = $searchResults?.slice(startAt, endAt)
     }
 
     const handleBackClick = () => {
@@ -68,7 +93,7 @@
         loading = true
         // If query is not empty, we need to search again to get the match results
         if (query?.length) {
-            await onSearch()
+            await onSearch(true)
         } else {
             // Adding the channel, improve performance by not searching again
             await addChannelToSearchResults(channelAddress)
@@ -111,14 +136,14 @@
                     class="position-relative ps-5"
                     bind:value={query}
                     on:keypress={(e) => {
-                        if (e.key === 'Enter') onSearch()
+                        if (e.key === 'Enter') onSearch(true)
                     }}
                 />
-                <button class="border-0 bg-transparent position-absolute" on:click={onSearch}>
+                <button class="border-0 bg-transparent position-absolute" on:click={() => onSearch(true)}>
                     <Icon type="search" size={16} />
                 </button>
             </div>
-            {#if $searchResults?.length}
+            {#if results?.length}
                 <ListGroup flush>
                     <ListGroupItem>
                         <div class="d-flex justify-content-between align-items-center">
@@ -129,7 +154,7 @@
                             <div class="item" />
                         </div>
                     </ListGroupItem>
-                    {#each $searchResults as channel}
+                    {#each results as channel}
                         <ListGroupItem
                             tag="button"
                             action
@@ -180,6 +205,22 @@
                     {message}
                 </div>
             {/if}
+        </div>
+        <div class="d-flex align-items-center">
+            <Paginator
+                onPageChange={async (page) => {
+                    currentPage = page
+                }}
+                totalCount={$searchResults?.length}
+                pageSize={MAX_CHANNELS_PER_PAGE}
+                {currentPage}
+                siblingsCount={1}
+            />
+            <!-- {#if $isLoadingIdentities}
+                <div class="me-4">
+                    <Spinner type="grow" color="secondary" size="sm" />
+                </div>
+            {/if} -->
         </div>
     {/if}
     {#if state === State.ChannelDetail}

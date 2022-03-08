@@ -1,9 +1,8 @@
 import type { CreateChannelResponse } from 'iota-is-sdk'
-import { AccessRights, ChannelData, ChannelInfo, RequestSubscriptionResponse, Subscription } from 'iota-is-sdk'
+import { AccessRights, ChannelData, RequestSubscriptionResponse, Subscription } from 'iota-is-sdk'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient } from './base'
-import { MAXIMUM_SEARCH_RESULTS } from './constants/streams'
 import type { ExtendedChannelInfo } from './types/streams'
 import { SubscriptionState } from './types/streams'
 
@@ -14,49 +13,76 @@ export const channelBusy = writable(false)
 
 const userDid = get(authenticationData)?.did
 
+let updateInterval
+const intervalTimeout = 200
+const resultsPerCall = 2
+let index = 0
+
 // TODO: Improve search algorithm, now it is searching only by author id or topic type
-export async function searchChannels(query: string, onlyOwnedSubscribedChannels = false): Promise<ExtendedChannelInfo[]> {
-    const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:')
+export async function searchChannels(
+    query: string, options?: { maxResults?: number }
+): Promise<void> {
+    const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:');
+    const _isSource = !_isAuthorId(query);
 
-    let _searchResult: ChannelInfo[] = []
-    let searchResult: ExtendedChannelInfo[] = []
+    const maxResults = options?.maxResults;
 
-    if (_isAuthorId(query)) {
+    if (maxResults) {
         try {
-            _searchResult = await channelClient.search({
-                authorId: query,
-                limit: MAXIMUM_SEARCH_RESULTS,
-            })
-        } catch (e) {
-            console.error('There was an error searching for channel', e)
+            const channels = await channelClient.search({ limit: maxResults })
+            searchResults.set(channels)
         }
-    } else {
-        try {
-            _searchResult = await channelClient.search({
-                topicSource: query?.length ? query : undefined,
-                limit: MAXIMUM_SEARCH_RESULTS,
-            })
-        } catch (e) {
-            console.error('There was an error searching for channel', e)
+        catch (e) {
+            console.error('There was an error searching for channels', e)
         }
     }
+    else {
+        const newResults = await partialSearch(
+            query,
+            {
+                searchByAuthorId: _isAuthorId(query),
+                searchBySource: _isSource,
+                limit: resultsPerCall,
+                index,
+            }
+        );
 
-    const userDid = get(authenticationData)?.did
+        if (newResults?.length) {
+            searchResults.update((results) => [...results, ...newResults])
 
-    // Add to channel if the user logged is owner/subscriber of a channel
-    for (const channel of _searchResult) {
-        const authorId = channel.authorId
-        searchResult.push({
-            ...channel,
-            isOwner: authorId === userDid,
-            isSubscriber: channel.subscriberIds.includes(userDid),
+            updateInterval = setTimeout(async () => {
+                index++
+                searchChannels(query)
+            }, intervalTimeout)
+        }
+        else {
+            index = 0
+            stopSearch()
+        }
+    }
+}
+
+export async function partialSearch(query: string, options: { searchByAuthorId?: boolean, searchBySource?: boolean; limit: number, index?: number }): Promise<ExtendedUser[]> {
+    let partialResults = []
+    const { searchByAuthorId, searchBySource, limit, index } = options
+    try {
+        partialResults = await channelClient.search({
+            authorId: searchByAuthorId ? query : undefined,
+            topicSource: searchBySource ? query : undefined,
+            limit: limit,
+            index: index
         })
     }
-    if (onlyOwnedSubscribedChannels) {
-        searchResult = searchResult.filter((channel) => channel.isOwner || channel.isSubscriber)
+    catch (e) {
+        console.error('There was an error searching for user', e)
     }
+    return partialResults
+}
 
-    return searchResult
+export function stopSearch(): void {
+    if (updateInterval) {
+        clearTimeout(updateInterval)
+    }
 }
 
 let timeout = 1000

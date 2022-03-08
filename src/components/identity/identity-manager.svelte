@@ -1,10 +1,11 @@
 <script lang="ts">
     import { UserType } from 'iota-is-sdk/src'
-    import { onMount } from 'svelte'
+    import { onDestroy, onMount } from 'svelte'
     import { Button, ListGroup, ListGroupItem, Spinner } from 'sveltestrap'
     // We have to import Input this way, otherwise it shouts SSR issues.
     import Input from 'sveltestrap/src/Input.svelte'
     import Box from '../login-register/box.svelte'
+    import Paginator from '../paginator.svelte'
     import { CreateIdentity, Icon, IdentityDetails } from './../../components'
     import { BoxColor } from './../../lib/constants/colors'
     import { USER_ICONS } from './../../lib/constants/identity'
@@ -14,6 +15,8 @@
         searchResults,
         selectedIdentity,
         updateSelectedIdentity,
+        isLoadingIdentities,
+        stopSearch,
     } from './../../lib/identity'
     import type { ExtendedUser } from './../../lib/types/identity'
 
@@ -28,18 +31,42 @@
     let message: string
     let isCreateIdentityOpen = false
 
+    const MAX_IDENTITIES_PER_PAGE = 8
+    const WELCOME_IDENTITIES_NUMBER = 7
+
+    // Pagination
+    let currentPage = 1
+    let startAt = 0
+    let endAt = MAX_IDENTITIES_PER_PAGE
+
     $: $selectedIdentity, updateState()
 
     $: message = loading || $searchResults?.length ? null : 'No identities found'
 
+    let results = []
+
+    $: $searchResults, currentPage, updateResults()
+
     onMount(async () => {
-        // Pre-load the first 100 identities
         loading = true
-        $searchResults = await searchIdentities('')
+        $searchResults = await searchIdentities('', { maxResults: WELCOME_IDENTITIES_NUMBER })
         loading = false
     })
 
-    async function onSearch() {
+    onDestroy(() => {
+        stopSearch()
+    })
+
+    function updateResults() {
+        startAt = (currentPage - 1) * MAX_IDENTITIES_PER_PAGE
+        endAt = startAt + MAX_IDENTITIES_PER_PAGE
+        results = $searchResults?.slice(startAt, endAt)
+    }
+
+    async function onSearch(resetPage = false) {
+        if (resetPage) {
+            currentPage = 1
+        }
         loading = true
         $searchResults = await searchIdentities(query)
         loading = false
@@ -74,7 +101,7 @@
         loading = true
         // If query is not empty, we need to search again to get the match results
         if (query?.length) {
-            await onSearch()
+            await onSearch(true)
         } else {
             // Adding the identity, improve performance by not searching again
             await addIdentityToSearchResults(id)
@@ -117,14 +144,14 @@
                     class="position-relative ps-5"
                     bind:value={query}
                     on:keypress={(e) => {
-                        if (e.key === 'Enter') onSearch()
+                        if (e.key === 'Enter') onSearch(true)
                     }}
                 />
-                <button class="border-0 bg-transparent position-absolute" on:click={onSearch}>
+                <button class="border-0 bg-transparent position-absolute" on:click={() => onSearch(true)}>
                     <Icon type="search" size={16} />
                 </button>
             </div>
-            {#if $searchResults?.length}
+            {#if results?.length}
                 <ListGroup flush>
                     <ListGroupItem>
                         <div class="d-flex justify-content-between align-items-center">
@@ -134,7 +161,7 @@
                             <div class="item">Credentials</div>
                         </div>
                     </ListGroupItem>
-                    {#each $searchResults as identity}
+                    {#each results as identity}
                         <ListGroupItem
                             tag="button"
                             action
@@ -161,10 +188,25 @@
                     {/each}
                 </ListGroup>
             {/if}
-
             {#if message}
                 <div class="text-center">
                     {message}
+                </div>
+            {/if}
+        </div>
+        <div class="d-flex align-items-center">
+            <Paginator
+                onPageChange={async (page) => {
+                    currentPage = page
+                }}
+                totalCount={$searchResults?.length}
+                pageSize={MAX_IDENTITIES_PER_PAGE}
+                {currentPage}
+                siblingsCount={1}
+            />
+            {#if $isLoadingIdentities}
+                <div class="me-4">
+                    <Spinner type="grow" color="secondary" size="sm" />
                 </div>
             {/if}
         </div>

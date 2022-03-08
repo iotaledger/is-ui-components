@@ -1,19 +1,14 @@
-import type {
-    CredentialTypes,
-    IdentityJson,
-    RevokeVerificationBody,
-    VerifiableCredentialInternal,
-    VerifiableCredentialJson,
-} from 'iota-is-sdk'
-import { searchCriteria, User, UserType } from 'iota-is-sdk'
-import type { Writable } from 'svelte/store'
-import { writable } from 'svelte/store'
-import { channelClient, identityClient, authenticationData } from './base'
-import { MAXIMUM_SEARCH_RESULTS } from './constants/identity'
-import type { ExtendedUser } from './types/identity'
+import type { CredentialTypes, IdentityJson, RevokeVerificationBody, VerifiableCredentialInternal, VerifiableCredentialJson } from 'iota-is-sdk';
+import { searchCriteria, User, UserType } from 'iota-is-sdk';
+import type { Writable } from 'svelte/store';
+import { writable } from 'svelte/store';
+import { authenticationData, channelClient, identityClient } from './base';
+import type { ExtendedUser } from './types/identity';
 
-export const searchResults: Writable<ExtendedUser[]> = writable([])
-export const selectedIdentity: Writable<ExtendedUser> = writable(null)
+
+export const searchResults: Writable<ExtendedUser[]> = writable([]);
+export const selectedIdentity: Writable<ExtendedUser> = writable(null);
+export const isLoadingIdentities: Writable<boolean> = writable(false);
 
 /**
  * Authenticates the user to the api for requests where authentication is needed
@@ -51,42 +46,110 @@ export async function register(username?: string, claimType = UserType.Person, c
     return registeredIdentity
 }
 
-export async function searchIdentities(query: string): Promise<ExtendedUser[]> {
-    const _isDID = (query: string): boolean => query.startsWith('did:iota:')
-    const _isType = (query: string): boolean =>
-        Object.values(UserType).some((userType) => userType.toLowerCase() === query.toLowerCase())
+let updateInterval
+let index = 0
+const timeout = 200
+const resultsPerCall = 5
 
-    let searchResult: User[] = []
+export async function searchIdentities(query: string, options?: { maxResults?: number }): Promise<ExtendedUser[]> {
+    const maxResults = options?.maxResults;
+    const _isDID = (query: string): boolean => query.startsWith('did:iota:');
+    const _isType = (query: string): boolean => Object.values(UserType).some(userType => userType.toLowerCase() === query.toLowerCase());
 
-    if (_isDID(query)) {
-        try {
-            const _identity = await identityClient.find(query)
-            searchResult.push(_identity)
-        } catch (e) {
-            console.error('There was an error searching for user', e)
-        }
-    } else if (_isType(query)) {
-        try {
-            searchResult = await identityClient.search({
-                username: undefined,
-                type: query,
-                limit: MAXIMUM_SEARCH_RESULTS,
-            } as searchCriteria)
-        } catch (e) {
-            console.error('There was an error searching for user', e)
-        }
-    } else {
+    let searchResult: User[] = [];
+
+    if (maxResults) {
         try {
             searchResult = await identityClient.search({
                 username: query,
                 type: undefined,
-                limit: MAXIMUM_SEARCH_RESULTS,
+                limit: maxResults,
             } as searchCriteria)
         } catch (e) {
             console.error('There was an error searching for user', e)
         }
+    } else if (_isDID(query)) {
+        try {
+            const _identity = await identityClient.find(query);
+            searchResult.push(_identity);
+        }
+        catch (e) {
+            console.error('There was an error searching for user', e)
+        }
+    } else if (_isType(query)) {
+        isLoadingIdentities.set(true)
+        const newResults = await partialSearch(
+            query,
+            {
+                searchByType: true,
+                limit: resultsPerCall,
+                index,
+            }
+        );
+
+        if (newResults?.length) {
+            searchResults.update((results) => [...results, ...newResults])
+
+            updateInterval = setTimeout(async () => {
+                searchIdentities(query)
+                index++
+            }, timeout)
+        }
+        else {
+            index = 0
+            stopSearch()
+        }
+
+    }
+    else {
+        isLoadingIdentities.set(true)
+        const newResults = await partialSearch(
+            query,
+            {
+                searchByUsername: true,
+                limit: resultsPerCall,
+                index,
+            }
+        );
+
+        if (newResults?.length) {
+            searchResults.update((results) => [...results, ...newResults])
+
+            updateInterval = setTimeout(async () => {
+                searchIdentities(query)
+                index++
+            }, timeout)
+        }
+        else {
+            index = 0
+            isLoadingIdentities.set(false)
+            stopSearch()
+        }
     }
     return searchResult
+}
+
+export async function partialSearch(query: string, options: { searchByType?: boolean, searchByUsername?: boolean, limit: number, index: number }): Promise<ExtendedUser[]> {
+    let partialResults = []
+    const { searchByType, searchByUsername, limit, index } = options
+    try {
+        partialResults = await identityClient.search({
+            username: searchByUsername ? query : undefined,
+            type: searchByType ? query : undefined,
+            limit: limit,
+            index: index
+        })
+    }
+    catch (e) {
+        console.error('There was an error searching for user', e)
+    }
+    return partialResults
+}
+
+export function stopSearch(): void {
+    if (updateInterval) {
+        clearTimeout(updateInterval)
+    }
 }
 
 export async function createVC(
@@ -150,3 +213,4 @@ export async function getVerifiableCredentials(identityId: string): Promise<Veri
     const identityDetails = await identityClient.find(identityId)
     return identityDetails?.verifiableCredentials ?? []
 }
+
