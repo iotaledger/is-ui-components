@@ -206,22 +206,24 @@
                 </div>
             {/if}
         </div>
-        <div class="d-flex align-items-center mt-3">
-            <Paginator
-                onPageChange={async (page) => {
-                    currentPage = page
-                }}
-                totalCount={$searchResults?.length}
-                pageSize={MAX_CHANNELS_PER_PAGE}
-                {currentPage}
-                siblingsCount={1}
-            />
-            <!-- {#if $isLoadingIdentities}
+        {#if $searchResults?.length}
+            <div class="d-flex align-items-center mt-3">
+                <Paginator
+                    onPageChange={async (page) => {
+                        currentPage = page
+                    }}
+                    totalCount={$searchResults?.length}
+                    pageSize={MAX_CHANNELS_PER_PAGE}
+                    {currentPage}
+                    siblingsCount={1}
+                />
+                <!-- {#if $isLoadingIdentities}
                 <div class="me-4">
                     <Spinner type="grow" color="secondary" size="sm" />
                 </div>
             {/if} -->
-        </div>
+            </div>
+        {/if}
     {/if}
     {#if state === State.ChannelDetail}
         <div class="mb-4 align-self-start">
