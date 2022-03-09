@@ -1,12 +1,11 @@
 <script lang="ts">
-    import type { IdentityJson } from 'boxfish-studio--iota-is-sdk'
-    import { UserType } from 'boxfish-studio--iota-is-sdk'
-    import { Button, Form, FormGroup, Input, Label, Spinner } from 'sveltestrap'
     import { USERS } from '$lib/app/constants/identity'
     import { register } from '$lib/app/identity'
     import type { RegistrationUser } from '$lib/app/types/identity'
-    import { Icon, ToastContainer } from '$lib/components'
-    import Box from './box.svelte'
+    import { Box,Icon,ToastContainer } from '$lib/components'
+    import type { IdentityJson } from 'boxfish-studio--iota-is-sdk'
+    import { UserType } from 'boxfish-studio--iota-is-sdk'
+    import { Button,FormGroup,Input,Label,Spinner } from 'sveltestrap'
     import RegisterSuccess from './register-success.svelte'
 
     export let switchToLogin: () => void = () => {}

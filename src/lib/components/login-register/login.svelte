@@ -1,11 +1,10 @@
 <script lang="ts">
+    import { authenticate } from '$lib/app/identity'
+    import { Box, Icon, ToastContainer } from '$lib/components'
     import type { IdentityJson } from 'boxfish-studio--iota-is-sdk'
     import { onMount } from 'svelte'
     import Dropzone from 'svelte-file-dropzone'
     import { Button, Spinner } from 'sveltestrap'
-    import { Icon, ToastContainer } from '$lib/components'
-    import { authenticate } from '$lib/app/identity'
-    import Box from './box.svelte'
 
     export let switchToRegister: () => void = () => {}
     export let onSuccess: () => void = () => {}

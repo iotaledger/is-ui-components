@@ -1,14 +1,13 @@
 <script lang="ts">
-    import { onMount, onDestroy } from 'svelte'
-    import { Badge, Button, ListGroup, ListGroupItem, Spinner } from 'sveltestrap'
-    // We have to import Input this way, otherwise it shouts SSR issues.
-    import Input from 'sveltestrap/src/Input.svelte'
-    import Box from '../login-register/box.svelte'
-    import Paginator from '../paginator.svelte'
-    import { CreateChannel, Icon, ToastContainer } from '$lib/components'
     import { BoxColor } from '$lib/app/constants/colors'
     import { addChannelToSearchResults, searchChannels, searchResults, stopSearch } from '$lib/app/streams'
     import type { ExtendedChannelInfo } from '$lib/app/types/streams'
+    import { Box, CreateChannel, Icon, ToastContainer } from '$lib/components'
+    import { onDestroy, onMount } from 'svelte'
+    import { Badge, Button, ListGroup, ListGroupItem, Spinner } from 'sveltestrap'
+    // We have to import Input this way, otherwise it shouts SSR issues.
+    import Input from 'sveltestrap/src/Input.svelte'
+    import Paginator from '../paginator.svelte'
     import ChannelDetails from './channel-details.svelte'
 
     let loading = false

@@ -1,8 +1,7 @@
 <script lang="ts">
-    import { Icon } from '$lib/components'
+    import { Icon, Box } from '$lib/components'
     import { logout } from '$lib/app/identity'
     import { Button } from 'sveltestrap'
-    import Box from './box.svelte'
 
     export let switchToLogin: () => void = () => {}
 

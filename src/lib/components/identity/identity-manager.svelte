@@ -1,24 +1,23 @@
 <script lang="ts">
+    import { BoxColor } from '$lib/app/constants/colors'
+    import { USER_ICONS } from '$lib/app/constants/identity'
+    import {
+        addIdentityToSearchResults,
+        isLoadingIdentities,
+        searchIdentities,
+        searchResults,
+        selectedIdentity,
+        stopSearch,
+        updateSelectedIdentity,
+    } from '$lib/app/identity'
+    import type { ExtendedUser } from '$lib/app/types/identity'
+    import { Box, CreateIdentity, Icon, IdentityDetails, ToastContainer } from '$lib/components'
     import { UserType } from 'boxfish-studio--iota-is-sdk'
     import { onDestroy, onMount } from 'svelte'
     import { Button, ListGroup, ListGroupItem, Spinner } from 'sveltestrap'
     // We have to import Input this way, otherwise it shouts SSR issues.
     import Input from 'sveltestrap/src/Input.svelte'
-    import Box from '../login-register/box.svelte'
     import Paginator from '../paginator.svelte'
-    import { CreateIdentity, Icon, IdentityDetails, ToastContainer } from '$lib/components'
-    import { BoxColor } from '$lib/app/constants/colors'
-    import { USER_ICONS } from '$lib/app/constants/identity'
-    import {
-        addIdentityToSearchResults,
-        searchIdentities,
-        searchResults,
-        selectedIdentity,
-        updateSelectedIdentity,
-        isLoadingIdentities,
-        stopSearch,
-    } from '$lib/app/identity'
-    import type { ExtendedUser } from '$lib/app/types/identity'
 
     enum State {
         ListIdentities = 'listIdentities',
