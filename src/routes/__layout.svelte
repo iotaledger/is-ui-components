@@ -12,9 +12,9 @@
 
 <script lang="ts">
     import 'bootstrap/dist/css/bootstrap.min.css'
-    import { Icon } from '../components'
+    import { Icon } from '$lib/components'
     import { Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'sveltestrap'
-    import './../scss/index.scss'
+    import '$lib/scss/index.scss'
 
     let isOpen = false
 

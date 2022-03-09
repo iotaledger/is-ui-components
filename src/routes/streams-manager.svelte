@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-    import { StreamsManager } from './../components'
+    import { StreamsManager } from '$lib/components'
     import { Col, Container, Row } from 'sveltestrap'
 </script>
 

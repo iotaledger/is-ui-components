@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-    import { VerifyCredential } from './../components'
+    import { VerifyCredential } from '$lib/components'
     import { Col, Container, Row } from 'sveltestrap'
 </script>
 

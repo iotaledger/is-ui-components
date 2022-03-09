@@ -4,7 +4,7 @@
 
 <script lang="ts">
     import { Col, Container, Row } from 'sveltestrap'
-    import { CreateVC, Details, Search, VerifyVC } from './../components'
+    import { CreateVC, Details, Search, VerifyVC } from '$lib/components'
 </script>
 
 <svelte:head>

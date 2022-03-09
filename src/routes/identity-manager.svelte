@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-    import { IdentityManager } from './../components'
+    import { IdentityManager } from '$lib/components'
     import { Col, Container, Row } from 'sveltestrap'
 </script>
 
