@@ -188,7 +188,7 @@
                     {/each}
                 </ListGroup>
             {/if}
-            {#if message}
+            {#if message && !$isLoadingIdentities}
                 <div class="text-center">
                     {message}
                 </div>
@@ -199,17 +199,19 @@
                 <Spinner type="border" color="secondary" size="sm" />
             </div>
         {/if}
-        <div class="d-flex align-items-center mt-3">
-            <Paginator
-                onPageChange={async (page) => {
-                    currentPage = page
-                }}
-                totalCount={$searchResults?.length}
-                pageSize={MAX_IDENTITIES_PER_PAGE}
-                {currentPage}
-                siblingsCount={1}
-            />
-        </div>
+        {#if $searchResults?.length}
+            <div class="d-flex align-items-center mt-3">
+                <Paginator
+                    onPageChange={async (page) => {
+                        currentPage = page
+                    }}
+                    totalCount={$searchResults?.length}
+                    pageSize={MAX_IDENTITIES_PER_PAGE}
+                    {currentPage}
+                    siblingsCount={1}
+                />
+            </div>
+        {/if}
     {/if}
 
     {#if state === State.IdentityDetail}
