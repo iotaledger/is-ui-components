@@ -5,7 +5,7 @@
     import { USERS } from '../../lib/constants/identity'
     import { register } from '../../lib/identity'
     import type { RegistrationUser } from '../../lib/types/identity'
-    import { Icon } from './../../components'
+    import { Icon, ToastContainer } from './../../components'
     import Box from './box.svelte'
     import RegisterSuccess from './register-success.svelte'
 
@@ -137,3 +137,4 @@
 {:else}
     <RegisterSuccess identity={registeredIdentity} type={selectedUser.type} username={selectedUser.username} {switchToLogin} />
 {/if}
+<ToastContainer />

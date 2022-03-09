@@ -6,7 +6,7 @@
     import Input from 'sveltestrap/src/Input.svelte'
     import Box from '../login-register/box.svelte'
     import Paginator from '../paginator.svelte'
-    import { CreateIdentity, Icon, IdentityDetails } from './../../components'
+    import { CreateIdentity, Icon, IdentityDetails, ToastContainer } from './../../components'
     import { BoxColor } from './../../lib/constants/colors'
     import { USER_ICONS } from './../../lib/constants/identity'
     import {
@@ -224,6 +224,7 @@
     {/if}
     <CreateIdentity isOpen={isCreateIdentityOpen} onModalClose={handleCloseModal} onSuccess={onCreateIdentitySuccess} />
 </Box>
+<ToastContainer />
 
 <style lang="scss">
     .identity-manager {

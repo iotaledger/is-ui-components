@@ -5,7 +5,7 @@
     import Input from 'sveltestrap/src/Input.svelte'
     import Box from '../login-register/box.svelte'
     import Paginator from '../paginator.svelte'
-    import { CreateChannel, Icon } from './../../components'
+    import { CreateChannel, Icon, ToastContainer } from './../../components'
     import { BoxColor } from './../../lib/constants/colors'
     import { addChannelToSearchResults, searchChannels, searchResults, stopSearch } from './../../lib/streams'
     import type { ExtendedChannelInfo } from './../../lib/types/streams'
@@ -245,6 +245,7 @@
 
     <CreateChannel isOpen={isCreateChannelOpen} onModalClose={handleCloseModal} onSuccess={onCreateChannelSuccess} />
 </Box>
+<ToastContainer />
 
 <style lang="scss">
     .streams-manager {

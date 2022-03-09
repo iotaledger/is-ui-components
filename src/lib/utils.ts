@@ -68,3 +68,10 @@ export function isJson(str: string): boolean {
     }
     return true
 }
+
+export const generateRandomId = (): string => {
+    return Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => {
+        return ('0' + (byte & 0xff).toString(16)).slice(-2)
+    }).join('')
+}
+

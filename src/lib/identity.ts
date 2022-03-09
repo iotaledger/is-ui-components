@@ -4,7 +4,8 @@ import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 import { authenticationData, channelClient, identityClient } from './base';
 import type { ExtendedUser } from './types/identity';
-
+import { showNotification } from './notificacion';
+import { NotificationType } from './types/notificacion'
 
 export const searchResults: Writable<ExtendedUser[]> = writable([]);
 export const selectedIdentity: Writable<ExtendedUser> = writable(null);
@@ -22,8 +23,11 @@ export async function authenticate(id: string, secret: string): Promise<boolean>
         authenticationData.set({ did: id, jwt: identityClient.jwtToken })
         return true
     } catch (e) {
-        console.error('There was an error authenticating', e)
-        return false
+        showNotification({
+            type: NotificationType.Error,
+            message: 'The authentication failed',
+        })
+        console.error(Error, e);
     }
 }
 /**
@@ -41,7 +45,11 @@ export async function register(username?: string, claimType = UserType.Person, c
     try {
         registeredIdentity = await identityClient.create(username, claimType, claim)
     } catch (e) {
-        console.error('There was an error authenticating', e)
+        showNotification({
+            type: NotificationType.Error,
+            message: 'The register failed',
+        })
+        console.error(Error, e);
     }
     return registeredIdentity
 }
@@ -66,15 +74,22 @@ export async function searchIdentities(query: string, options?: { maxResults?: n
                 limit: maxResults,
             } as searchCriteria)
         } catch (e) {
-            console.error('There was an error searching for user', e)
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error searching for user',
+            })
+            console.error(Error, e);
         }
     } else if (_isDID(query)) {
         try {
             const _identity = await identityClient.find(query);
             searchResult.push(_identity);
-        }
-        catch (e) {
-            console.error('There was an error searching for user', e)
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error searching for user',
+            })
+            console.error(Error, e);
         }
     } else if (_isType(query)) {
         isLoadingIdentities.set(true)
@@ -139,9 +154,12 @@ export async function partialSearch(query: string, options: { searchByType?: boo
             limit: limit,
             index: index
         })
-    }
-    catch (e) {
-        console.error('There was an error searching for user', e)
+    } catch (e) {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error searching for user',
+        })
+        console.error(Error, e);
     }
     return partialResults
 }
@@ -163,8 +181,13 @@ export async function createVC(
     try {
         credential = await identityClient.createCredential(initiatorVC, targetDid, credentialType, claimType, claim)
     } catch (e) {
-        console.error('There was an error creating the credential', e)
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error creating the credential',
+        })
+        console.error(Error, e);
     }
+
     return credential
 }
 
@@ -173,7 +196,11 @@ export async function revokeVC(signatureValue: RevokeVerificationBody): Promise<
         await identityClient.revokeCredential(signatureValue)
         return true
     } catch (e) {
-        console.error('There was an error revoking the credential', e)
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error revoking the credential',
+        })
+        console.error(Error, e);
         return false
     }
 }
@@ -204,7 +231,11 @@ export async function verifyVC(json: VerifiableCredentialInternal): Promise<bool
         const { isVerified } = await identityClient.checkCredential(json as VerifiableCredentialInternal)
         return isVerified
     } catch (e) {
-        console.error('There was an error revoking the credential', e)
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error verifying the credential',
+        })
+        console.error(Error, e);
         return false
     }
 }

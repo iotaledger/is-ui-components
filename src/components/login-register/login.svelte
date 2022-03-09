@@ -3,7 +3,7 @@
     import { onMount } from 'svelte'
     import Dropzone from 'svelte-file-dropzone'
     import { Button, Spinner } from 'sveltestrap'
-    import { Icon } from './../../components'
+    import { Icon, ToastContainer } from './../../components'
     import { authenticate } from './../../lib/identity'
     import Box from './box.svelte'
 
@@ -70,3 +70,4 @@
         </div>
     </Button>
 </Box>
+<ToastContainer />

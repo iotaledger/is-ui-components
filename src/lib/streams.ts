@@ -5,6 +5,8 @@ import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient } from './base'
 import type { ExtendedChannelInfo } from './types/streams'
 import { SubscriptionState } from './types/streams'
+import { showNotification } from './notificacion';
+import { NotificationType } from './types/notificacion'
 
 export const selectedChannel: Writable<ExtendedChannelInfo> = writable(null)
 export const searchResults: Writable<ExtendedChannelInfo[]> = writable([])
@@ -31,9 +33,12 @@ export async function searchChannels(
         try {
             const channels = await channelClient.search({ limit: maxResults })
             searchResults.set(channels)
-        }
-        catch (e) {
-            console.error('There was an error searching for channels', e)
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error searching for channels'
+            })
+            console.error(Error, e);
         }
     }
     else {
@@ -72,9 +77,12 @@ export async function partialSearch(query: string, options: { searchByAuthorId?:
             limit: limit,
             index: index
         })
-    }
-    catch (e) {
-        console.error('There was an error searching for user', e)
+    } catch (e) {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error searching for user',
+        })
+        console.error(Error, e);
     }
     return partialResults
 }
@@ -108,7 +116,11 @@ export async function readChannel(channelAddress: string): Promise<void> {
                     timeout = 800
                 }
             } catch (e) {
-                console.error('There was an error reading channel', e)
+                showNotification({
+                    type: NotificationType.Error,
+                    message: 'There was an error reading channel',
+                })
+                console.error(Error, e);
             }
         } else {
             channelBusy.set(true)
@@ -121,7 +133,11 @@ export async function readChannel(channelAddress: string): Promise<void> {
         }
 
     } catch (e) {
-        console.error('There was an error reading channel', e)
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error reading channel',
+        })
+        console.log(Error, e);
     }
 
     if (updateTimer) {
@@ -144,7 +160,11 @@ export async function requestSubscription(channelAddress: string): Promise<Reque
         const resp = await channelClient.requestSubscription(channelAddress, { accessRights: AccessRights.ReadAndWrite })
         return resp
     } catch (e) {
-        console.error('There was an error requesting subscription to channel', e)
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error requesting subscription to channel',
+        })
+        console.error(Error, e);
     }
 }
 
@@ -153,7 +173,11 @@ export async function requestUnsubscription(channelAddress: string): Promise<voi
         const subscription = await channelClient.findSubscription(channelAddress, get(authenticationData)?.did)
         await channelClient.removeSubscription(channelAddress, subscription.id)
     } catch (e) {
-        console.error('There was an error requesting unsubscription to channel', e)
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error requesting unsubscription to channel',
+        })
+        console.error(Error, e);
     }
 }
 
@@ -163,7 +187,11 @@ export async function acceptSubscription(channelAddress: string, id: string): Pr
             id,
         })
     } catch (e) {
-        console.error('There was an error getting subscription state', e)
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error getting subscription state',
+        })
+        console.error(Error, e);
     }
 }
 
@@ -173,8 +201,13 @@ export async function getPendingSubscriptions(channelAddress: string): Promise<S
         const pendingSubscriptions = allSubscriptions.filter((s) => !s.isAuthorized)
         return pendingSubscriptions
     } catch (e) {
-        console.error('There was an error getting all subscriptions', e)
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error getting all subscriptions',
+        })
+        console.error(Error, e);
     }
+
 }
 
 export async function getSubscriptionStatus(channelAddress: string): Promise<SubscriptionState> {
@@ -188,8 +221,13 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
             return SubscriptionState.Unsubscribed
         }
     } catch (e) {
-        console.error('There was an error getting subscription state', e)
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error getting subscription state',
+        })
+        console.error(Error, e);
     }
+
 }
 
 export async function writeMessage(
@@ -207,8 +245,13 @@ export async function writeMessage(
             type,
         })
     } catch (e) {
-        console.error('There was an error writing message in channel', e)
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error writing message in channel',
+        })
+        console.error(Error, e);
     }
+
 }
 
 export async function createChannel(topics: { type: string; source: string }[]): Promise<CreateChannelResponse> {
@@ -219,7 +262,11 @@ export async function createChannel(topics: { type: string; source: string }[]):
             topics,
         })
     } catch (e) {
-        console.error('There was an error searching for channel', e)
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error creating the channel',
+        })
+        console.error(Error, e);
     }
     return channel
 }
