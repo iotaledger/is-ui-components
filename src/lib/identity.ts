@@ -83,7 +83,9 @@ export async function searchIdentities(query: string, options?: { maxResults?: n
     } else if (_isDID(query)) {
         try {
             const _identity = await identityClient.find(query);
-            searchResult.push(_identity);
+            if (_identity) {
+                searchResult.push(_identity);
+            }
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -101,6 +103,7 @@ export async function searchIdentities(query: string, options?: { maxResults?: n
                 index,
             }
         );
+
 
         if (newResults?.length) {
             searchResults.update((results) => [...results, ...newResults])
