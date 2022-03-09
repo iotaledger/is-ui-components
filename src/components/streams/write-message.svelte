@@ -4,7 +4,7 @@
     import Input from 'sveltestrap/src/Input.svelte'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
-    import { channelBusy, writeMessage } from './../../lib/streams'
+    import { channelBusy, writeMessage, readChannel } from './../../lib/streams'
 
     export let isOpen: boolean = false
     export let onModalClose: () => void = () => {}

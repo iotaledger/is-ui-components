@@ -88,17 +88,8 @@ export function stopSearch(): void {
 let timeout = 1000
 let updateTimer
 
-export async function readChannel(channelAddress: string, force = false): Promise<void> {
-    if (force) {
-        try {
-            channelBusy.set(true)
-            const _channelData = await channelClient.read(channelAddress)
-            channelData.set(_channelData)
-            channelBusy.set(false)
-        } catch (e) {
-            console.error('There was an error reading channel', e)
-        }
-    } else {
+export async function readChannel(channelAddress: string): Promise<void> {
+    try {
         if (get(channelData)?.length) {
             const lastMessage = get(channelData)?.[0]
             const lastMessageDate = new Date(lastMessage.log.created)
@@ -114,18 +105,29 @@ export async function readChannel(channelAddress: string, force = false): Promis
                 channelBusy.set(false)
                 channelData.update((_chData) => [...newMessages, ..._chData])
                 if (newMessages?.length) {
-                    timeout = 100
+                    timeout = 800
                 }
             } catch (e) {
                 console.error('There was an error reading channel', e)
             }
-        } else if (timeout < 10000) {
-            timeout += 1000
+        } else {
+            channelBusy.set(true)
+            const _channelData = await channelClient.read(channelAddress)
+            channelData.set(_channelData)
+            channelBusy.set(false)
+            if (timeout < 1000) {
+                timeout += 500
+            }
         }
-        if (updateTimer) {
-            clearTimeout(updateTimer)
-        }
+
+    } catch (e) {
+        console.error('There was an error reading channel', e)
     }
+
+    if (updateTimer) {
+        clearTimeout(updateTimer)
+    }
+
     updateTimer = setTimeout(async () => readChannel(channelAddress), timeout)
 }
 

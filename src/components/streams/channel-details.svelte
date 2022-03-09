@@ -28,7 +28,6 @@
     let isOpen: boolean = false
 
     onMount(async () => {
-        await readChannel(address, true)
         subscriptionState = await getSubscriptionStatus(address)
         if (isOwner) {
             updatePendingSubscriptions()
@@ -66,6 +65,14 @@
 
     async function updatePendingSubscriptions() {
         pendingSubscriptions = await getPendingSubscriptions(address)
+    }
+
+    $: subscriptionState, updateMessages()
+
+    async function updateMessages() {
+        if (isOwner || subscriptionState === SubscriptionState.Subscribed) {
+            await readChannel(address)
+        }
     }
 
     function onModalClose() {
