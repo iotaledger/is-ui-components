@@ -65,24 +65,18 @@
 </script>
 
 <div class="identity-details w-100">
-    <div class="d-flex align-items-center justify-content-between bg-light rounded p-4">
+    <div class="d-xl-flex align-items-center justify-content-between bg-light rounded p-4">
         <div class="d-flex align-items-center">
             <Icon size={64} boxed boxColor={USER_ICONS[type].boxColor} type={USER_ICONS[type].icon} />
             <div class="ms-4">
                 <div class="text-secondary fst-italic">{type}</div>
                 <div class="fs-4 fw-bold">{username}</div>
-                <div class="text-secondary fw-bolder mt-1">{id}</div>
+                <div class="text-secondary fw-bolder mt-1 text-break">{id}</div>
             </div>
         </div>
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center ">
             <div on:mouseenter={switchIconColor} on:mouseleave={switchIconColor}>
-                <Button
-                    size="sm"
-                    outline
-                    color="dark"
-                    on:click={switchToAddCredential}
-                    class="mt-3 mt-lg-0  d-flex align-items-center"
-                >
+                <Button size="sm" outline color="dark" on:click={switchToAddCredential} class="mt-3 d-flex align-items-center">
                     <Icon type="plus" color={iconColor} size={16} />
                     <span class="ms-1">Add credential</span>
                 </Button>
@@ -102,7 +96,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="my-4">
+                <div class="my-2 my-lg-4">
                     <div class="d-flex flex-column">
                         <a
                             class="btn btn-sm btn-outline-info text-decoration-none ms-auto d-flex align-items-center"

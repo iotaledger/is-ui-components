@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { IdentityJson } from 'iota-is-sdk'
     import { UserType } from 'iota-is-sdk'
-    import { Button, FormGroup, Input, Label, ModalBody, ModalHeader, Spinner } from 'sveltestrap'
+    import { Button, FormGroup, Input, Label, ModalBody, ModalHeader, Spinner, ModalFooter } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
     import Multiselect from '../multiselect.svelte'
@@ -86,8 +86,8 @@
 
 <Modal {isOpen} toggle={onModalClose}>
     <ModalHeader toggle={onModalClose} class="px-4 pt-3">Create identity</ModalHeader>
-    <ModalBody class="px-4 pb-4">
-        <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
+    <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
+        <ModalBody class="px-4 pb-4">
             <FormGroup class="mb-4">
                 <Label class="mb-2">ID type</Label>
                 <Input class="py-3 ps-3" type="select" name="select" bind:value={selectedUserType} on:change={resetInputFields}>
@@ -176,8 +176,9 @@
                         {/if}
                     </FormGroup>
                 {/each}
-            {/if}
-
+            {/if}</ModalBody
+        >
+        <ModalFooter>
             <Button size="lg" color="primary" block class="mt-4" disabled={loading} type="submit"
                 ><div class="d-flex justify-content-center align-items-center">
                     {loading ? 'Creating...' : 'Create identity'}
@@ -186,20 +187,20 @@
                     {/if}
                 </div>
             </Button>
-        </form>
 
-        {#if registeredIdentity}
-            <div>
-                <a
-                    class="mt-4 btn btn-primary btn-block w-100 btn-lg"
-                    href={createJsonDataUrl(registeredIdentity)}
-                    role="button"
-                    download="identity.json"
-                >
-                    Save identity
-                </a>
-                <div class="mt-4">Identity created succesfully</div>
-            </div>
-        {/if}
-    </ModalBody>
+            {#if registeredIdentity}
+                <div class="d-flex flex-column align-items-center w-100">
+                    <a
+                        class="mt-4 btn btn-primary btn-block w-100 btn-lg"
+                        href={createJsonDataUrl(registeredIdentity)}
+                        role="button"
+                        download="identity.json"
+                    >
+                        Save identity
+                    </a>
+                    <div class="mt-4">Identity created succesfully</div>
+                </div>
+            {/if}
+        </ModalFooter>
+    </form>
 </Modal>

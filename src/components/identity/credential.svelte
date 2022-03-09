@@ -28,8 +28,8 @@
                 </div>
             </div>
         </div>
-        <div class="my-4">
-            <div class="d-flex justify-content-between">
+        <div class="my-2 my-lg-4">
+            <div class="d-flex justify-content-between flex-column-reverse flex-lg-row">
                 <div>
                     <div class="label">
                         Credential ID
@@ -44,49 +44,59 @@
                         <div class="text-secondary">{issuanceDate}</div>
                     </div>
                 </div>
-                <div class="d-flex flex-column">
-                    <a
-                        class="btn btn-sm btn-outline-info text-decoration-none ms-auto d-flex justify-content-center align-items-center"
-                        href={createJsonDataUrl(vc)}
-                        download={`verifiable-credential-${id}.json`}
-                    >
-                        <Icon type="download" size={16} />
-                        <span class="ms-2">Download</span>
-                    </a>
-                    <Button size="sm" outline color="danger" disabled={revoking} class="ms-auto mt-2" on:click={onModalClose}>
-                        <div class="d-flex align-items-center justify-content-center">
-                            {#if !revoking}
-                                <Icon type="trash" size={16} />
-                            {/if}
-                            <span class="ms-2">{revoking ? 'Revoking...' : 'Revoke'}</span>
+                <div class="d-flex flex-lg-column mb-3 mb-lg-0 justify-content-end justify-content-lg-start">
+                    <div class="d-flex d-lg-block">
+                        <a
+                            class="btn btn-sm btn-outline-info text-decoration-none d-flex justify-content-center align-items-center me-2 me-lg-0"
+                            href={createJsonDataUrl(vc)}
+                            download={`verifiable-credential-${id}.json`}
+                        >
+                            <Icon type="download" size={16} />
+                            <span class="ms-2">Download</span>
+                        </a>
+                        <Button
+                            size="sm"
+                            block
+                            outline
+                            color="danger"
+                            disabled={revoking}
+                            class=" mt-lg-2 "
+                            on:click={onModalClose}
+                        >
+                            <div class="d-flex align-items-center justify-content-center">
+                                {#if !revoking}
+                                    <Icon type="trash" size={16} />
+                                {/if}
+                                <span class="ms-2">{revoking ? 'Revoking...' : 'Revoke'}</span>
 
-                            <Modal {isOpen} toggle={onModalClose}>
-                                <div class="p-3 d-flex flex-column">
-                                    <ModalHeader toggle={onModalClose}>Are you sure?</ModalHeader>
-                                    <ModalBody>
-                                        <div class="break-all">
-                                            Credential with ID <span class="fw-light">{id}</span> is going to be revoked.
-                                        </div>
-                                    </ModalBody>
-                                    <ModalFooter>
-                                        <Button
-                                            color="danger"
-                                            on:click={() => {
-                                                onRevoke(vc)
-                                            }}
-                                            >{#if revoking}
-                                                <span>Revoking...</span>
-                                                <Spinner size="sm" type="border" color="light" class="ms-1" />
-                                            {:else}
-                                                Yes, revoke
-                                            {/if}</Button
-                                        >
-                                        <Button color="secondary" on:click={onModalClose}>Cancel</Button>
-                                    </ModalFooter>
-                                </div>
-                            </Modal>
-                        </div>
-                    </Button>
+                                <Modal {isOpen} toggle={onModalClose}>
+                                    <div class="p-3 d-flex flex-column">
+                                        <ModalHeader toggle={onModalClose}>Are you sure?</ModalHeader>
+                                        <ModalBody>
+                                            <div class="break-all">
+                                                Credential with ID <span class="fw-light">{id}</span> is going to be revoked.
+                                            </div>
+                                        </ModalBody>
+                                        <ModalFooter>
+                                            <Button
+                                                color="danger"
+                                                on:click={() => {
+                                                    onRevoke(vc)
+                                                }}
+                                                >{#if revoking}
+                                                    <span>Revoking...</span>
+                                                    <Spinner size="sm" type="border" color="light" class="ms-1" />
+                                                {:else}
+                                                    Yes, revoke
+                                                {/if}</Button
+                                            >
+                                            <Button color="secondary" on:click={onModalClose}>Cancel</Button>
+                                        </ModalFooter>
+                                    </div>
+                                </Modal>
+                            </div>
+                        </Button>
+                    </div>
                 </div>
             </div>
             <div>

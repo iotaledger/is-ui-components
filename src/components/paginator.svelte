@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Icon } from '../components'
     export let currentPage: number = 0
     export let pageSize: number = 10
     export let totalCount: number = 0
@@ -82,15 +83,11 @@
 </script>
 
 <ul
-    class="pagination d-flex align-self-center list-unstyled list-inline mt-4 mb-0"
+    class="pagination d-flex align-items-center list-unstyled list-inline mb-0"
     class:hidden={currentPage === 0 || paginationRange.length < 2}
 >
-    <li
-        class="btn btn-outline-dark arrow d-flex align-items-center justify-content-center rounded cursor-pointer"
-        class:disabled={currentPage === 1}
-        on:click={onPrevious}
-    >
-        {'<'}
+    <li class="arrow cursor-pointer" class:disabled={currentPage === 1} on:click={onPrevious}>
+        <Icon type="arrow-left-circle" size={24} />
     </li>
     {#each paginationRange as pageNumber}
         {#if pageNumber === DOTS}
@@ -105,12 +102,8 @@
             </li>
         {/if}
     {/each}
-    <li
-        class="btn btn-outline-dark arrow d-flex align-items-center justify-content-center rounded cursor-pointer"
-        class:disabled={currentPage === lastPage}
-        on:click={onNext}
-    >
-        {'>'}
+    <li class="arrow cursor-pointer" class:disabled={currentPage === lastPage} on:click={onNext}>
+        <Icon type="arrow-right-circle" size={24} />
     </li>
 </ul>
 

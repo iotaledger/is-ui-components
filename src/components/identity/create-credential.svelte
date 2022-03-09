@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { VerifiableCredentialJson } from 'iota-is-sdk'
-    import { Button, FormGroup, Input, Label, ModalBody, ModalHeader, Spinner } from 'sveltestrap'
+    import { Button, FormGroup, Label, ModalBody, ModalHeader, Spinner, ModalFooter } from 'sveltestrap'
     import Input from 'sveltestrap/src/Input.svelte'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
@@ -91,8 +91,8 @@
 
 <Modal {isOpen} toggle={onModalClose}>
     <ModalHeader toggle={onModalClose} class="px-4 pt-3">Add a credential</ModalHeader>
-    <ModalBody class="px-4 pb-4">
-        <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
+    <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
+        <ModalBody class="px-4 pb-4">
             <Label>Template</Label>
             <Input type="select" name="select" class="mb-4" bind:value={selectedTemplate} on:change={handleInputChange}>
                 {#each VC_TEMPLATES as template}
@@ -125,8 +125,9 @@
                         </FormGroup>
                     </div>
                 {/each}
-            {/if}
-
+            {/if}</ModalBody
+        >
+        <ModalFooter>
             <Button size="lg" block class="mt-4" color="primary" disabled={loading}>
                 <div class="d-flex justify-content-center align-items-center">
                     {loading ? 'Creating VC...' : 'Add a new credential'}
@@ -141,8 +142,8 @@
                     <a href={createJsonDataUrl(verifiableCredential)} download="vc.json">Download</a>
                 </div>
             {/if}
-        </form>
-    </ModalBody>
+        </ModalFooter>
+    </form>
 </Modal>
 
 <style lang="scss">

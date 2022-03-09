@@ -102,7 +102,7 @@
 </script>
 
 <div class="w-100">
-    <div class="d-flex align-items-center justify-content-between bg-light rounded p-4 flex-column flex-lg-row">
+    <div class="d-xl-flex align-items-center justify-content-between bg-light rounded p-4 flex-column flex-lg-row">
         <div class="d-flex align-items-center">
             <Icon type="broadcast" boxed boxColor={BoxColor.Blue} size={64} />
             <div class="ms-4">

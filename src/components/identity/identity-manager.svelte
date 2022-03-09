@@ -194,7 +194,12 @@
                 </div>
             {/if}
         </div>
-        <div class="d-flex align-items-center">
+        {#if $isLoadingIdentities}
+            <div class="mt-3">
+                <Spinner type="border" color="secondary" size="sm" />
+            </div>
+        {/if}
+        <div class="d-flex align-items-center mt-3">
             <Paginator
                 onPageChange={async (page) => {
                     currentPage = page
@@ -204,11 +209,6 @@
                 {currentPage}
                 siblingsCount={1}
             />
-            {#if $isLoadingIdentities}
-                <div class="me-4">
-                    <Spinner type="grow" color="secondary" size="sm" />
-                </div>
-            {/if}
         </div>
     {/if}
 

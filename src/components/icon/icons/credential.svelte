@@ -1,17 +1,17 @@
 <path
-    d="M18 4H6C4.34315 4 3 5.34315 3 7V17C3 18.6569 4.34315 20 6 20H18C19.6569 20 21 18.6569 21 17V7C21 5.34315 19.6569 4 18 4Z"
+    d="M36 8H12C8.68629 8 6 10.6863 6 14V34C6 37.3137 8.68629 40 12 40H36C39.3137 40 42 37.3137 42 34V14C42 10.6863 39.3137 8 36 8Z"
     stroke="#333333"
-    stroke-width="1.5"
+    stroke-width="3"
     stroke-linecap="round"
     stroke-linejoin="round"
 />
 <path
-    d="M9 12C10.1046 12 11 11.1046 11 10C11 8.89543 10.1046 8 9 8C7.89543 8 7 8.89543 7 10C7 11.1046 7.89543 12 9 12Z"
+    d="M18 24C20.2091 24 22 22.2091 22 20C22 17.7909 20.2091 16 18 16C15.7909 16 14 17.7909 14 20C14 22.2091 15.7909 24 18 24Z"
     stroke="#333333"
-    stroke-width="1.5"
+    stroke-width="3"
     stroke-linecap="round"
     stroke-linejoin="round"
 />
-<path d="M15 8H17" stroke="#333333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-<path d="M15 12H17" stroke="#333333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-<path d="M7 16H17" stroke="#333333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M30 16H34" stroke="#333333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M30 24H34" stroke="#333333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M14 32H34" stroke="#333333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
