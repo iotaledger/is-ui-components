@@ -112,7 +112,7 @@
                 {#if isOwner}
                     <Badge pill color="info">owner</Badge>
                 {:else if !isOwner && subscriptionState === SubscriptionState.Subscribed}
-                    <Badge pill color="primary">subscriber</Badge>
+                    <Badge pill color="success">subscriber</Badge>
                 {/if}
                 {#each topics as { type, source }}
                     <Badge color="primary" class="me-1">{type}</Badge>

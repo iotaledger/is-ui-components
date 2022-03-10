@@ -13,7 +13,6 @@ export const searchResults: Writable<ExtendedChannelInfo[]> = writable([])
 export const channelData: Writable<ChannelData[]> = writable([])
 export const channelBusy = writable(false)
 
-const userDid = get(authenticationData)?.did
 
 let updateInterval
 const intervalTimeout = 200
@@ -42,7 +41,7 @@ export async function searchChannels(
         }
     }
     else {
-        const newResults = await partialSearch(
+        let newResults = await partialSearch(
             query,
             {
                 searchByAuthorId: _isAuthorId(query),
@@ -52,9 +51,21 @@ export async function searchChannels(
             }
         );
 
+        const userDid = get(authenticationData)?.did
+        newResults = newResults.map((channel) => {
+            const authorId = channel.authorId
+            return (
+                {
+                    ...channel,
+                    isOwner: authorId === userDid,
+                    isSubscriber: channel.subscriberIds.includes(userDid),
+                }
+            )
+        })
+
+
         if (newResults?.length) {
             searchResults.update((results) => [...results, ...newResults])
-
             updateInterval = setTimeout(async () => {
                 index++
                 searchChannels(query)
@@ -276,6 +287,7 @@ export async function addChannelToSearchResults(channelAddress: string): Promise
 
     if (channel) {
         const authorId = channel.authorId
+        const userDid = get(authenticationData)?.did
 
         channel = {
             ...channel,
