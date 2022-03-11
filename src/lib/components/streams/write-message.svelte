@@ -22,8 +22,8 @@
     let formValidated = false
     let formContainer
 
-    const maxLengthTextarea = 100
-    const minLengthTextarea = 3
+    const MAX_LENGTH_TEXTAREA = 100
+    const MIN_LENGTH_TEXTAREA = 3
 
     $: formContainer, manageFormSubscription()
 
@@ -103,12 +103,12 @@
                     type="textarea"
                     name="text"
                     bind:value={payload}
-                    minlength={minLengthTextarea}
-                    maxlength={maxLengthTextarea}
+                    minlength={MIN_LENGTH_TEXTAREA}
+                    maxlength={MAX_LENGTH_TEXTAREA}
                     required
                 />
                 <div class="invalid-feedback">
-                    This field is required and it needs to be less than {maxLengthTextarea} characters.
+                    This field is required and it needs to be less than {MAX_LENGTH_TEXTAREA} characters.
                 </div>
             </div>
             <div class="mb-4">
@@ -120,12 +120,12 @@
                     type="textarea"
                     name="text"
                     bind:value={publicPayload}
-                    minlength={minLengthTextarea}
-                    maxlength={maxLengthTextarea}
+                    minlength={MIN_LENGTH_TEXTAREA}
+                    maxlength={MAX_LENGTH_TEXTAREA}
                     required
                 />
                 <div class="invalid-feedback">
-                    This field is required and it needs to be less than {maxLengthTextarea} characters.
+                    This field is required and it needs to be less than {MAX_LENGTH_TEXTAREA} characters.
                 </div>
             </div>
             <div class="mb-4">

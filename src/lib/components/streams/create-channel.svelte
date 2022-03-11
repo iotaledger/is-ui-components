@@ -23,9 +23,9 @@
     let formValidated = false
     let formContainer
 
-    const minLengthInput = 3
-    const maxLengthInput = 30
-    const maxLengthTextarea = 100
+    const MIN_LENGTH_INPUT = 3
+    const MAX_LENGTH_INPUT = 30
+    const MAX_LENGTH_TEXTAREA = 100
 
     $: formContainer, manageFormSubscription()
 
@@ -108,9 +108,9 @@
         <ModalBody class="px-4 pb-4">
             <div class="my-4 p-4 bg-light ">
                 <Label>Name</Label>
-                <Input placeholder={name} required type="textarea" minlength={minLengthInput} maxlength={maxLengthInput} />
+                <Input placeholder={name} required type="textarea" minlength={MIN_LENGTH_INPUT} maxlength={MAX_LENGTH_INPUT} />
                 <div class="invalid-feedback">
-                    This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthInput}
+                    This field is required and it needs to be more than {MIN_LENGTH_INPUT} characters and less than {MAX_LENGTH_INPUT}
                     characters.
                 </div>
 
@@ -119,11 +119,11 @@
                     placeholder={description}
                     required
                     type="textarea"
-                    minlength={minLengthInput}
-                    maxlength={maxLengthTextarea}
+                    minlength={MIN_LENGTH_INPUT}
+                    maxlength={MAX_LENGTH_TEXTAREA}
                 />
                 <div class="invalid-feedback">
-                    This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthTextarea}
+                    This field is required and it needs to be more than {MIN_LENGTH_INPUT} characters and less than {MAX_LENGTH_TEXTAREA}
                     characters.
                 </div>
             </div>
@@ -144,11 +144,11 @@
                             type="text"
                             bind:value={topic['type']}
                             required
-                            minlength={minLengthInput}
-                            maxlength={maxLengthInput}
+                            minlength={MIN_LENGTH_INPUT}
+                            maxlength={MAX_LENGTH_INPUT}
                         />
                         <div class="invalid-feedback">
-                            This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthInput}
+                            This field is required and it needs to be more than {MIN_LENGTH_INPUT} characters and less than {MAX_LENGTH_INPUT}
                             characters.
                         </div>
                     </FormGroup>
@@ -158,11 +158,11 @@
                             type="text"
                             bind:value={topic['source']}
                             required
-                            minlength={minLengthInput}
-                            maxlength={maxLengthInput}
+                            minlength={MIN_LENGTH_INPUT}
+                            maxlength={MAX_LENGTH_INPUT}
                         />
                         <div class="invalid-feedback">
-                            This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthInput}
+                            This field is required and it needs to be more than {MIN_LENGTH_INPUT} characters and less than {MAX_LENGTH_INPUT}
                             characters.
                         </div>
                     </FormGroup>

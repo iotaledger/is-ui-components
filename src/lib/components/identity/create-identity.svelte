@@ -24,8 +24,8 @@
     let formValidated = false
     let formContainer
 
-    const minLengthInput = 3
-    const maxLengthInput = 30
+    const MIN_LENGTH_INPUT = 3
+    const MAX_LENGTH_INPUT = 30
     // Separator for the multiple string option (string array)
     const STRING_ARRAY_SEPARATOR = ','
 
@@ -116,14 +116,14 @@
                                 type="text"
                                 bind:value={inputFields[id]}
                                 {required}
-                                maxlength={maxLengthInput}
-                                minlength={minLengthInput}
+                                maxlength={MAX_LENGTH_INPUT}
+                                minlength={MIN_LENGTH_INPUT}
                                 on:keydown={() => {
                                     registeredIdentity = null
                                 }}
                             />
                             <div class="invalid-feedback">
-                                This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthInput}
+                                This field is required and it needs to be more than {MIN_LENGTH_INPUT} characters and less than {MAX_LENGTH_INPUT}
                                 characters
                             </div>
                         {/if}
