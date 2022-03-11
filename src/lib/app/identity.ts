@@ -3,11 +3,11 @@ import { UserType } from 'boxfish-studio--iota-is-sdk';
 import type { Writable } from 'svelte/store';
 import { get, writable } from 'svelte/store';
 import { authenticationData, channelClient, identityClient } from './base';
-import { showNotification } from './notificacion';
 import type { ExtendedUser } from './types/identity';
-import { NotificationType } from './types/notificacion';
+import { showNotification } from './notification';
+import { NotificationType } from './types/notification'
 
-export const searchResults: Writable<ExtendedUser[]> = writable([]);
+export const searchIdentitiesResults: Writable<ExtendedUser[]> = writable([]);
 export const selectedIdentity: Writable<ExtendedUser> = writable(null);
 export const isLoadingIdentities: Writable<boolean> = writable(false);
 
@@ -68,7 +68,7 @@ export async function searchIdentities(query: string, options?: { limit?: number
             const identity = await searchIdentityByDID(query)
             if (identity) {
 
-                searchResults.set([identity])
+                searchIdentitiesResults.set([identity])
             }
         }
 
@@ -83,10 +83,10 @@ export async function searchIdentities(query: string, options?: { limit?: number
                 }
             );
             if (newResults?.length) {
-                searchResults.update((results) => [...results, ...newResults])
+                searchIdentitiesResults.update((results) => [...results, ...newResults])
             }
             // if the search is not finished, start a new search
-            if ((options?.limit && (get(searchResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_LIMIT))) {
+            if ((options?.limit && (get(searchIdentitiesResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_LIMIT))) {
                 updateInterval = setTimeout(async () => {
                     index++
                     _search(query)
@@ -94,15 +94,15 @@ export async function searchIdentities(query: string, options?: { limit?: number
             }
             else {
                 index = 0
-                stopSearch()
+                stopIdentitiesSearch()
             }
         }
     }
 
-    stopSearch();
+    stopIdentitiesSearch();
 
     isLoadingIdentities.set(true)
-    searchResults.set([])
+    searchIdentitiesResults.set([])
     await _search(query, options)
     isLoadingIdentities.set(false)
 }
@@ -146,7 +146,7 @@ export async function searchIdentitiesSingleRequest(query: string, options: { se
     return partialResults
 }
 
-export function stopSearch(): void {
+export function stopIdentitiesSearch(): void {
     if (updateInterval) {
         clearTimeout(updateInterval)
     }
@@ -189,12 +189,12 @@ export async function revokeVC(signatureValue: RevokeVerificationBody): Promise<
 
 export function updateSelectedIdentity(identity: ExtendedUser): void {
     selectedIdentity.set(identity)
-    searchResults?.update((_searchResults) => {
-        const index = _searchResults.findIndex((user) => user.id === identity.id)
+    searchIdentitiesResults?.update((_searchIdentitiesResults) => {
+        const index = _searchIdentitiesResults.findIndex((user) => user.id === identity.id)
         if (index !== -1) {
-            _searchResults[index] = identity
+            _searchIdentitiesResults[index] = identity
         }
-        return _searchResults
+        return _searchIdentitiesResults
     })
 }
 
@@ -202,8 +202,8 @@ export async function addIdentityToSearchResults(id: string): Promise<void> {
     const resuls = await searchIdentities(id)
     const identity = resuls?.[0]
     if (identity) {
-        searchResults?.update((_searchResults) => {
-            return [..._searchResults, identity]
+        searchIdentitiesResults?.update((_searchIdentitiesResults) => {
+            return [..._searchIdentitiesResults, identity]
         })
     }
 }

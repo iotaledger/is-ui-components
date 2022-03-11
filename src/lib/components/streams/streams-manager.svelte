@@ -3,11 +3,10 @@
     import { MAX_CHANNELS_PER_PAGE, WELCOME_CHANNELS_NUMBER } from '$lib/app/constants/streams'
     import {
         addChannelToSearchResults,
-        isAChannelSubscribed,
         isLoadingChannels,
         searchChannels,
-        searchResults,
-        stopSearch,
+        searchChannelsResults,
+        stopChannelsSearch,
     } from '$lib/app/streams'
     import type { ExtendedChannelInfo } from '$lib/app/types/streams'
     import type { TableData } from '$lib/app/types/table'
@@ -29,7 +28,7 @@
     let state: State = State.ListChannels
     let selectedChannel
 
-    $: message = loading || $searchResults?.length ? null : 'No channels found'
+    $: message = loading || $searchChannelsResults?.length ? null : 'No channels found'
 
     $: selectedChannel, updateState()
 
@@ -40,7 +39,7 @@
     })
 
     onDestroy(() => {
-        stopSearch()
+        stopChannelsSearch()
     })
 
     async function onSearch() {
@@ -93,7 +92,7 @@
 
     $: tableData = {
         headings: ['Channel', 'Address', 'Topic types', 'Topic Sources', ''],
-        rows: $searchResults.map((channel) => ({
+        rows: $searchChannelsResults.map((channel) => ({
             onClick: () => handleSelectChannel(channel),
             content: [
                 {
@@ -155,7 +154,7 @@
                     <Icon type="search" size={16} />
                 </button>
             </div>
-            {#if $searchResults?.length}
+            {#if $searchChannelsResults?.length}
                 <Table
                     data={tableData}
                     isPaginated={true}

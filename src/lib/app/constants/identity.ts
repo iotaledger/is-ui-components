@@ -367,4 +367,3 @@ export const CREDENTIAL_ICON = {
 	icon: 'credential',
 	boxColor: BoxColor.Purple,
 }
-
