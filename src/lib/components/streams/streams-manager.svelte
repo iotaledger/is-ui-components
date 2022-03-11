@@ -1,40 +1,53 @@
 <script lang="ts">
     import { BoxColor } from '$lib/app/constants/colors'
-    import { addChannelToSearchResults, searchChannels, searchResults, stopSearch } from '$lib/app/streams'
+    import { MAX_CHANNELS_PER_PAGE, WELCOME_CHANNELS_NUMBER } from '$lib/app/constants/streams'
+    import {
+        addChannelToSearchResults,
+        isAChannelSubscribed,
+        isLoadingChannels,
+        searchChannels,
+        searchResults,
+        stopSearch,
+    } from '$lib/app/streams'
     import type { ExtendedChannelInfo } from '$lib/app/types/streams'
-    import { Box, CreateChannel, Icon, ToastContainer } from '$lib/components'
+    import type { TableData } from '$lib/app/types/table'
+    import { Box, CreateChannel, Icon, Table } from '$lib/components'
     import { onDestroy, onMount } from 'svelte'
-    import { Badge, Button, ListGroup, ListGroupItem, Spinner } from 'sveltestrap'
+    import { Button, Spinner } from 'sveltestrap'
     // We have to import Input this way, otherwise it shouts SSR issues.
     import Input from 'sveltestrap/src/Input.svelte'
-    import Paginator from '../paginator.svelte'
     import ChannelDetails from './channel-details.svelte'
-
-    let loading = false
-    let query: string = ''
-    let isCreateChannelOpen = false
-
-    $: message = loading || $searchResults?.length ? null : 'No channels found'
 
     enum State {
         ListChannels = 'listChannels',
         ChannelDetail = 'channelDetail',
     }
 
+    let loading = false
+    let query: string = ''
+    let isCreateChannelOpen = false
     let state: State = State.ListChannels
     let selectedChannel
-    let results = []
 
-    const MAX_CHANNELS_PER_PAGE = 4
-    const WELCOME_CHANNELS_NUMBER = 3
-
-    // Pagination
-    let currentPage = 1
-    let startAt = 0
-    let endAt = MAX_CHANNELS_PER_PAGE
+    $: message = loading || $searchResults?.length ? null : 'No channels found'
 
     $: selectedChannel, updateState()
 
+    onMount(async () => {
+        loading = true
+        await searchChannels('', { limit: WELCOME_CHANNELS_NUMBER })
+        loading = false
+    })
+
+    onDestroy(() => {
+        stopSearch()
+    })
+
+    async function onSearch() {
+        loading = true
+        await searchChannels(query)
+        loading = false
+    }
     function updateState(): void {
         if (selectedChannel) {
             state = State.ChannelDetail
@@ -43,48 +56,19 @@
         }
     }
 
-    onMount(async () => {
-        loading = true
-        await searchChannels('', { maxResults: WELCOME_CHANNELS_NUMBER })
-        loading = false
-    })
-
-    onDestroy(() => {
-        stopSearch()
-    })
-
-    async function onSearch(resetPage = false) {
-        if (resetPage) {
-            currentPage = 1
-        }
-        loading = true
-        $searchResults = [] // Reset search results
-        await searchChannels(query)
-        loading = false
-    }
-
-    $: $searchResults, currentPage, updateResults()
-
-    function updateResults() {
-        startAt = (currentPage - 1) * MAX_CHANNELS_PER_PAGE
-        endAt = startAt + MAX_CHANNELS_PER_PAGE
-        results = $searchResults?.slice(startAt, endAt)
+    function handleSelectChannel(channel: ExtendedChannelInfo) {
+        selectedChannel = channel
     }
 
     const handleBackClick = () => {
         selectedChannel = undefined
     }
 
-    function handleSelectChannel(channel: ExtendedChannelInfo) {
-        selectedChannel = channel
-    }
-
-    function handleCloseModal() {
-        isCreateChannelOpen = false
-    }
-
     function handleOpenModal() {
         isCreateChannelOpen = true
+    }
+    function handleCloseModal() {
+        isCreateChannelOpen = false
     }
 
     // Add the newly created channel to the search results
@@ -92,7 +76,7 @@
         loading = true
         // If query is not empty, we need to search again to get the match results
         if (query?.length) {
-            await onSearch(true)
+            await onSearch()
         } else {
             // Adding the channel, improve performance by not searching again
             await addChannelToSearchResults(channelAddress)
@@ -106,6 +90,35 @@
         iconColor = iconColor === '#333333' ? 'white' : '#333333'
     }
     // ---------------------------------------------------------------------------------------------
+
+    $: tableData = {
+        headings: ['Channel', 'Address', 'Topic types', 'Topic Sources', ''],
+        rows: $searchResults.map((channel) => ({
+            onClick: () => handleSelectChannel(channel),
+            content: [
+                {
+                    icon: 'broadcast',
+                    boxColor: BoxColor.Blue,
+                    // Change this to real channel name when SDK is ready
+                    value: ['Channel name', 'Channel description'],
+                },
+                { value: channel.channelAddress },
+                { value: channel.topics.map((topic) => topic?.type) },
+                { value: channel.topics.map((topic) => topic?.source) },
+                {
+                    pills:
+                        channel.isOwned || channel.isSubscribed
+                            ? [
+                                  {
+                                      color: channel.isOwned ? 'success' : 'info',
+                                      text: channel.isOwned ? 'Owner' : 'Subscriber',
+                                  },
+                              ]
+                            : undefined,
+                },
+            ],
+        })),
+    } as TableData
 </script>
 
 <Box>
@@ -135,94 +148,27 @@
                     class="position-relative ps-5"
                     bind:value={query}
                     on:keypress={(e) => {
-                        if (e.key === 'Enter') onSearch(true)
+                        if (e.key === 'Enter') onSearch()
                     }}
                 />
-                <button class="border-0 bg-transparent position-absolute" on:click={() => onSearch(true)}>
+                <button class="border-0 bg-transparent position-absolute" on:click={() => onSearch()}>
                     <Icon type="search" size={16} />
                 </button>
             </div>
-            {#if results?.length}
-                <ListGroup flush>
-                    <ListGroupItem>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="item">Channel</div>
-                            <div class="item">Address</div>
-                            <div class="item">Topic Types</div>
-                            <div class="item">Topic sources</div>
-                            <div class="item" />
-                        </div>
-                    </ListGroupItem>
-                    {#each results as channel}
-                        <ListGroupItem
-                            tag="button"
-                            action
-                            class="border-bottom"
-                            on:click={() => {
-                                handleSelectChannel(channel)
-                            }}
-                        >
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="item d-flex align-items-center">
-                                    <Icon type="broadcast" boxed boxColor={BoxColor.Blue} />
-
-                                    <div class="d-flex flex-column align-items-start">
-                                        <!-- TODO: remove this when library is updated and returns channel name -->
-                                        <div class="ms-2 channel">Channel name</div>
-                                        <div class="ms-2 channel description fw-light">Channel description</div>
-                                    </div>
-                                </div>
-
-                                <div class="item">{channel.channelAddress}</div>
-                                <div class="item">
-                                    {#each channel.topics as { type }}
-                                        <div>{type}</div>
-                                    {/each}
-                                </div>
-                                <div class="item">
-                                    {#each channel.topics as { source }}
-                                        <div>{source}</div>
-                                    {/each}
-                                </div>
-                                <!-- Temporary solution to display if a user is owner / subscriber of a channel -->
-                                <div class="item">
-                                    {#if channel?.isOwner}
-                                        <Badge class="ms-2" color="info">Owner</Badge>
-                                    {/if}
-                                    {#if channel?.isSubscriber}
-                                        <Badge class="ms-2" color="success">Subscriber</Badge>
-                                    {/if}
-                                </div>
-                            </div>
-                        </ListGroupItem>
-                    {/each}
-                </ListGroup>
-            {/if}
-
-            {#if message}
+            {#if $searchResults?.length}
+                <Table
+                    data={tableData}
+                    isPaginated={true}
+                    pageSize={MAX_CHANNELS_PER_PAGE}
+                    isLoading={$isLoadingChannels}
+                    siblingsCount={2}
+                />
+            {:else if message && !$isLoadingChannels}
                 <div class="text-center">
                     {message}
                 </div>
             {/if}
         </div>
-        {#if $searchResults?.length}
-            <div class="d-flex align-items-center mt-3">
-                <Paginator
-                    onPageChange={async (page) => {
-                        currentPage = page
-                    }}
-                    totalCount={$searchResults?.length}
-                    pageSize={MAX_CHANNELS_PER_PAGE}
-                    {currentPage}
-                    siblingsCount={1}
-                />
-                <!-- {#if $isLoadingIdentities}
-                <div class="me-4">
-                    <Spinner type="grow" color="secondary" size="sm" />
-                </div>
-            {/if} -->
-            </div>
-        {/if}
     {/if}
     {#if state === State.ChannelDetail}
         <div class="mb-4 align-self-start">
@@ -232,7 +178,7 @@
             </button>
         </div>
         <ChannelDetails
-            isOwner={selectedChannel.isOwner}
+            isOwned={selectedChannel.isOwned}
             address={selectedChannel.channelAddress}
             topics={selectedChannel.topics}
             name="Channel name"
@@ -246,7 +192,6 @@
 
     <CreateChannel isOpen={isCreateChannelOpen} onModalClose={handleCloseModal} onSuccess={onCreateChannelSuccess} />
 </Box>
-<ToastContainer />
 
 <style lang="scss">
     .streams-manager {

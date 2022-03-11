@@ -18,7 +18,7 @@
 
     export let address: string
     export let name: string
-    export let isOwner = false
+    export let isOwned = false
     export let topics
     export let description: string
 
@@ -29,7 +29,7 @@
 
     onMount(async () => {
         subscriptionState = await getSubscriptionStatus(address)
-        if (isOwner) {
+        if (isOwned) {
             updatePendingSubscriptions()
         }
     })
@@ -70,7 +70,7 @@
     $: subscriptionState, updateMessages()
 
     async function updateMessages() {
-        if (isOwner || subscriptionState === SubscriptionState.Subscribed) {
+        if (isOwned || subscriptionState === SubscriptionState.Subscribed) {
             await readChannel(address)
         }
     }
@@ -109,9 +109,9 @@
                 <div class="fs-4 fw-bold">
                     <span>{name}</span>
                 </div>
-                {#if isOwner}
+                {#if isOwned}
                     <Badge pill color="info">owner</Badge>
-                {:else if !isOwner && subscriptionState === SubscriptionState.Subscribed}
+                {:else if !isOwned && subscriptionState === SubscriptionState.Subscribed}
                     <Badge pill color="success">subscriber</Badge>
                 {/if}
                 {#each topics as { type, source }}
@@ -121,7 +121,7 @@
                 <div class="text-secondary fw-bolder mt-1 text-break">{address}</div>
             </div>
         </div>
-        {#if subscriptionState && !isOwner}
+        {#if subscriptionState && !isOwned}
             <div class="d-flex align-items-center ms-lg-3">
                 <div on:mouseenter={() => switchIconColor('add')} on:mouseleave={() => switchIconColor('add')}>
                     <Button
@@ -188,7 +188,7 @@
             </Accordion>
         </div>
     {/if}
-    {#if isOwner || (!isOwner && subscriptionState === SubscriptionState.Subscribed)}
+    {#if isOwned || (!isOwned && subscriptionState === SubscriptionState.Subscribed)}
         <div class="d-flex justify-content-end mt-4">
             <div on:mouseenter={() => switchIconColor('message')} on:mouseleave={() => switchIconColor('message')}>
                 <Button size="sm" outline color="dark" class="d-flex align-items-center mt-3 mt-md-0" on:click={onModalClose}>

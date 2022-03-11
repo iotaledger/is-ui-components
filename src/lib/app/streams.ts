@@ -1,84 +1,68 @@
-import type { CreateChannelResponse } from 'boxfish-studio--iota-is-sdk'
-import { AccessRights, ChannelData, RequestSubscriptionResponse, Subscription } from 'boxfish-studio--iota-is-sdk'
+import type { ChannelData, CreateChannelResponse, RequestSubscriptionResponse, Subscription } from 'boxfish-studio--iota-is-sdk'
+import { AccessRights } from 'boxfish-studio--iota-is-sdk'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient } from './base'
-import type { ExtendedChannelInfo } from './types/streams'
-import { SubscriptionState } from './types/streams'
-import { showNotification } from './notificacion';
+import { showNotification } from './notificacion'
 import { NotificationType } from './types/notificacion'
+import type { ExtendedChannelInfo } from './types/streams'
+import { SubscriptionState } from './types/streams';
 
 export const selectedChannel: Writable<ExtendedChannelInfo> = writable(null)
 export const searchResults: Writable<ExtendedChannelInfo[]> = writable([])
 export const channelData: Writable<ChannelData[]> = writable([])
 export const channelBusy = writable(false)
+export const isLoadingChannels: Writable<boolean> = writable(false);
 
 
 let updateInterval
-const intervalTimeout = 200
-const resultsPerCall = 2
+const SEARCH_TIMEOUT = 200
+const DEFAULT_LIMIT = 500
 let index = 0
 
 // TODO: Improve search algorithm, now it is searching only by author id or topic type
 export async function searchChannels(
-    query: string, options?: { maxResults?: number }
+    query: string, options?: { limit?: number }
 ): Promise<void> {
-    const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:');
-    const _isSource = !_isAuthorId(query);
-
-    const maxResults = options?.maxResults;
-
-    if (maxResults) {
-        try {
-            const channels = await channelClient.search({ limit: maxResults })
-            searchResults.set(channels)
-        } catch (e) {
-            showNotification({
-                type: NotificationType.Error,
-                message: 'There was an error searching for channels'
-            })
-            console.error(Error, e);
-        }
-    }
-    else {
-        let newResults = await partialSearch(
+    const _search = async (query: string, options?: { limit?: number }): Promise<void> => {
+        const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:');
+        const _isSource = !_isAuthorId(query);
+        let newResults: ExtendedChannelInfo[] = await searchChannelsSingleRequest(
             query,
             {
                 searchByAuthorId: _isAuthorId(query),
                 searchBySource: _isSource,
-                limit: resultsPerCall,
+                limit: options?.limit ?? DEFAULT_LIMIT,
                 index,
             }
         );
-
-        const userDid = get(authenticationData)?.did
-        newResults = newResults.map((channel) => {
-            const authorId = channel.authorId
-            return (
-                {
-                    ...channel,
-                    isOwner: authorId === userDid,
-                    isSubscriber: channel.subscriberIds.includes(userDid),
-                }
-            )
-        })
-
-
         if (newResults?.length) {
+            // Add isOwned and isSubscribed to the results
+            newResults = newResults.map((channel) => {
+                return { ...channel, isOwned: channel.authorId === get(authenticationData).did, isSubscribed: isAChannelSubscribed(channel) }
+            })
             searchResults.update((results) => [...results, ...newResults])
+        }
+        // if the search is not finished, start a new search
+        if ((options?.limit && (get(searchResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_LIMIT))) {
             updateInterval = setTimeout(async () => {
                 index++
-                searchChannels(query)
-            }, intervalTimeout)
+                _search(query)
+            }, SEARCH_TIMEOUT)
         }
         else {
             index = 0
             stopSearch()
         }
     }
+    stopSearch()
+    isLoadingChannels.set(true)
+    searchResults.set([]);
+    await _search(query, options)
+    isLoadingChannels.set(false)
 }
 
-export async function partialSearch(query: string, options: { searchByAuthorId?: boolean, searchBySource?: boolean; limit: number, index?: number }): Promise<ExtendedUser[]> {
+export async function searchChannelsSingleRequest(query: string, options: { searchByAuthorId?: boolean, searchBySource?: boolean; limit: number, index?: number }): Promise<ExtendedUser[]> {
     let partialResults = []
     const { searchByAuthorId, searchBySource, limit, index } = options
     try {
@@ -291,8 +275,8 @@ export async function addChannelToSearchResults(channelAddress: string): Promise
 
         channel = {
             ...channel,
-            isOwner: authorId === userDid,
-            isSubscriber: channel.subscriberIds.includes(userDid),
+            isOwned: authorId === userDid,
+            isSubscribed: isAChannelSubscribed(channel),
         }
         searchResults?.update((_searchResults) => {
             return [..._searchResults, channel]
@@ -300,3 +284,7 @@ export async function addChannelToSearchResults(channelAddress: string): Promise
     }
 }
 
+export function isAChannelSubscribed(channel: ExtendedChannelInfo): boolean {
+    const userDid = get(authenticationData)?.did
+    return channel.subscriberIds?.includes(userDid) && channel.authorId !== userDid;
+}

@@ -3,6 +3,9 @@ import type { RegistrationUser } from '../types/identity'
 import { DeviceControlledProperty, FieldType, ProductEnum } from '../types/identity'
 import { BoxColor } from './colors'
 
+export const WELCOME_IDENTITIES_NUMBER = 7
+export const MAX_IDENTITIES_PER_PAGE = 7
+
 export const USERS: RegistrationUser[] = [
 	{
 		type: UserType.Person,
@@ -365,4 +368,3 @@ export const CREDENTIAL_ICON = {
 	boxColor: BoxColor.Purple,
 }
 
-export const MAXIMUM_SEARCH_RESULTS = 100

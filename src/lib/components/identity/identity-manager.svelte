@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { BoxColor } from '$lib/app/constants/colors'
-    import { USER_ICONS } from '$lib/app/constants/identity'
+    import { MAX_IDENTITIES_PER_PAGE, USER_ICONS, WELCOME_IDENTITIES_NUMBER } from '$lib/app/constants/identity'
     import {
         addIdentityToSearchResults,
         isLoadingIdentities,
@@ -11,13 +10,12 @@
         updateSelectedIdentity,
     } from '$lib/app/identity'
     import type { ExtendedUser } from '$lib/app/types/identity'
-    import { Box, CreateIdentity, Icon, IdentityDetails, ToastContainer } from '$lib/components'
-    import { UserType } from 'boxfish-studio--iota-is-sdk'
+    import type { TableData } from '$lib/app/types/table'
+    import { Box, CreateIdentity, Icon, IdentityDetails, Table } from '$lib/components'
     import { onDestroy, onMount } from 'svelte'
-    import { Button, ListGroup, ListGroupItem, Spinner } from 'sveltestrap'
+    import { Button, Spinner } from 'sveltestrap'
     // We have to import Input this way, otherwise it shouts SSR issues.
     import Input from 'sveltestrap/src/Input.svelte'
-    import Paginator from '../paginator.svelte'
 
     enum State {
         ListIdentities = 'listIdentities',
@@ -30,25 +28,13 @@
     let message: string
     let isCreateIdentityOpen = false
 
-    const MAX_IDENTITIES_PER_PAGE = 8
-    const WELCOME_IDENTITIES_NUMBER = 7
-
-    // Pagination
-    let currentPage = 1
-    let startAt = 0
-    let endAt = MAX_IDENTITIES_PER_PAGE
-
     $: $selectedIdentity, updateState()
 
     $: message = loading || $searchResults?.length ? null : 'No identities found'
 
-    let results = []
-
-    $: $searchResults, currentPage, updateResults()
-
     onMount(async () => {
         loading = true
-        $searchResults = await searchIdentities('', { maxResults: WELCOME_IDENTITIES_NUMBER })
+        await searchIdentities('', { limit: WELCOME_IDENTITIES_NUMBER })
         loading = false
     })
 
@@ -56,18 +42,9 @@
         stopSearch()
     })
 
-    function updateResults() {
-        startAt = (currentPage - 1) * MAX_IDENTITIES_PER_PAGE
-        endAt = startAt + MAX_IDENTITIES_PER_PAGE
-        results = $searchResults?.slice(startAt, endAt)
-    }
-
-    async function onSearch(resetPage = false) {
-        if (resetPage) {
-            currentPage = 1
-        }
+    async function onSearch() {
         loading = true
-        $searchResults = await searchIdentities(query)
+        await searchIdentities(query)
         loading = false
     }
 
@@ -100,7 +77,7 @@
         loading = true
         // If query is not empty, we need to search again to get the match results
         if (query?.length) {
-            await onSearch(true)
+            await onSearch()
         } else {
             // Adding the identity, improve performance by not searching again
             await addIdentityToSearchResults(id)
@@ -114,6 +91,23 @@
         iconColor = iconColor === '#333333' ? 'white' : '#333333'
     }
     // ---------------------------------------------------------------------------------------------
+
+    $: tableData = {
+        headings: ['Identity', 'Type', 'Date created', 'Credentials'],
+        rows: $searchResults.map((identity) => ({
+            onClick: () => handleSelectIdentity(identity),
+            content: [
+                {
+                    icon: USER_ICONS[identity.claim?.type]?.icon,
+                    boxColor: USER_ICONS[identity.claim?.type]?.boxColor,
+                    value: identity?.username,
+                },
+                { value: identity.claim?.type },
+                { value: identity.registrationDate },
+                { value: identity?.numberOfCredentials ?? 0 },
+            ],
+        })),
+    } as TableData
 </script>
 
 <Box>
@@ -143,74 +137,27 @@
                     class="position-relative ps-5"
                     bind:value={query}
                     on:keypress={(e) => {
-                        if (e.key === 'Enter') onSearch(true)
+                        if (e.key === 'Enter') onSearch()
                     }}
                 />
-                <button class="border-0 bg-transparent position-absolute" on:click={() => onSearch(true)}>
+                <button class="border-0 bg-transparent position-absolute" on:click={() => onSearch()}>
                     <Icon type="search" size={16} />
                 </button>
             </div>
-            {#if results?.length}
-                <ListGroup flush>
-                    <ListGroupItem>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="item">Identity</div>
-                            <div class="item">Type</div>
-                            <div class="item">Date created</div>
-                            <div class="item">Credentials</div>
-                        </div>
-                    </ListGroupItem>
-                    {#each results as identity}
-                        <ListGroupItem
-                            tag="button"
-                            action
-                            class="border-bottom"
-                            on:click={() => {
-                                handleSelectIdentity(identity)
-                            }}
-                        >
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="item d-flex align-items-center">
-                                    <Icon
-                                        type={USER_ICONS[identity.claim?.type]?.icon ?? UserType.Unknown}
-                                        boxed
-                                        boxColor={USER_ICONS[identity.claim?.type]?.boxColor ?? BoxColor.Blue}
-                                        size={24}
-                                    />
-                                    <span class="ms-3 text-truncate">{identity.username}</span>
-                                </div>
-                                <div class="item">{identity.claim?.type}</div>
-                                <div class="item">{identity.registrationDate}</div>
-                                <div class="item">{identity.numberOfCredentials}</div>
-                            </div>
-                        </ListGroupItem>
-                    {/each}
-                </ListGroup>
-            {/if}
-            {#if message && !$isLoadingIdentities}
+            {#if $searchResults?.length}
+                <Table
+                    data={tableData}
+                    isPaginated={true}
+                    isLoading={$isLoadingIdentities}
+                    siblingsCount={2}
+                    pageSize={MAX_IDENTITIES_PER_PAGE}
+                />
+            {:else if message && !$isLoadingIdentities}
                 <div class="text-center">
                     {message}
                 </div>
             {/if}
         </div>
-        {#if $isLoadingIdentities}
-            <div class="mt-3">
-                <Spinner type="border" color="secondary" size="sm" />
-            </div>
-        {/if}
-        {#if $searchResults?.length}
-            <div class="d-flex align-items-center mt-3">
-                <Paginator
-                    onPageChange={async (page) => {
-                        currentPage = page
-                    }}
-                    totalCount={$searchResults?.length}
-                    pageSize={MAX_IDENTITIES_PER_PAGE}
-                    {currentPage}
-                    siblingsCount={1}
-                />
-            </div>
-        {/if}
     {/if}
 
     {#if state === State.IdentityDetail}
@@ -225,7 +172,6 @@
     {/if}
     <CreateIdentity isOpen={isCreateIdentityOpen} onModalClose={handleCloseModal} onSuccess={onCreateIdentitySuccess} />
 </Box>
-<ToastContainer />
 
 <style lang="scss">
     .identity-manager {
@@ -236,17 +182,6 @@
                 transform: translateY(-50%);
             }
         }
-        .item {
-            flex: 1 1 0;
-            white-space: nowrap;
-            overflow: hidden !important;
-            text-overflow: ellipsis;
-            margin-right: 20px;
-            &:last-child {
-                margin-right: 0px;
-            }
-        }
-
         .claim {
             font-size: 12px;
         }

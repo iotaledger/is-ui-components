@@ -1,11 +1,11 @@
 import type { CredentialTypes, IdentityJson, RevokeVerificationBody, VerifiableCredentialInternal, VerifiableCredentialJson } from 'boxfish-studio--iota-is-sdk';
-import { searchCriteria, User, UserType } from 'boxfish-studio--iota-is-sdk';
+import { UserType } from 'boxfish-studio--iota-is-sdk';
 import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { authenticationData, channelClient, identityClient } from './base';
-import type { ExtendedUser } from './types/identity';
 import { showNotification } from './notificacion';
-import { NotificationType } from './types/notificacion'
+import type { ExtendedUser } from './types/identity';
+import { NotificationType } from './types/notificacion';
 
 export const searchResults: Writable<ExtendedUser[]> = writable([]);
 export const selectedIdentity: Writable<ExtendedUser> = writable(null);
@@ -56,98 +56,77 @@ export async function register(username?: string, claimType = UserType.Person, c
 
 let updateInterval
 let index = 0
-const timeout = 200
-const resultsPerCall = 5
+const SEARCH_TIMEOUT = 200
+const DEFAULT_LIMIT = 500
 
-export async function searchIdentities(query: string, options?: { maxResults?: number }): Promise<ExtendedUser[]> {
-    const maxResults = options?.maxResults;
-    const _isDID = (query: string): boolean => query.startsWith('did:iota:');
-    const _isType = (query: string): boolean => Object.values(UserType).some(userType => userType.toLowerCase() === query.toLowerCase());
+export async function searchIdentities(query: string, options?: { limit?: number }): Promise<void> {
+    const _search = async (query: string, options?: { limit?: number }): Promise<void> => {
+        const _isDID = (query: string): boolean => query.startsWith('did:iota:');
+        const _isType = (query: string): boolean => Object.values(UserType).some(userType => userType.toLowerCase() === query.toLowerCase());
 
-    let searchResult: User[] = [];
+        if (_isDID(query)) {
+            const identity = await searchIdentityByDID(query)
+            if (identity) {
 
-    if (maxResults) {
-        try {
-            searchResult = await identityClient.search({
-                username: query,
-                type: undefined,
-                limit: maxResults,
-            } as searchCriteria)
-        } catch (e) {
-            showNotification({
-                type: NotificationType.Error,
-                message: 'There was an error searching for user',
-            })
-            console.error(Error, e);
-        }
-    } else if (_isDID(query)) {
-        try {
-            const _identity = await identityClient.find(query);
-            if (_identity) {
-                searchResult.push(_identity);
+                searchResults.set([identity])
             }
-        } catch (e) {
-            showNotification({
-                type: NotificationType.Error,
-                message: 'There was an error searching for user',
-            })
-            console.error(Error, e);
         }
-    } else if (_isType(query)) {
-        isLoadingIdentities.set(true)
-        const newResults = await partialSearch(
-            query,
-            {
-                searchByType: true,
-                limit: resultsPerCall,
-                index,
-            }
-        );
 
-
-        if (newResults?.length) {
-            searchResults.update((results) => [...results, ...newResults])
-
-            updateInterval = setTimeout(async () => {
-                searchIdentities(query)
-                index++
-            }, timeout)
-        }
         else {
-            index = 0
-            stopSearch()
-        }
-
-    }
-    else {
-        isLoadingIdentities.set(true)
-        const newResults = await partialSearch(
-            query,
-            {
-                searchByUsername: true,
-                limit: resultsPerCall,
-                index,
+            const newResults = await searchIdentitiesSingleRequest(
+                query,
+                {
+                    searchByType: _isType(query),
+                    searchByUsername: !_isType(query),
+                    limit: options?.limit ?? DEFAULT_LIMIT,
+                    index,
+                }
+            );
+            if (newResults?.length) {
+                searchResults.update((results) => [...results, ...newResults])
             }
-        );
-
-        if (newResults?.length) {
-            searchResults.update((results) => [...results, ...newResults])
-
-            updateInterval = setTimeout(async () => {
-                searchIdentities(query)
-                index++
-            }, timeout)
-        }
-        else {
-            index = 0
-            isLoadingIdentities.set(false)
-            stopSearch()
+            // if the search is not finished, start a new search
+            if ((options?.limit && (get(searchResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_LIMIT))) {
+                updateInterval = setTimeout(async () => {
+                    index++
+                    _search(query)
+                }, SEARCH_TIMEOUT)
+            }
+            else {
+                index = 0
+                stopSearch()
+            }
         }
     }
-    return searchResult
+
+    stopSearch();
+
+    isLoadingIdentities.set(true)
+    searchResults.set([])
+    await _search(query, options)
+    isLoadingIdentities.set(false)
 }
 
-export async function partialSearch(query: string, options: { searchByType?: boolean, searchByUsername?: boolean, limit: number, index: number }): Promise<ExtendedUser[]> {
+export async function searchIdentityByDID(did: string): Promise<ExtendedUser> {
+    try {
+        const identity: ExtendedUser = await identityClient.find(did);
+
+        // SDK library does not return the NUMBER OF CREDENTIALS in the response, so we add it here
+        if (identity?.verifiableCredentials) {
+            identity.numberOfCredentials = identity.verifiableCredentials?.length ?? 0
+        }
+        // -----------------------------------------------------------------------------------------
+
+        return identity
+    } catch (e) {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error searching for user',
+        })
+        console.error(Error, e);
+    }
+}
+export async function searchIdentitiesSingleRequest(query: string, options: { searchByType?: boolean, searchByUsername?: boolean, limit: number, index: number }): Promise<ExtendedUser[]> {
     let partialResults = []
     const { searchByType, searchByUsername, limit, index } = options
     try {
