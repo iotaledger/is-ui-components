@@ -2,6 +2,7 @@
     import { createJsonDataUrl } from '$lib/app/utils'
     import { Box, Icon } from '$lib/components'
     import type { IdentityJson, UserType } from 'boxfish-studio--iota-is-sdk'
+
     export let identity: IdentityJson
     export let type: UserType
     export let username: string

@@ -10,10 +10,11 @@
 
     let showToast = true
 
+    $: color = type === NotificationType.Error ? 'danger' : 'secondary'
+
     function toggle() {
         showToast = !showToast
     }
-    $: color = type === NotificationType.Error ? 'danger' : 'secondary'
 </script>
 
 <div in:fade out:fade class="mb-3">

@@ -302,3 +302,4 @@ export function isAChannelSubscribed(channel: ExtendedChannelInfo): boolean {
     const userDid = get(authenticationData)?.did
     return channel.subscriberIds?.includes(userDid) && channel.authorId !== userDid;
 }
+

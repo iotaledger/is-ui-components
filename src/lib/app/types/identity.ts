@@ -1,4 +1,4 @@
-import type { User, UserType, VerifiableCredentialInternal } from 'boxfish-studio--iota-is-sdk'
+import type { User, UserType } from 'boxfish-studio--iota-is-sdk'
 
 export enum FieldType {
     String = 'string',

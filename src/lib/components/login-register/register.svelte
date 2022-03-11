@@ -2,7 +2,7 @@
     import { DEFAULT_USERS } from '$lib/app/constants/identity'
     import { register } from '$lib/app/identity'
     import type { RegistrationUser } from '$lib/app/types/identity'
-    import { Box, Icon, ToastContainer } from '$lib/components'
+    import { Box, Icon } from '$lib/components'
     import type { IdentityJson } from 'boxfish-studio--iota-is-sdk'
     import { UserType } from 'boxfish-studio--iota-is-sdk'
     import { Button, FormGroup, Input, Label, Spinner } from 'sveltestrap'
@@ -10,6 +10,9 @@
 
     export let switchToLogin: () => void = () => {}
     export let users: RegistrationUser[] = DEFAULT_USERS
+
+    const MIN_LENGTH_INPUT = 3
+    const MAX_LENGTH_INPUT = 30
 
     let selectedUser: RegistrationUser
     let inputFields = {}
@@ -19,9 +22,6 @@
     let unsubscribe
     let formValidated = false
     let formContainer
-
-    const minLengthInput = 3
-    const maxLengthInput = 30
 
     $: selectedUser = users.find((user) => user.type === selectedUserType)
     $: formContainer, manageFormSubscription()
@@ -110,12 +110,12 @@
                                 placeholder={name}
                                 bind:value={inputFields[name]}
                                 {required}
-                                maxlength={maxLengthInput}
-                                minlength={minLengthInput}
+                                maxlength={MAX_LENGTH_INPUT}
+                                minlength={MIN_LENGTH_INPUT}
                                 on:keydown={() => (registeredIdentity = null)}
                             />
                             <div class="invalid-feedback">
-                                This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthInput}
+                                This field is required and it needs to be more than {MIN_LENGTH_INPUT} characters and less than {MAX_LENGTH_INPUT}
                                 characters.
                             </div>
                         </FormGroup>

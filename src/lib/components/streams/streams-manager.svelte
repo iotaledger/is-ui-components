@@ -29,7 +29,6 @@
     let selectedChannel
 
     $: message = loading || $searchChannelsResults?.length ? null : 'No channels found'
-
     $: selectedChannel, updateState()
 
     onMount(async () => {

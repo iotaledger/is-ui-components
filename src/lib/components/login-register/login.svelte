@@ -1,6 +1,6 @@
 <script lang="ts">
     import { authenticate } from '$lib/app/identity'
-    import { Box, Icon, ToastContainer } from '$lib/components'
+    import { Box, Icon } from '$lib/components'
     import type { IdentityJson } from 'boxfish-studio--iota-is-sdk'
     import { onMount } from 'svelte'
     import Dropzone from 'svelte-file-dropzone'

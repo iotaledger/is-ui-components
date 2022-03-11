@@ -31,7 +31,6 @@
     let isCreateIdentityOpen = false
 
     $: $selectedIdentity, updateState()
-
     $: message = loading || $searchIdentitiesResults?.length ? null : 'No identities found'
 
     onMount(async () => {

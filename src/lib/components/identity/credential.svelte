@@ -14,6 +14,7 @@
     let { id, issuer, issuanceDate, credentialSubject } = vc
     let type = vc.type?.[1]
     let isOpen = false
+
     const onModalClose = () => (isOpen = !isOpen)
 </script>
 

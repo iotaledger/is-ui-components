@@ -13,17 +13,16 @@
     export let onSuccess: () => void = () => {}
     export let targetDid: string = undefined
 
+    const MIN_LENGTH_INPUT = 3
+    const MAX_LENGTH_INPUT = 30
+
     let verifiableCredential: VerifiableCredentialJson
     let inputFields = {}
     let loading = false
     let selectedTemplate = VC_TEMPLATES[0]
-
     let unsubscribe
     let formValidated = false
     let formContainer
-
-    const minLengthInput = 3
-    const maxLengthInput = 30
 
     $: formContainer, manageFormSubscription()
 
@@ -122,11 +121,11 @@
                                 bind:value={inputFields[id]}
                                 on:keydown={resetCredential}
                                 {required}
-                                maxlength={maxLengthInput}
-                                minlength={minLengthInput}
+                                maxlength={MAX_LENGTH_INPUT}
+                                minlength={MIN_LENGTH_INPUT}
                             />
                             <div class="invalid-feedback">
-                                This field is required and it needs to be more than {minLengthInput} characters and less than {maxLengthInput}
+                                This field is required and it needs to be more than {MIN_LENGTH_INPUT} characters and less than {MAX_LENGTH_INPUT}
                                 characters.
                             </div>
                         </FormGroup>
