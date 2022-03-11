@@ -2,7 +2,7 @@
     import { fade } from 'svelte/transition'
     import { Toast, ToastBody, ToastHeader } from 'sveltestrap'
     import Icon from './icon/icon.svelte'
-    import { NotificationType } from '$lib/app/types/notificacion'
+    import { NotificationType } from '$lib/app/types/notification'
 
     export let title: string | undefined = undefined
     export let message: string

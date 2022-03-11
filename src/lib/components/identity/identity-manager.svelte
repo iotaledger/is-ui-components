@@ -4,9 +4,9 @@
         addIdentityToSearchResults,
         isLoadingIdentities,
         searchIdentities,
-        searchResults,
+        searchIdentitiesResults,
         selectedIdentity,
-        stopSearch,
+        stopIdentitiesSearch,
         updateSelectedIdentity,
     } from '$lib/app/identity'
     import type { ExtendedUser } from '$lib/app/types/identity'
@@ -29,7 +29,7 @@
     let isCreateIdentityOpen = false
 
     $: $selectedIdentity, updateState()
-    $: message = loading || $searchResults?.length ? null : 'No identities found'
+    $: message = loading || $searchIdentitiesResults?.length ? null : 'No identities found'
 
     onMount(async () => {
         loading = true
@@ -38,7 +38,7 @@
     })
 
     onDestroy(() => {
-        stopSearch()
+        stopIdentitiesSearch()
     })
 
     async function onSearch() {
@@ -93,7 +93,7 @@
 
     $: tableData = {
         headings: ['Identity', 'Type', 'Date created', 'Credentials'],
-        rows: $searchResults.map((identity) => ({
+        rows: $searchIdentitiesResults.map((identity) => ({
             onClick: () => handleSelectIdentity(identity),
             content: [
                 {
@@ -143,7 +143,7 @@
                     <Icon type="search" size={16} />
                 </button>
             </div>
-            {#if $searchResults?.length}
+            {#if $searchIdentitiesResults?.length}
                 <Table
                     data={tableData}
                     isPaginated={true}
@@ -158,7 +158,6 @@
             {/if}
         </div>
     {/if}
-
     {#if state === State.IdentityDetail}
         <div class="mb-4 align-self-start">
             <button on:click={handleBackClick} class="btn d-flex align-items-center">

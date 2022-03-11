@@ -3,13 +3,13 @@ import { AccessRights } from 'boxfish-studio--iota-is-sdk'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient } from './base'
-import { showNotification } from './notificacion'
-import { NotificationType } from './types/notificacion'
 import type { ExtendedChannelInfo } from './types/streams'
-import { SubscriptionState } from './types/streams';
+import { SubscriptionState } from './types/streams'
+import { showNotification } from './notification';
+import { NotificationType } from './types/notification'
 
 export const selectedChannel: Writable<ExtendedChannelInfo> = writable(null)
-export const searchResults: Writable<ExtendedChannelInfo[]> = writable([])
+export const searchChannelsResults: Writable<ExtendedChannelInfo[]> = writable([])
 export const channelData: Writable<ChannelData[]> = writable([])
 export const channelBusy = writable(false)
 export const isLoadingChannels: Writable<boolean> = writable(false);
@@ -41,10 +41,10 @@ export async function searchChannels(
             newResults = newResults.map((channel) => {
                 return { ...channel, isOwned: channel.authorId === get(authenticationData).did, isSubscribed: isAChannelSubscribed(channel) }
             })
-            searchResults.update((results) => [...results, ...newResults])
+            searchChannelsResults.update((results) => [...results, ...newResults])
         }
         // if the search is not finished, start a new search
-        if ((options?.limit && (get(searchResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_LIMIT))) {
+        if ((options?.limit && (get(searchChannelsResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_LIMIT))) {
             updateInterval = setTimeout(async () => {
                 index++
                 _search(query)
@@ -52,12 +52,12 @@ export async function searchChannels(
         }
         else {
             index = 0
-            stopSearch()
+            stopChannelsSearch()
         }
     }
-    stopSearch()
+    stopChannelsSearch()
     isLoadingChannels.set(true)
-    searchResults.set([]);
+    searchChannelsResults.set([]);
     await _search(query, options)
     isLoadingChannels.set(false)
 }
@@ -82,7 +82,7 @@ export async function searchChannelsSingleRequest(query: string, options: { sear
     return partialResults
 }
 
-export function stopSearch(): void {
+export function stopChannelsSearch(): void {
     if (updateInterval) {
         clearTimeout(updateInterval)
     }
@@ -292,8 +292,8 @@ export async function addChannelToSearchResults(channelAddress: string): Promise
             isOwned: authorId === userDid,
             isSubscribed: isAChannelSubscribed(channel),
         }
-        searchResults?.update((_searchResults) => {
-            return [..._searchResults, channel]
+        searchChannelsResults?.update((_searchChannelsResults) => {
+            return [..._searchChannelsResults, channel]
         })
     }
 }

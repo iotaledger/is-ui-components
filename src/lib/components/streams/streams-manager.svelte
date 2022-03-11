@@ -1,7 +1,13 @@
 <script lang="ts">
     import { BoxColor } from '$lib/app/constants/colors'
     import { MAX_CHANNELS_PER_PAGE, WELCOME_CHANNELS_NUMBER } from '$lib/app/constants/streams'
-    import { addChannelToSearchResults, isLoadingChannels, searchChannels, searchResults, stopSearch } from '$lib/app/streams'
+    import {
+        addChannelToSearchResults,
+        isLoadingChannels,
+        searchChannels,
+        searchChannelsResults,
+        stopChannelsSearch,
+    } from '$lib/app/streams'
     import type { ExtendedChannelInfo } from '$lib/app/types/streams'
     import type { TableData } from '$lib/app/types/table'
     import { Box, CreateChannel, Icon, Table } from '$lib/components'
@@ -22,7 +28,7 @@
     let state: State = State.ListChannels
     let selectedChannel
 
-    $: message = loading || $searchResults?.length ? null : 'No channels found'
+    $: message = loading || $searchChannelsResults?.length ? null : 'No channels found'
     $: selectedChannel, updateState()
 
     onMount(async () => {
@@ -32,7 +38,7 @@
     })
 
     onDestroy(() => {
-        stopSearch()
+        stopChannelsSearch()
     })
 
     async function onSearch() {
@@ -85,7 +91,7 @@
 
     $: tableData = {
         headings: ['Channel', 'Address', 'Topic types', 'Topic Sources', ''],
-        rows: $searchResults.map((channel) => ({
+        rows: $searchChannelsResults.map((channel) => ({
             onClick: () => handleSelectChannel(channel),
             content: [
                 {
@@ -147,7 +153,7 @@
                     <Icon type="search" size={16} />
                 </button>
             </div>
-            {#if $searchResults?.length}
+            {#if $searchChannelsResults?.length}
                 <Table
                     data={tableData}
                     isPaginated={true}

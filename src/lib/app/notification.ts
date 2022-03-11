@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store'
 import { generateRandomId } from './utils'
-import type { Notification } from '$lib/app/types/notificacion'
-import { NOTIFICATION_TIMEOUT_DEFAULT, NOTIFICATION_TIMEOUT_NEVER } from '$lib/app/constants/notificacion'
+import type { Notification } from '$lib/app/types/notification'
+import { NOTIFICATION_TIMEOUT_DEFAULT, NOTIFICATION_TIMEOUT_NEVER } from '$lib/app/constants/notification'
 
 export const notifications = writable<Array<Notification>>([])
 
