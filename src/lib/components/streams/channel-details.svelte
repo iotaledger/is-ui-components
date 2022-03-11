@@ -210,40 +210,42 @@
                                 <div class="text-secondary mb-1">Requester Id</div>
                                 <span class="text-break">{subscription?.id}</span>
                             </div>
-                            <Button
-                                class="ms-2"
-                                size="sm"
-                                outline
-                                color="dark"
-                                disabled={subscription?.acceptLoading}
-                                on:click={() => handleAcceptSubscription(subscription?.id)}
-                            >
-                                <div class="d-flex justify-content-center align-items-center">
-                                    {subscription?.acceptLoading ? 'Accepting...' : 'Accept'}
-                                    {#if subscription?.acceptLoading}
-                                        <div class="ms-2">
-                                            <Spinner size="sm" type="border" color="success" />
-                                        </div>
-                                    {/if}
-                                </div>
-                            </Button>
-                            <Button
-                                class="ms-2"
-                                size="sm"
-                                outline
-                                color="dark"
-                                disabled={subscription?.rejectLoading}
-                                on:click={() => handleRejectSubscription(subscription?.id)}
-                            >
-                                <div class="d-flex justify-content-center align-items-center">
-                                    {subscription?.rejectLoading ? 'Revoking...' : 'Revoke'}
-                                    {#if subscription?.rejectLoading}
-                                        <div class="ms-2">
-                                            <Spinner size="sm" type="border" color="success" />
-                                        </div>
-                                    {/if}
-                                </div>
-                            </Button>
+                            <div class="d-flex flex-column flex-lg-row ">
+                                <Button
+                                    class="ms-2"
+                                    size="sm"
+                                    outline
+                                    color="dark"
+                                    disabled={subscription?.acceptLoading}
+                                    on:click={() => handleAcceptSubscription(subscription?.id)}
+                                >
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        {subscription?.acceptLoading ? 'Accepting...' : 'Accept'}
+                                        {#if subscription?.acceptLoading}
+                                            <div class="ms-2">
+                                                <Spinner size="sm" type="border" color="success" />
+                                            </div>
+                                        {/if}
+                                    </div>
+                                </Button>
+                                <Button
+                                    class="ms-2 mt-2 mt-lg-0"
+                                    size="sm"
+                                    outline
+                                    color="danger"
+                                    disabled={subscription?.rejectLoading}
+                                    on:click={() => handleRejectSubscription(subscription?.id)}
+                                >
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        {subscription?.rejectLoading ? 'Revoking...' : 'Revoke'}
+                                        {#if subscription?.rejectLoading}
+                                            <div class="ms-2">
+                                                <Spinner size="sm" type="border" color="success" />
+                                            </div>
+                                        {/if}
+                                    </div>
+                                </Button>
+                            </div>
                         </div>
                     {/each}
                 </AccordionItem>
