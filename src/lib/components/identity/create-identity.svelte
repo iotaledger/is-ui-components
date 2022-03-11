@@ -82,10 +82,16 @@
         const value = target.value
         inputFields[fieldName] = value.split(STRING_ARRAY_SEPARATOR)
     }
+
+    function onClose() {
+        resetInputFields()
+        formValidated = false
+        onModalClose()
+    }
 </script>
 
-<Modal {isOpen} toggle={onModalClose}>
-    <ModalHeader toggle={onModalClose} class="px-4 pt-3">Create identity</ModalHeader>
+<Modal {isOpen} toggle={onClose}>
+    <ModalHeader toggle={onClose} class="px-4 pt-3">Create identity</ModalHeader>
     <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
         <ModalBody class="px-4 pb-4">
             <FormGroup class="mb-4">

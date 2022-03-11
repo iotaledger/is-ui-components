@@ -52,6 +52,7 @@
             inputFields[field.id] = ''
         })
     }
+
     function resetCredential(): void {
         verifiableCredential = undefined
     }
@@ -87,10 +88,16 @@
         resetFields()
         loading = false
     }
+
+    function onClose() {
+        resetFields()
+        formValidated = false
+        onModalClose()
+    }
 </script>
 
-<Modal {isOpen} toggle={onModalClose}>
-    <ModalHeader toggle={onModalClose} class="px-4 pt-3">Add a credential</ModalHeader>
+<Modal {isOpen} toggle={onClose}>
+    <ModalHeader toggle={onClose} class="px-4 pt-3">Add a credential</ModalHeader>
     <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
         <ModalBody class="px-4 pb-4">
             <Label>Template</Label>

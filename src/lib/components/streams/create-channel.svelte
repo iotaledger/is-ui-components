@@ -82,10 +82,27 @@
     function handleRemoveTopic(i) {
         topics = [...topics.slice(0, i), ...topics.slice(i + 1)]
     }
+
+    function resetFields(): void {
+        name = 'Channel name'
+        description = 'Please, describe your channel here...'
+        topics = [
+            {
+                type: '',
+                source: '',
+            },
+        ]
+    }
+
+    function onClose() {
+        resetFields()
+        formValidated = false
+        onModalClose()
+    }
 </script>
 
-<Modal {isOpen} toggle={onModalClose}>
-    <ModalHeader toggle={onModalClose} class="px-4 pt-3">Create channel</ModalHeader>
+<Modal {isOpen} toggle={onClose}>
+    <ModalHeader toggle={onClose} class="px-4 pt-3">Create channel</ModalHeader>
 
     <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
         <ModalBody class="px-4 pb-4">

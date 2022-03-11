@@ -83,11 +83,17 @@
         metadata = ''
         type = ''
     }
+
+    function onClose() {
+        resetMessage()
+        formValidated = false
+        onModalClose()
+    }
 </script>
 
-<Modal {isOpen} toggle={onModalClose}>
+<Modal {isOpen} toggle={onClose}>
     <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
-        <ModalHeader toggle={onModalClose} class="px-4 pt-3">Write your message</ModalHeader>
+        <ModalHeader toggle={onClose} class="px-4 pt-3">Write your message</ModalHeader>
         <ModalBody>
             <div class="mb-4">
                 <Label>Payload</Label>
