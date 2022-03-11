@@ -24,6 +24,7 @@
     export let isOwned = false
     export let topics
     export let description: string
+    export let subscribers: []
 
     let loading = false
     let subscriptionState: SubscriptionState
@@ -243,6 +244,35 @@
                                     {/if}
                                 </div>
                             </Button>
+                        </div>
+                    {/each}
+                </AccordionItem>
+            </Accordion>
+        </div>
+    {/if}
+    {#if subscribers?.length && isOwned}
+        <div class="my-4">
+            <Accordion>
+                <AccordionItem>
+                    <div slot="header" class="d-flex align-items-center">
+                        <Icon
+                            type="person-check
+                        "
+                            boxed
+                            boxColor={BoxColor.Red}
+                            size={48}
+                        />
+                        <div class="ms-4 d-flex">
+                            <div class="fs-6 fw-bold me-2">Subscribers</div>
+                            <Badge color="info">{subscribers.length}</Badge>
+                        </div>
+                    </div>
+                    {#each subscribers as subscriber}
+                        <div class="d-flex justify-content-between align-items-center my-3">
+                            <div>
+                                <div class="text-secondary mb-1">Subscriber Id</div>
+                                <span class="text-break">{subscriber}</span>
+                            </div>
                         </div>
                     {/each}
                 </AccordionItem>

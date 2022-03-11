@@ -181,6 +181,7 @@
             isOwned={selectedChannel.isOwned}
             address={selectedChannel.channelAddress}
             topics={selectedChannel.topics}
+            subscribers={selectedChannel.subscriberIds}
             name="Channel name"
             description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam pretium massa in odio
 			pellentesque dapibus. Nunc a augue nunc. Morbi fermentum pellentesque quam, nec vulputate
