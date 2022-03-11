@@ -3,9 +3,6 @@
         { title: 'Register and Login', url: '/login-register' },
         { title: 'Identity Manager', url: '/identity-manager' },
         { title: 'Streams Manager', url: '/streams-manager' },
-        { title: 'SSI Bridge', url: '/ssi-bridge' },
-        { title: 'Audit Trail', url: '/audit-trail' },
-        { title: 'Admin Page', url: '/admin' },
         { title: 'Verify Credential', url: '/verify-credential' },
     ]
 </script>
