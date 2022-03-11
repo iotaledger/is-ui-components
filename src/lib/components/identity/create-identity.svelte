@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { USERS } from '$lib/app/constants/identity'
+    import { DEFAULT_USERS } from '$lib/app/constants/identity'
     import { register } from '$lib/app/identity'
-    import type { IUser } from '$lib/app/types/identity'
+    import type { IUser, RegistrationUser } from '$lib/app/types/identity'
     import { FieldType } from '$lib/app/types/identity'
     import { createJsonDataUrl } from '$lib/app/utils'
     import type { IdentityJson } from 'boxfish-studio--iota-is-sdk'
@@ -14,6 +14,7 @@
     export let isOpen: boolean = false
     export let onModalClose: () => void = () => {}
     export let onSuccess: (id: string) => void = () => {}
+    export let users: RegistrationUser[] = DEFAULT_USERS
 
     let selectedUser: IUser
     let inputFields = {}
@@ -29,7 +30,7 @@
     // Separator for the multiple string option (string array)
     const STRING_ARRAY_SEPARATOR = ','
 
-    $: selectedUser = USERS.find((user) => user.type === selectedUserType)
+    $: selectedUser = users.find((user) => user.type === selectedUserType)
     $: formContainer, manageFormSubscription()
 
     function sanitizeInputFields(): void {
@@ -97,7 +98,7 @@
             <FormGroup class="mb-4">
                 <Label class="mb-2">ID type</Label>
                 <Input class="py-3 ps-3" type="select" name="select" bind:value={selectedUserType} on:change={resetInputFields}>
-                    {#each USERS as _user}
+                    {#each users as _user}
                         <option value={_user.type}>
                             {_user.type}
                         </option>

@@ -4,8 +4,11 @@
     import Login from './login.svelte'
     import Register from './register.svelte'
     import Logout from './logout.svelte'
+    import { DEFAULT_USERS } from '$lib/app/constants/identity'
+    import type { RegistrationUser } from '$lib/app/types/identity'
 
     export let onLoginSuccess: () => void = () => {}
+    export let users: RegistrationUser[] = DEFAULT_USERS
 
     enum State {
         AlreadyAuthenticated = 'alreadyAuthenticated',
@@ -38,6 +41,6 @@
     {:else if state === State.Login}
         <Login {switchToRegister} onSuccess={onLoginSuccess} />
     {:else if state === State.Register}
-        <Register {switchToLogin} />
+        <Register {switchToLogin} {users} />
     {/if}
 </div>

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { USERS } from '$lib/app/constants/identity'
+    import { DEFAULT_USERS } from '$lib/app/constants/identity'
     import { identityClient } from '$lib/app/base'
     import { searchCriteria, User, UserType } from 'boxfish-studio--iota-is-sdk'
     import { Button, FormGroup, Input, ListGroup, ListGroupItem, TabContent, TabPane } from 'sveltestrap'
@@ -42,7 +42,7 @@
             </FormGroup>
             <FormGroup floating label="Type">
                 <Input type="select" name="select" bind:value={type} on:change={resetUsers}>
-                    {#each USERS as _user, i}
+                    {#each DEFAULT_USERS as _user, i}
                         <option value={_user.type}>
                             {_user.type}
                         </option>

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { MAX_IDENTITIES_PER_PAGE, USER_ICONS, WELCOME_IDENTITIES_NUMBER } from '$lib/app/constants/identity'
+    import { DEFAULT_USERS, MAX_IDENTITIES_PER_PAGE, USER_ICONS, WELCOME_IDENTITIES_NUMBER } from '$lib/app/constants/identity'
     import {
         addIdentityToSearchResults,
         isLoadingIdentities,
@@ -9,13 +9,15 @@
         stopIdentitiesSearch,
         updateSelectedIdentity,
     } from '$lib/app/identity'
-    import type { ExtendedUser } from '$lib/app/types/identity'
+    import type { ExtendedUser, RegistrationUser } from '$lib/app/types/identity'
     import type { TableData } from '$lib/app/types/table'
     import { Box, CreateIdentity, Icon, IdentityDetails, Table } from '$lib/components'
     import { onDestroy, onMount } from 'svelte'
     import { Button, Spinner } from 'sveltestrap'
     // We have to import Input this way, otherwise it shouts SSR issues.
     import Input from 'sveltestrap/src/Input.svelte'
+
+    export let users: RegistrationUser[] = DEFAULT_USERS
 
     enum State {
         ListIdentities = 'listIdentities',
@@ -169,7 +171,7 @@
 
         <IdentityDetails identity={$selectedIdentity} />
     {/if}
-    <CreateIdentity isOpen={isCreateIdentityOpen} onModalClose={handleCloseModal} onSuccess={onCreateIdentitySuccess} />
+    <CreateIdentity isOpen={isCreateIdentityOpen} onModalClose={handleCloseModal} onSuccess={onCreateIdentitySuccess} {users} />
 </Box>
 
 <style lang="scss">
