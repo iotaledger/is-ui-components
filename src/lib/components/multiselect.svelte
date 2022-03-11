@@ -3,6 +3,7 @@
     import { onMount } from 'svelte'
     import { fly } from 'svelte/transition'
     import { Icon } from '$lib/components'
+
     export let id = ''
     export let value = []
     export let placeholder = ''
@@ -16,6 +17,10 @@
         first = true,
         slot
 
+    $: if (!first) value = Object.values(selected).map((o) => o.value)
+    $: filtered = options.filter((o) => (inputValue ? o.name.toLowerCase().includes(inputValue.toLowerCase()) : o))
+    $: if ((activeOption && !filtered.includes(activeOption)) || (!activeOption && inputValue)) activeOption = filtered[0]
+
     onMount(() => {
         slot.querySelectorAll('option').forEach((o) => {
             o.selected && !value.includes(o.value) && (value = [...value, o.value])
@@ -24,10 +29,6 @@
         value && (selected = options.reduce((obj, op) => (value.includes(op.value) ? { ...obj, [op.value]: op } : obj), {}))
         first = false
     })
-
-    $: if (!first) value = Object.values(selected).map((o) => o.value)
-    $: filtered = options.filter((o) => (inputValue ? o.name.toLowerCase().includes(inputValue.toLowerCase()) : o))
-    $: if ((activeOption && !filtered.includes(activeOption)) || (!activeOption && inputValue)) activeOption = filtered[0]
 
     function add(token) {
         selected[token.value] = token

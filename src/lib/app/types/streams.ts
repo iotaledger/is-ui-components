@@ -10,3 +10,4 @@ export enum SubscriptionState {
     Subscribed = 'Subscribed',
     Pending = 'Pending',
 }
+

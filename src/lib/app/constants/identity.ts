@@ -5,7 +5,6 @@ import { BoxColor } from './colors'
 
 export const WELCOME_IDENTITIES_NUMBER = 7
 export const MAX_IDENTITIES_PER_PAGE = 7
-
 export const USERS: RegistrationUser[] = [
 	{
 		type: UserType.Person,

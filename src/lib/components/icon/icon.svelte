@@ -4,18 +4,18 @@
     import { Icon } from 'sveltestrap'
     import CustomIcon from './custom-icon.svelte'
 
+    export let size: number = 24
+    export let type: string = undefined
+    export let color: string = '#333333'
+    export let boxed: boolean = false
+    export let boxColor: BoxColor = BoxColor.Blue
+
     const TYPES = {
         close: Close,
         identity: Identity,
         credential: Credential,
         'iota-logo': IotaLogo,
     }
-
-    export let size: number = 24
-    export let type: string = undefined
-    export let color: string = '#333333'
-    export let boxed: boolean = false
-    export let boxColor: BoxColor = BoxColor.Blue
 
     $: customIcon = TYPES[type]
 </script>

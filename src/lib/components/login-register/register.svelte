@@ -10,6 +10,9 @@
 
     export let switchToLogin: () => void = () => {}
 
+    const MIN_LENGTH_INPUT = 3
+    const MAX_LENGTH_INPUT = 30
+
     let selectedUser: RegistrationUser
     let inputFields = {}
     let loading = false
@@ -18,9 +21,6 @@
     let unsubscribe
     let formValidated = false
     let formContainer
-
-    const MIN_LENGTH_INPUT = 3
-    const MAX_LENGTH_INPUT = 30
 
     $: selectedUser = USERS.find((user) => user.type === selectedUserType)
     $: formContainer, manageFormSubscription()

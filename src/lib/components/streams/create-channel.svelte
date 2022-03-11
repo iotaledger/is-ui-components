@@ -10,6 +10,10 @@
     export let onModalClose: () => void = () => {}
     export let onSuccess: (channelAddress: string) => void = () => {}
 
+    const MIN_LENGTH_INPUT = 3
+    const MAX_LENGTH_INPUT = 30
+    const MAX_LENGTH_TEXTAREA = 100
+
     let loading = false
     let topics: { type: string; source: string }[] = [
         {
@@ -22,10 +26,6 @@
     let unsubscribe
     let formValidated = false
     let formContainer
-
-    const MIN_LENGTH_INPUT = 3
-    const MAX_LENGTH_INPUT = 30
-    const MAX_LENGTH_TEXTAREA = 100
 
     $: formContainer, manageFormSubscription()
 

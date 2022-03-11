@@ -8,6 +8,7 @@ const config: ClientConfig = {
 	baseUrl: import.meta.env.VITE_BASE_URL as string, // URL of the Integration Services API
 	apiVersion: ApiVersion.v01
 };
+
 export const identityClient = new IdentityClient(config);
 export const channelClient = new ChannelClient(config);
 export const authenticationData = persistent<{ jwt: string; did: string }>(
@@ -23,3 +24,4 @@ authenticationData?.subscribe(($authenticationData) => {
 	identityClient.jwtToken = $authenticationData?.jwt;
 	channelClient.jwtToken = $authenticationData?.jwt;
 });
+

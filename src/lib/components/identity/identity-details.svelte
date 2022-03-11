@@ -13,8 +13,15 @@
     const { username, id, claim } = identity
     const type = identity?.claim?.type
 
+    enum State {
+        Details = 'details',
+        AddCredential = 'addCredential',
+    }
+
     let verifiableCredentials: VerifiableCredentialInternal[] = []
     let loading = false
+    let state: State = State.Details
+    let revoking: boolean = false
 
     onMount(async () => {
         // Get all credentials
@@ -22,14 +29,6 @@
         verifiableCredentials = await getVerifiableCredentials(id)
         loading = false
     })
-
-    enum State {
-        Details = 'details',
-        AddCredential = 'addCredential',
-    }
-
-    let state: State = State.Details
-    let revoking: boolean = false
 
     const switchToDetails = () => (state = State.Details)
     const switchToAddCredential = () => (state = State.AddCredential)

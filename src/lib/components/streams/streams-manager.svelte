@@ -1,14 +1,7 @@
 <script lang="ts">
     import { BoxColor } from '$lib/app/constants/colors'
     import { MAX_CHANNELS_PER_PAGE, WELCOME_CHANNELS_NUMBER } from '$lib/app/constants/streams'
-    import {
-        addChannelToSearchResults,
-        isAChannelSubscribed,
-        isLoadingChannels,
-        searchChannels,
-        searchResults,
-        stopSearch,
-    } from '$lib/app/streams'
+    import { addChannelToSearchResults, isLoadingChannels, searchChannels, searchResults, stopSearch } from '$lib/app/streams'
     import type { ExtendedChannelInfo } from '$lib/app/types/streams'
     import type { TableData } from '$lib/app/types/table'
     import { Box, CreateChannel, Icon, Table } from '$lib/components'
@@ -30,7 +23,6 @@
     let selectedChannel
 
     $: message = loading || $searchResults?.length ? null : 'No channels found'
-
     $: selectedChannel, updateState()
 
     onMount(async () => {

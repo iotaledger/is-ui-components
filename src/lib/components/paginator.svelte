@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Icon } from '../components'
+
     export let currentPage: number = 0
     export let pageSize: number = 10
     export let totalCount: number = 0
@@ -7,6 +8,7 @@
     export let onPageChange: (page: number) => void
 
     const DOTS: string = '...'
+
     let paginationRange: (number | string)[] = []
     let lastPage: number = 0
 

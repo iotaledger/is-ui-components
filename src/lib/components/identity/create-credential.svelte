@@ -13,17 +13,16 @@
     export let onSuccess: () => void = () => {}
     export let targetDid: string = undefined
 
+    const MIN_LENGTH_INPUT = 3
+    const MAX_LENGTH_INPUT = 30
+
     let verifiableCredential: VerifiableCredentialJson
     let inputFields = {}
     let loading = false
     let selectedTemplate = VC_TEMPLATES[0]
-
     let unsubscribe
     let formValidated = false
     let formContainer
-
-    const MIN_LENGTH_INPUT = 3
-    const MAX_LENGTH_INPUT = 30
 
     $: formContainer, manageFormSubscription()
 

@@ -9,7 +9,6 @@
         headings: [],
         rows: [{ onClick: () => {}, content: [] }],
     }
-
     export let pageSize: number = 10
     export let siblingsCount: number = 2
     export let isLoading = false
@@ -20,11 +19,11 @@
     let startAt = 0
     let endAt = pageSize
 
+    $: visibleResults = data?.rows
+
     onMount(() => {
         updateVisibleResults()
     })
-
-    $: visibleResults = data?.rows
 
     function updateVisibleResults() {
         if (isPaginated) {

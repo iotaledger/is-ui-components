@@ -15,6 +15,11 @@
     export let onModalClose: () => void = () => {}
     export let onSuccess: (id: string) => void = () => {}
 
+    const MIN_LENGTH_INPUT = 3
+    const MAX_LENGTH_INPUT = 30
+    // Separator for the multiple string option (string array)
+    const STRING_ARRAY_SEPARATOR = ','
+
     let selectedUser: IUser
     let inputFields = {}
     let loading = false
@@ -23,11 +28,6 @@
     let unsubscribe
     let formValidated = false
     let formContainer
-
-    const MIN_LENGTH_INPUT = 3
-    const MAX_LENGTH_INPUT = 30
-    // Separator for the multiple string option (string array)
-    const STRING_ARRAY_SEPARATOR = ','
 
     $: selectedUser = USERS.find((user) => user.type === selectedUserType)
     $: formContainer, manageFormSubscription()

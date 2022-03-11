@@ -8,8 +8,6 @@
     import { CREDENTIAL_ICON } from '$lib/app/constants/identity'
     import { BoxColor } from '$lib/app/constants/colors'
 
-    const MAX_FILES = 10
-
     let errorMessage: string
     let loading: boolean = false
     let files: {
@@ -20,6 +18,7 @@
         validFile?: boolean
     }[] = []
 
+    const MAX_FILES = 10
     const MESSAGES = {
         verified: {
             color: 'success' as Color,
@@ -151,13 +150,7 @@
         {:else}
             <div class="w-100 border rounded mt-3 py-2 px-3 d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
-                    <Icon
-                        type="exclamation-circle
-                    "
-                        boxed
-                        size={48}
-                        boxColor={BoxColor.Transparent}
-                    />
+                    <Icon type="exclamation-circle" boxed size={48} boxColor={BoxColor.Transparent} />
                     <span class="text-break ms-1">{fileName}</span>
                 </div>
                 <div class="d-flex align-items-center ms-2">

@@ -10,20 +10,18 @@
     export let onModalClose: () => void = () => {}
     export let address: string
 
+    const MAX_LENGTH_TEXTAREA = 100
+    const MIN_LENGTH_TEXTAREA = 3
+
     let payload = ''
     let publicPayload = ''
     let metadata = ''
     let type = ''
-
     let loading = false
     let timeout: NodeJS.Timeout
-
     let unsubscribe
     let formValidated = false
     let formContainer
-
-    const MAX_LENGTH_TEXTAREA = 100
-    const MIN_LENGTH_TEXTAREA = 3
 
     $: formContainer, manageFormSubscription()
 

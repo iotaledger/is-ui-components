@@ -1,5 +1,4 @@
 export const NOTIFICATION_TIMEOUT_DEFAULT = 8000
-
 export const NOTIFICATION_TIMEOUT_NEVER = -1
 
 
