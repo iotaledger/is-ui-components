@@ -88,7 +88,7 @@ export function stopSearch(): void {
     }
 }
 
-let timeout = 1000
+let timeout = 2000
 let updateTimer
 
 export async function readChannel(channelAddress: string): Promise<void> {
@@ -108,7 +108,7 @@ export async function readChannel(channelAddress: string): Promise<void> {
                 channelBusy.set(false)
                 channelData.update((_chData) => [...newMessages, ..._chData])
                 if (newMessages?.length) {
-                    timeout = 800
+                    timeout = 1000
                 }
             } catch (e) {
                 showNotification({
@@ -179,6 +179,20 @@ export async function requestUnsubscription(channelAddress: string): Promise<voi
 export async function acceptSubscription(channelAddress: string, id: string): Promise<void> {
     try {
         await channelClient.authorizeSubscription(channelAddress, {
+            id,
+        })
+    } catch (e) {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error getting subscription state',
+        })
+        console.error(Error, e);
+    }
+}
+
+export async function rejectSubscription(channelAddress: string, id: string): Promise<void> {
+    try {
+        await channelClient.revokeSubscription(channelAddress, {
             id,
         })
     } catch (e) {

@@ -2,10 +2,12 @@
     import { BoxColor } from '$lib/app/constants/colors'
     import {
         acceptSubscription,
+        channelBusy,
         channelData,
         getPendingSubscriptions,
         getSubscriptionStatus,
         readChannel,
+        rejectSubscription,
         requestSubscription,
         requestUnsubscription,
         stopData,
@@ -13,6 +15,7 @@
     import { SubscriptionState } from '$lib/app/types/streams'
     import { isJson } from '$lib/app/utils'
     import { Icon, JSONViewer, WriteMessage } from '$lib/components'
+    import type { Subscription } from 'boxfish-studio--iota-is-sdk/lib'
     import { onDestroy, onMount } from 'svelte'
     import { Accordion, AccordionItem, Badge, Button, Spinner } from 'sveltestrap'
 
@@ -24,13 +27,14 @@
 
     let loading = false
     let subscriptionState: SubscriptionState
-    let pendingSubscriptions = []
+    let pendingSubscriptions: (Subscription & { acceptLoading?: boolean; rejectLoading?: boolean })[] = []
     let isOpen: boolean = false
+    let timeout: number
 
     onMount(async () => {
         subscriptionState = await getSubscriptionStatus(address)
         if (isOwned) {
-            updatePendingSubscriptions()
+            await updatePendingSubscriptions()
         }
     })
 
@@ -56,11 +60,51 @@
         loading = false
     }
 
-    async function handleAcceptSubscription(id) {
-        loading = true
-        await acceptSubscription(address, id)
-        updatePendingSubscriptions()
-        loading = false
+    async function handleAcceptSubscription(subscriptionId: string): Promise<void> {
+        setIsAccepting(subscriptionId, true)
+
+        // ---- Avoid locked channel error when accepting subscriptions ----
+        while ($channelBusy) {
+            timeout = setTimeout(handleAcceptSubscription, 100)
+            return
+        }
+        // ----------------------------------------------------------
+
+        await acceptSubscription(address, subscriptionId)
+        await updatePendingSubscriptions()
+        setIsAccepting(subscriptionId, false)
+    }
+
+    function setIsAccepting(subscriptionId, isAccepting) {
+        pendingSubscriptions = pendingSubscriptions.map((subscription) => {
+            if (subscription.id === subscriptionId) {
+                subscription.acceptLoading = isAccepting
+            }
+            return subscription
+        })
+    }
+
+    function setIsRejecting(subscriptionId, isRejecting) {
+        pendingSubscriptions = pendingSubscriptions.map((subscription) => {
+            if (subscription.id === subscriptionId) {
+                subscription.rejectLoading = isRejecting
+            }
+            return subscription
+        })
+    }
+    async function handleRejectSubscription(subscriptionId: string): Promise<void> {
+        setIsRejecting(subscriptionId, true)
+
+        // ---- Avoid locked channel error when rejecting subscriptions ----
+        while ($channelBusy) {
+            timeout = setTimeout(handleRejectSubscription, 100)
+            return
+        }
+        // ----------------------------------------------------------
+
+        await rejectSubscription(address, subscriptionId)
+        await updatePendingSubscriptions()
+        setIsRejecting(subscriptionId, false)
     }
 
     async function updatePendingSubscriptions() {
@@ -159,23 +203,40 @@
                             <Badge color="danger">{pendingSubscriptions.length}</Badge>
                         </div>
                     </div>
-                    {#each pendingSubscriptions as { id }}
+                    {#each pendingSubscriptions as subscription}
                         <div class="d-flex justify-content-between align-items-center my-3">
                             <div>
                                 <div class="text-secondary mb-1">Requester Id</div>
-                                <span class="text-break">{id}</span>
+                                <span class="text-break">{subscription?.id}</span>
                             </div>
                             <Button
                                 class="ms-2"
                                 size="sm"
                                 outline
                                 color="dark"
-                                disabled={loading}
-                                on:click={() => handleAcceptSubscription(id)}
+                                disabled={subscription?.acceptLoading}
+                                on:click={() => handleAcceptSubscription(subscription?.id)}
                             >
                                 <div class="d-flex justify-content-center align-items-center">
-                                    {loading ? 'Accepting...' : 'Accept'}
-                                    {#if loading}
+                                    {subscription?.acceptLoading ? 'Accepting...' : 'Accept'}
+                                    {#if subscription?.acceptLoading}
+                                        <div class="ms-2">
+                                            <Spinner size="sm" type="border" color="success" />
+                                        </div>
+                                    {/if}
+                                </div>
+                            </Button>
+                            <Button
+                                class="ms-2"
+                                size="sm"
+                                outline
+                                color="dark"
+                                disabled={subscription?.rejectLoading}
+                                on:click={() => handleRejectSubscription(subscription?.id)}
+                            >
+                                <div class="d-flex justify-content-center align-items-center">
+                                    {subscription?.rejectLoading ? 'Revoking...' : 'Revoke'}
+                                    {#if subscription?.rejectLoading}
                                         <div class="ms-2">
                                             <Spinner size="sm" type="border" color="success" />
                                         </div>
