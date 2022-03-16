@@ -1,11 +1,5 @@
 <script lang="ts">
-    import {
-        DEFAULT_IDENTITIES_TEMPLATES,
-        DEFAULT_TABLE_CONFIGURATION,
-        DEFAULT_VCS_TEMPLATES,
-        USER_ICONS,
-        WELCOME_IDENTITIES_NUMBER,
-    } from '$lib/app/constants/identity'
+    import { USER_ICONS, WELCOME_IDENTITIES_NUMBER } from '$lib/app/constants/identity'
     import {
         addIdentityToSearchResults,
         getVerifiableCredentials,
@@ -17,17 +11,50 @@
         stopIdentitiesSearch,
         updateIdentityInSearchResults,
     } from '$lib/app/identity'
-    import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
+    import type { ExtendedUser, IdentityTemplate } from '$lib/app/types/identity'
+    import { FieldType } from '$lib/app/types/identity'
     import type { ActionButton } from '$lib/app/types/layout'
-    import type { TableConfiguration, TableData } from '$lib/app/types/table'
-    import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, IdentityList } from '$lib/components'
+    import type { TableData } from '$lib/app/types/table'
+    import { CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, IdentityList } from '$lib/components'
     import type { IdentityJson } from 'boxfish-studio--iota-is-sdk'
+    import { UserType } from 'boxfish-studio--iota-is-sdk'
     import { onDestroy, onMount } from 'svelte'
+    import { Container } from 'sveltestrap'
 
-    export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
-    export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
-    export let showSearch: boolean = true
-    export let identyListButtons: ActionButton[] = [
+    const SOFTWARE_VERSIONS = ['v1.0.0', 'v1.1.0', 'v1.2.0', 'v1.3.0']
+    const DEVICE_TEMPLATE: IdentityTemplate[] = [
+        {
+            type: UserType.Device,
+            fields: [
+                {
+                    id: 'username',
+                    name: 'username',
+                    type: FieldType.String,
+                    required: true,
+                },
+                {
+                    id: 'softwareVersion',
+                    name: 'Software Version',
+                    type: FieldType.Selector,
+                    options: SOFTWARE_VERSIONS,
+                    required: true,
+                },
+                {
+                    id: 'channel',
+                    name: 'Streams Channel',
+                    type: FieldType.String,
+                    required: true,
+                },
+            ],
+        },
+    ]
+    const IDENTITY_LIST_BUTTONS: ActionButton[] = [
+        {
+            label: 'Add device',
+            onClick: openCreateDevice,
+            icon: 'plus',
+            color: 'dark',
+        },
         {
             label: 'Create an identity',
             onClick: openCreateIdentityModal,
@@ -35,8 +62,7 @@
             color: 'dark',
         },
     ]
-    export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
-    export let identyDetailButtons: ActionButton[] = [
+    const IDENTITY_DETAILS_BUTTONS: ActionButton[] = [
         {
             label: 'Add credential',
             onClick: openCreateCredentialModal,
@@ -56,6 +82,7 @@
     let message: string
     let isCreateIdentityOpen = false
     let isCreateCredentialOpen = false
+    let isCreateDeviceOpen = false
 
     $: $selectedIdentity, updateState()
     $: state, loadVCsOnSelectedIdentity()
@@ -155,18 +182,24 @@
     function closeCreateCredentialModal(): void {
         isCreateCredentialOpen = false
     }
+    function openCreateDevice(): void {
+        isCreateDeviceOpen = true
+    }
+    function closeCreateDevice(): void {
+        isCreateDeviceOpen = false
+    }
 </script>
 
-<Box>
+<Container class="py-5">
+    <h1 class="mb-4">Demo 2: Device</h1>
     {#if state === State.ListIdentities}
         <IdentityList
-            {showSearch}
+            showSearch
             {onSearch}
             {tableData}
             {message}
-            {tableConfiguration}
             loading={loading || $isAsyncLoadingIdentities}
-            actionButtons={identyListButtons}
+            actionButtons={IDENTITY_LIST_BUTTONS}
             bind:searchQuery={query}
         />
     {:else if state === State.IdentityDetail}
@@ -177,24 +210,20 @@
             </button>
         </div>
         <IdentityDetails
+            actionButtons={IDENTITY_DETAILS_BUTTONS}
             {loading}
-            actionButtons={identyDetailButtons}
             onRevokeSuccess={updateIdentityInSearchResults}
             identity={$selectedIdentity}
         />
     {/if}
-    <CreateIdentityModal
-        isOpen={isCreateIdentityOpen}
-        onModalClose={closeCreateIdentityModal}
-        onSuccess={onCreateIdentitySuccess}
-        {identitiesTemplate}
-    />
-    <!-- TODO: add possility to not pass targetDid here -->
-    <CreateCredentialModal
-        isOpen={isCreateCredentialOpen}
-        onModalClose={closeCreateCredentialModal}
-        targetDid={$selectedIdentity?.id}
-        onSuccess={onCreateCredentialSuccess}
-        {credentialsTemplate}
-    />
-</Box>
+</Container>
+<CreateIdentityModal isOpen={isCreateIdentityOpen} onModalClose={closeCreateIdentityModal} onSuccess={onCreateIdentitySuccess} />
+<!-- TODO: add possility to not use targetDid here -->
+<CreateCredentialModal
+    isOpen={isCreateCredentialOpen}
+    onModalClose={closeCreateCredentialModal}
+    targetDid={$selectedIdentity?.id}
+    onSuccess={onCreateCredentialSuccess}
+/>
+<!-- Custom modal for devices -->
+<CreateIdentityModal isOpen={isCreateDeviceOpen} onModalClose={closeCreateDevice} identitiesTemplate={DEVICE_TEMPLATE} />

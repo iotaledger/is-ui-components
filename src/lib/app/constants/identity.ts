@@ -1,12 +1,15 @@
 import { CredentialTypes, UserType } from 'boxfish-studio--iota-is-sdk'
-import type { RegistrationUser } from '../types/identity'
+import type { IdentityTemplate, VerifiableCredentialTemplate } from '../types/identity'
 import { DeviceControlledProperty, FieldType, ProductEnum } from '../types/identity'
+import type { TableConfiguration } from '../types/table'
 import { BoxColor } from './colors'
 
-export const WELCOME_IDENTITIES_NUMBER = 7
-export const MAX_IDENTITIES_PER_PAGE = 7
+export const WELCOME_IDENTITIES_NUMBER = 5
+export const DEFAULT_IDENTITIES_TABLE_PAGE_SIZE = 5
+export const DEFAULT_IDENTITY_SEARCH_TIMEOUT = 200
+export const DEFAULT_IDENTITY_REQUEST_LIMIT = 2
 
-export const DEFAULT_USERS: RegistrationUser[] = [
+export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
 	{
 		type: UserType.Person,
 		fields: [
@@ -275,29 +278,17 @@ export const DEFAULT_USERS: RegistrationUser[] = [
 	},
 ]
 
-export const VC_TEMPLATES = [
+export const DEFAULT_VCS_TEMPLATES: VerifiableCredentialTemplate[] = [
 	{
-		id: 'demoTemplateProfessor',
-		name: '[Demo Template] Professor',
+		id: 'demoTemplateFullName',
+		name: '[Demo Template] Full Name',
 		fields: [
 			{
 				id: 'fullName',
-				label: 'Full name',
-				type: 'text',
+				name: 'Full name',
+				type: FieldType.String,
 				required: true,
-			},
-			{
-				id: 'experience',
-				label: 'Years of experience',
-				type: 'number',
-				required: true,
-			},
-			{
-				id: 'dateOfBirth',
-				label: 'Date of birth',
-				type: 'date',
-				required: false,
-			},
+			}
 		],
 		credentialType: CredentialTypes.VerifiedIdentityCredential,
 		userType: UserType.Person,
@@ -308,27 +299,15 @@ export const VC_TEMPLATES = [
 		fields: [
 			{
 				id: 'companyName',
-				label: 'Company name',
-				type: 'text',
+				name: 'Company name',
+				type: FieldType.String,
 				required: true,
 			},
 			{
 				id: 'employees',
-				label: 'Total of employees',
-				type: 'number',
+				name: 'Total of employees',
+				type: FieldType.Number,
 				required: true,
-			},
-			{
-				id: 'country',
-				label: 'Country',
-				type: 'text',
-				required: false,
-			},
-			{
-				id: 'city',
-				label: 'City',
-				type: 'text',
-				required: false,
 			},
 		],
 		credentialType: CredentialTypes.BasicIdentityCredential,
@@ -366,4 +345,10 @@ export const USER_ICONS = {
 export const CREDENTIAL_ICON = {
 	icon: 'credential',
 	boxColor: BoxColor.Purple,
+}
+
+export const DEFAULT_TABLE_CONFIGURATION: TableConfiguration = {
+	isPaginated: true,
+	siblingsCount: 2,
+	pageSize: DEFAULT_IDENTITIES_TABLE_PAGE_SIZE,
 }

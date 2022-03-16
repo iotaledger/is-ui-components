@@ -1,8 +1,8 @@
 <script lang="ts">
     import { BoxColor } from '$lib/app/constants/colors'
-    import { Close, Credential, Identity, IotaLogo } from './icons'
+    import { CustomIcon } from '$lib/components'
     import { Icon } from 'sveltestrap'
-    import CustomIcon from './custom-icon.svelte'
+    import { Close, Credential, Identity, IotaLogo } from './icons'
 
     export let size: number = 24
     export let type: string = undefined
@@ -30,7 +30,7 @@
                 <CustomIcon {size} {color} icon={customIcon} />
             </div>
         {:else}
-            <div class="icon-component position-absolute" style="--size:{size}px;">
+            <div class="icon-component position-absolute" style="--size:{size}px; --color:{color}">
                 <Icon name={type} />
             </div>
         {/if}
@@ -46,6 +46,7 @@
 <style lang="scss">
     div {
         font-size: var(--size);
+        color: var(--color);
         .icon-component {
             top: 50%;
             left: 50%;

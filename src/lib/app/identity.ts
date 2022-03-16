@@ -2,14 +2,20 @@ import type { CredentialTypes, IdentityJson, RevokeVerificationBody, VerifiableC
 import { UserType } from 'boxfish-studio--iota-is-sdk';
 import type { Writable } from 'svelte/store';
 import { get, writable } from 'svelte/store';
-import { authenticationData, channelClient, identityClient } from './base';
-import type { ExtendedUser } from './types/identity';
+import { authenticationData, channelClient, identityClient, isAuthenticated } from './base';
+import { DEFAULT_IDENTITY_REQUEST_LIMIT } from './constants/identity';
 import { showNotification } from './notification';
-import { NotificationType } from './types/notification'
+import type { ExtendedUser } from './types/identity';
+import { NotificationType } from './types/notification';
 
 export const searchIdentitiesResults: Writable<ExtendedUser[]> = writable([]);
 export const selectedIdentity: Writable<ExtendedUser> = writable(null);
-export const isLoadingIdentities: Writable<boolean> = writable(false);
+// used for the async search that makes N background queries to get the full list of identities
+export const isAsyncLoadingIdentities: Writable<boolean> = writable(false);
+
+let haltSearchAll = false;
+// used to keep track of the last search query
+let searchAllHash: string;
 
 /**
  * Authenticates the user to the api for requests where authentication is needed
@@ -40,7 +46,7 @@ export function logout(): void {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types */
-export async function register(username?: string, claimType = UserType.Person, claim?: any): Promise<IdentityJson> {
+export async function registerIdentity(username?: string, claimType = UserType.Person, claim?: any): Promise<IdentityJson> {
     let registeredIdentity
     try {
         registeredIdentity = await identityClient.create(username, claimType, claim)
@@ -54,13 +60,12 @@ export async function register(username?: string, claimType = UserType.Person, c
     return registeredIdentity
 }
 
-let updateInterval
+// Note: this is an async function that returns nothing, but fills the searchIdentitiesResults store.
+// This is because the searchAllIdentities function is called in the background, and the results are 
+// stored in the searchIdentitiesResults store.
 let index = 0
-const SEARCH_TIMEOUT = 200
-const DEFAULT_LIMIT = 500
-
-export async function searchIdentities(query: string, options?: { limit?: number }): Promise<void> {
-    const _search = async (query: string, options?: { limit?: number }): Promise<void> => {
+export async function searchAllIdentities(query: string, options?: { limit?: number }): Promise<void> {
+    const _search = async (_searchAllHash: string, query: string, options?: { limit?: number }): Promise<void> => {
         const _isDID = (query: string): boolean => query.startsWith('did:iota:');
         const _isType = (query: string): boolean => Object.values(UserType).some(userType => userType.toLowerCase() === query.toLowerCase());
 
@@ -78,78 +83,94 @@ export async function searchIdentities(query: string, options?: { limit?: number
                 {
                     searchByType: _isType(query),
                     searchByUsername: !_isType(query),
-                    limit: options?.limit ?? DEFAULT_LIMIT,
+                    limit: options?.limit ?? DEFAULT_IDENTITY_REQUEST_LIMIT,
                     index,
                 }
             );
-            if (newResults?.length) {
-                searchIdentitiesResults.update((results) => [...results, ...newResults])
-            }
-            // if the search is not finished, start a new search
-            if ((options?.limit && (get(searchIdentitiesResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_LIMIT))) {
-                updateInterval = setTimeout(async () => {
+            // filter out old requests
+            // used to keep track of the last
+            if (_searchAllHash === searchAllHash) {
+                if (newResults?.length) {
+                    searchIdentitiesResults.update((results) => [...results, ...newResults])
+                }
+                // if the search is not finished, start a new search
+                if (!haltSearchAll && ((options?.limit && (get(searchIdentitiesResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_IDENTITY_REQUEST_LIMIT)))) {
                     index++
-                    _search(query)
-                }, SEARCH_TIMEOUT)
-            }
-            else {
-                index = 0
-                stopIdentitiesSearch()
+                    await _search(_searchAllHash, query)
+                }
+                else {
+                    stopIdentitiesSearch()
+                }
             }
         }
     }
-
     stopIdentitiesSearch();
-
-    isLoadingIdentities.set(true)
+    // used to keep track of the last
+    searchAllHash = `${query}-${Math.floor(Math.random() * query.length)}`
+    haltSearchAll = false
+    isAsyncLoadingIdentities.set(true)
     searchIdentitiesResults.set([])
-    await _search(query, options)
-    isLoadingIdentities.set(false)
+    // used to keep track of the last
+    await _search(searchAllHash, query, options)
 }
 
 export async function searchIdentityByDID(did: string): Promise<ExtendedUser> {
-    try {
-        const identity: ExtendedUser = await identityClient.find(did);
+    if (get(isAuthenticated)) {
+        try {
+            const identity: ExtendedUser = await identityClient.find(did);
 
-        // SDK library does not return the NUMBER OF CREDENTIALS in the response, so we add it here
-        if (identity?.verifiableCredentials) {
-            identity.numberOfCredentials = identity.verifiableCredentials?.length ?? 0
+            // SDK library does not return the NUMBER OF CREDENTIALS in the response, so we add it here
+            if (identity?.verifiableCredentials) {
+                identity.numberOfCredentials = identity.verifiableCredentials?.length ?? 0
+            }
+            // -----------------------------------------------------------------------------------------
+
+            return identity
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error searching for user',
+            })
+            console.error(Error, e);
         }
-        // -----------------------------------------------------------------------------------------
-
-        return identity
-    } catch (e) {
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error searching for user',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.error(Error, e);
     }
 }
 export async function searchIdentitiesSingleRequest(query: string, options: { searchByType?: boolean, searchByUsername?: boolean, limit: number, index: number }): Promise<ExtendedUser[]> {
     let partialResults = []
-    const { searchByType, searchByUsername, limit, index } = options
-    try {
-        partialResults = await identityClient.search({
-            username: searchByUsername ? query : undefined,
-            type: searchByType ? query : undefined,
-            limit: limit,
-            index: index
-        })
-    } catch (e) {
+    if (get(isAuthenticated)) {
+        const { searchByType, searchByUsername, limit, index } = options
+        try {
+            partialResults = await identityClient.search({
+                username: searchByUsername ? query : undefined,
+                type: searchByType ? query : undefined,
+                limit: limit,
+                index: index
+            })
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error searching for user',
+            })
+            console.error(Error, e);
+        }
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error searching for user',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.error(Error, e);
     }
     return partialResults
 }
 
 export function stopIdentitiesSearch(): void {
-    if (updateInterval) {
-        clearTimeout(updateInterval)
-    }
+    index = 0
+    haltSearchAll = true
+    isAsyncLoadingIdentities.set(false)
 }
 
 export async function createVC(
@@ -160,35 +181,49 @@ export async function createVC(
     claim?: any
 ): Promise<VerifiableCredentialJson> {
     let credential
-    try {
-        credential = await identityClient.createCredential(initiatorVC, targetDid, credentialType, claimType, claim)
-    } catch (e) {
+    if (get(isAuthenticated)) {
+        try {
+            credential = await identityClient.createCredential(initiatorVC, targetDid, credentialType, claimType, claim)
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error creating the credential',
+            })
+            console.error(Error, e);
+        }
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error creating the credential',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.error(Error, e);
     }
-
     return credential
 }
 
 export async function revokeVC(signatureValue: RevokeVerificationBody): Promise<boolean> {
-    try {
-        await identityClient.revokeCredential(signatureValue)
-        return true
-    } catch (e) {
+    let success
+    if (get(isAuthenticated)) {
+        try {
+            await identityClient.revokeCredential(signatureValue)
+            success = true
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error revoking the credential',
+            })
+            console.error(Error, e);
+            success = false
+        }
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error revoking the credential',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.error(Error, e);
-        return false
     }
+    return success
 }
 
-export function updateSelectedIdentity(identity: ExtendedUser): void {
-    selectedIdentity.set(identity)
+export function updateIdentityInSearchResults(identity: ExtendedUser): void {
     searchIdentitiesResults?.update((_searchIdentitiesResults) => {
         const index = _searchIdentitiesResults.findIndex((user) => user.id === identity.id)
         if (index !== -1) {
@@ -199,31 +234,54 @@ export function updateSelectedIdentity(identity: ExtendedUser): void {
 }
 
 export async function addIdentityToSearchResults(id: string): Promise<void> {
-    const resuls = await searchIdentities(id)
-    const identity = resuls?.[0]
-    if (identity) {
-        searchIdentitiesResults?.update((_searchIdentitiesResults) => {
-            return [..._searchIdentitiesResults, identity]
+    if (get(isAuthenticated)) {
+        const identity = await searchIdentityByDID(id)
+        if (identity) {
+            searchIdentitiesResults?.update((_searchIdentitiesResults) => {
+                return [..._searchIdentitiesResults, identity]
+            })
+        }
+    } else {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'Cant perform action, user not authenticated',
         })
     }
 }
 
 export async function verifyVC(json: VerifiableCredentialInternal): Promise<boolean> {
-    try {
-        const { isVerified } = await identityClient.checkCredential(json as VerifiableCredentialInternal)
-        return isVerified
-    } catch (e) {
+    let _isVerified
+    if (get(isAuthenticated)) {
+        try {
+            const { isVerified } = await identityClient.checkCredential(json as VerifiableCredentialInternal)
+            _isVerified = isVerified
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error verifying the credential',
+            })
+            console.error(Error, e);
+            _isVerified = false
+        }
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error verifying the credential',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.error(Error, e);
-        return false
     }
+    return _isVerified
 }
 
 export async function getVerifiableCredentials(identityId: string): Promise<VerifiableCredentialInternal[]> {
-    const identityDetails = await identityClient.find(identityId)
-    return identityDetails?.verifiableCredentials ?? []
+    let credentials = []
+    if (get(isAuthenticated)) {
+        const identityDetails = await identityClient.find(identityId)
+        credentials = identityDetails?.verifiableCredentials ?? []
+    } else {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'Cant perform action, user not authenticated',
+        })
+    }
+    return credentials
 }
-

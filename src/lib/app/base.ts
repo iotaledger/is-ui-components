@@ -11,11 +11,13 @@ const config: ClientConfig = {
 
 export const identityClient = new IdentityClient(config);
 export const channelClient = new ChannelClient(config);
+
 export const authenticationData = persistent<{ jwt: string; did: string }>(
 	'authentication-data',
 	null
 );
-export const authenticated = derived(
+
+export const isAuthenticated = derived(
 	authenticationData,
 	($authenticationData) => !!$authenticationData?.jwt
 );
@@ -24,4 +26,3 @@ authenticationData?.subscribe(($authenticationData) => {
 	identityClient.jwtToken = $authenticationData?.jwt;
 	channelClient.jwtToken = $authenticationData?.jwt;
 });
-

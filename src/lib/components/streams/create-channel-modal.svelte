@@ -1,14 +1,14 @@
 <script lang="ts">
-    import { Button, FormGroup, Input, Label, ModalBody, ModalHeader, ModalFooter, Spinner } from 'sveltestrap'
+    import { BoxColor } from '$lib/app/constants/colors'
+    import { createChannel } from '$lib/app/streams'
+    import { Icon } from '$lib/components'
+    import { Button, FormGroup, Input, Label, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
-    import { Icon } from '$lib/components'
-    import { createChannel } from '$lib/app/streams'
-    import { BoxColor } from '$lib/app/constants/colors'
 
     export let isOpen: boolean = false
-    export let onModalClose: () => void = () => {}
-    export let onSuccess: (channelAddress: string) => void = () => {}
+    export let onModalClose = (..._: any[]): void => {}
+    export let onSuccess = (..._: any[]): void => {}
 
     const MIN_LENGTH_INPUT = 3
     const MAX_LENGTH_INPUT = 30
@@ -25,7 +25,7 @@
     let description: string = 'Please, describe your channel here...'
     let unsubscribe
     let formValidated = false
-    let formContainer
+    let formContainer: HTMLFormElement
 
     $: formContainer, manageFormSubscription()
 

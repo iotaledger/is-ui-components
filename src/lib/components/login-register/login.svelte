@@ -6,13 +6,13 @@
     import Dropzone from 'svelte-file-dropzone'
     import { Button, Spinner } from 'sveltestrap'
 
-    export let switchToRegister: () => void = () => {}
-    export let onSuccess: () => void = () => {}
+    export let switchToRegister = (..._: any[]): void => {}
+    export let onSuccess = (..._: any[]): void => {}
 
     let fileReader: FileReader
     let json: IdentityJson
     let file: File
-    let loading = false
+    let loading: boolean = false
 
     onMount(() => {
         fileReader = new FileReader()
@@ -22,10 +22,10 @@
         }
     })
 
-    const handleLogin = async () => {
+    async function handleLogin(): Promise<void> {
         loading = true
-        if (json.doc?.id) {
-            const success = await authenticate(json.doc.id, json.key?.secret)
+        if (json?.doc?.id) {
+            const success = await authenticate(json?.doc?.id, json?.key?.secret)
             if (success) {
                 onSuccess()
             }
@@ -33,13 +33,15 @@
         loading = false
     }
 
-    const handleFilesSelect = (e) => {
+    function handleFilesSelect(event: CustomEvent): void {
         // Only shows the last file uploaded
-        file = e.detail.acceptedFiles[0]
+        file = event?.detail?.acceptedFiles[0]
         fileReader.readAsText(file)
     }
 
-    const loadJson = () => (json = JSON.parse(fileReader.result.toString()))
+    function loadJson(): void {
+        json = JSON.parse(fileReader?.result?.toString())
+    }
 </script>
 
 <Box>

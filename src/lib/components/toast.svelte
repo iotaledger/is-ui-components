@@ -1,18 +1,18 @@
 <script lang="ts">
-    import { fade } from 'svelte/transition'
-    import { Toast, ToastBody, ToastHeader } from 'sveltestrap'
-    import Icon from './icon/icon.svelte'
     import { NotificationType } from '$lib/app/types/notification'
+    import { fade } from 'svelte/transition'
+    import { Toast,ToastBody,ToastHeader } from 'sveltestrap'
+    import Icon from './icon/icon.svelte'
 
     export let title: string | undefined = undefined
     export let message: string
     export let type: NotificationType
 
-    let showToast = true
+    let showToast: boolean = true
 
     $: color = type === NotificationType.Error ? 'danger' : 'secondary'
 
-    function toggle() {
+    function toggle(): void {
         showToast = !showToast
     }
 </script>

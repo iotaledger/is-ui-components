@@ -6,9 +6,9 @@
     export let identity: IdentityJson
     export let type: UserType
     export let username: string
-    export let switchToLogin: () => void = () => {}
+    export let switchToLogin = (..._: any[]): void => {}
 
-    const jsonDataUrl = createJsonDataUrl(identity)
+    $: jsonDataUrl = createJsonDataUrl(identity)
 </script>
 
 <Box>

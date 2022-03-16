@@ -2,18 +2,18 @@ import type { ChannelData, CreateChannelResponse, RequestSubscriptionResponse, S
 import { AccessRights } from 'boxfish-studio--iota-is-sdk'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
-import { authenticationData, channelClient } from './base'
+import { authenticationData, channelClient, isAuthenticated } from './base'
+import { showNotification } from './notification'
+import { NotificationType } from './types/notification'
 import type { ExtendedChannelInfo } from './types/streams'
 import { SubscriptionState } from './types/streams'
-import { showNotification } from './notification';
-import { NotificationType } from './types/notification'
 
 export const selectedChannel: Writable<ExtendedChannelInfo> = writable(null)
 export const searchChannelsResults: Writable<ExtendedChannelInfo[]> = writable([])
 export const channelData: Writable<ChannelData[]> = writable([])
 export const channelBusy = writable(false)
-export const isLoadingChannels: Writable<boolean> = writable(false);
-
+// used for the async search that makes N background queries to get the full list of channels
+export const isAsyncLoadingChannels: Writable<boolean> = writable(false);
 
 let updateInterval
 const SEARCH_TIMEOUT = 200
@@ -39,7 +39,7 @@ export async function searchChannels(
         if (newResults?.length) {
             // Add isOwned and isSubscribed to the results
             newResults = newResults.map((channel) => {
-                return { ...channel, isOwned: channel.authorId === get(authenticationData).did, isSubscribed: isAChannelSubscribed(channel) }
+                return { ...channel, isOwned: channel.authorId === get(authenticationData).did, isSubscribed: isUserSubscribedToChannel(get(authenticationData)?.did, channel) }
             })
             searchChannelsResults.update((results) => [...results, ...newResults])
         }
@@ -56,28 +56,42 @@ export async function searchChannels(
         }
     }
     stopChannelsSearch()
-    isLoadingChannels.set(true)
+    isAsyncLoadingChannels.set(true)
     searchChannelsResults.set([]);
-    await _search(query, options)
-    isLoadingChannels.set(false)
-}
-
-export async function searchChannelsSingleRequest(query: string, options: { searchByAuthorId?: boolean, searchBySource?: boolean; limit: number, index?: number }): Promise<ExtendedUser[]> {
-    let partialResults = []
-    const { searchByAuthorId, searchBySource, limit, index } = options
-    try {
-        partialResults = await channelClient.search({
-            authorId: searchByAuthorId ? query : undefined,
-            topicSource: searchBySource ? query : undefined,
-            limit: limit,
-            index: index
-        })
-    } catch (e) {
+    if (get(isAuthenticated)) {
+        await _search(query, options)
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error searching for user',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.error(Error, e);
+    }
+    isAsyncLoadingChannels.set(false)
+}
+
+export async function searchChannelsSingleRequest(query: string, options: { searchByAuthorId?: boolean, searchBySource?: boolean; limit: number, index?: number }): Promise<ExtendedChannelInfo[]> {
+    let partialResults = []
+    if (get(isAuthenticated)) {
+        const { searchByAuthorId, searchBySource, limit, index } = options
+        try {
+            partialResults = await channelClient.search({
+                authorId: searchByAuthorId ? query : undefined,
+                topicSource: searchBySource ? query : undefined,
+                limit: limit,
+                index: index
+            })
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error searching for user',
+            })
+            console.error(Error, e);
+        }
+    } else {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'Cant perform action, user not authenticated',
+        })
     }
     return partialResults
 }
@@ -86,53 +100,61 @@ export function stopChannelsSearch(): void {
     if (updateInterval) {
         clearTimeout(updateInterval)
     }
+    isAsyncLoadingChannels.set(false)
 }
 
 let timeout = 2000
 let updateTimer
 
 export async function readChannel(channelAddress: string): Promise<void> {
-    try {
-        if (get(channelData)?.length) {
-            const lastMessage = get(channelData)?.[0]
-            const lastMessageDate = new Date(lastMessage.log.created)
+    if (get(isAuthenticated)) {
+        try {
+            if (get(channelData)?.length) {
+                const lastMessage = get(channelData)?.[0]
+                const lastMessageDate = new Date(lastMessage.log.created)
 
-            const startDate = new Date(lastMessageDate.setSeconds(lastMessageDate.getSeconds() + 1))
+                const startDate = new Date(lastMessageDate.setSeconds(lastMessageDate.getSeconds() + 1))
 
-            try {
-                channelBusy.set(true)
-                const newMessages = await channelClient.read(channelAddress, {
-                    startDate,
-                    endDate: new Date(),
-                })
-                channelBusy.set(false)
-                channelData.update((_chData) => [...newMessages, ..._chData])
-                if (newMessages?.length) {
-                    timeout = 1000
+                try {
+                    channelBusy.set(true)
+                    const newMessages = await channelClient.read(channelAddress, {
+                        startDate,
+                        endDate: new Date(),
+                    })
+                    channelBusy.set(false)
+                    channelData.update((_chData) => [...newMessages, ..._chData])
+                    if (newMessages?.length) {
+                        timeout = 1000
+                    }
+                } catch (e) {
+                    showNotification({
+                        type: NotificationType.Error,
+                        message: 'There was an error reading channel',
+                    })
+                    console.error(Error, e);
                 }
-            } catch (e) {
-                showNotification({
-                    type: NotificationType.Error,
-                    message: 'There was an error reading channel',
-                })
-                console.error(Error, e);
+            } else {
+                channelBusy.set(true)
+                const _channelData = await channelClient.read(channelAddress)
+                channelData.set(_channelData)
+                channelBusy.set(false)
+                if (timeout < 1000) {
+                    timeout += 500
+                }
             }
-        } else {
-            channelBusy.set(true)
-            const _channelData = await channelClient.read(channelAddress)
-            channelData.set(_channelData)
-            channelBusy.set(false)
-            if (timeout < 1000) {
-                timeout += 500
-            }
-        }
 
-    } catch (e) {
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error reading channel',
+            })
+            console.log(Error, e);
+        }
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error reading channel',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.log(Error, e);
     }
 
     if (updateTimer) {
@@ -142,37 +164,52 @@ export async function readChannel(channelAddress: string): Promise<void> {
     updateTimer = setTimeout(async () => readChannel(channelAddress), timeout)
 }
 
-export function stopData(): void {
+export function stopReadingChannel(): void {
     if (updateTimer) {
         clearTimeout(updateTimer)
         updateTimer = undefined
-        channelData.set([])
     }
+    channelData.set([])
 }
 
 export async function requestSubscription(channelAddress: string): Promise<RequestSubscriptionResponse> {
-    try {
-        const resp = await channelClient.requestSubscription(channelAddress, { accessRights: AccessRights.ReadAndWrite })
-        return resp
-    } catch (e) {
+    let response
+    if (get(isAuthenticated)) {
+        try {
+            response = await channelClient.requestSubscription(channelAddress, { accessRights: AccessRights.ReadAndWrite })
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error requesting subscription to channel',
+            })
+            console.error(Error, e);
+        }
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error requesting subscription to channel',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.error(Error, e);
     }
+    return response
 }
 
 export async function requestUnsubscription(channelAddress: string): Promise<void> {
-    try {
-        const subscription = await channelClient.findSubscription(channelAddress, get(authenticationData)?.did)
-        await channelClient.removeSubscription(channelAddress, subscription.id)
-    } catch (e) {
+    if (get(isAuthenticated)) {
+        try {
+            const subscription = await channelClient.findSubscription(channelAddress, get(authenticationData)?.did)
+            await channelClient.removeSubscription(channelAddress, subscription.id)
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error requesting unsubscription to channel',
+            })
+            console.error(Error, e);
+        }
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error requesting unsubscription to channel',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.error(Error, e);
     }
 }
 
@@ -191,24 +228,31 @@ export async function acceptSubscription(channelAddress: string, id: string): Pr
 }
 
 export async function rejectSubscription(channelAddress: string, id: string): Promise<void> {
-    try {
-        await channelClient.revokeSubscription(channelAddress, {
-            id,
-        })
-    } catch (e) {
+    if (get(isAuthenticated)) {
+        try {
+            await channelClient.revokeSubscription(channelAddress, {
+                id,
+            })
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error getting subscription state',
+            })
+            console.error(Error, e);
+        }
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error getting subscription state',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.error(Error, e);
     }
 }
 
 export async function getPendingSubscriptions(channelAddress: string): Promise<Subscription[]> {
+    let pendingSubscriptions = []
     try {
         const allSubscriptions = await channelClient.findAllSubscriptions(channelAddress)
-        const pendingSubscriptions = allSubscriptions.filter((s) => !s.isAuthorized)
-        return pendingSubscriptions
+        pendingSubscriptions = allSubscriptions?.filter((s) => !s.isAuthorized) ?? []
     } catch (e) {
         showNotification({
             type: NotificationType.Error,
@@ -216,27 +260,33 @@ export async function getPendingSubscriptions(channelAddress: string): Promise<S
         })
         console.error(Error, e);
     }
-
+    return pendingSubscriptions
 }
 
 export async function getSubscriptionStatus(channelAddress: string): Promise<SubscriptionState> {
-    try {
-        const allSubscriptions = await channelClient.findAllSubscriptions(channelAddress)
-        const subscription = allSubscriptions.find((sub) => sub.id === get(authenticationData)?.did)
-        if (subscription) {
-            const isAuthorized = subscription.isAuthorized
-            return isAuthorized ? SubscriptionState.Subscribed : SubscriptionState.Pending
-        } else {
-            return SubscriptionState.Unsubscribed
+    if (get(isAuthenticated)) {
+        try {
+            const allSubscriptions = await channelClient.findAllSubscriptions(channelAddress)
+            const subscription = allSubscriptions.find((sub) => sub.id === get(authenticationData)?.did)
+            if (subscription) {
+                const isAuthorized = subscription.isAuthorized
+                return isAuthorized ? SubscriptionState.Subscribed : SubscriptionState.Pending
+            } else {
+                return SubscriptionState.Unsubscribed
+            }
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error getting subscription state',
+            })
+            console.error(Error, e);
         }
-    } catch (e) {
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error getting subscription state',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.error(Error, e);
     }
-
 }
 
 export async function writeMessage(
@@ -246,60 +296,77 @@ export async function writeMessage(
     metadata?: string,
     type?: string
 ): Promise<void> {
-    try {
-        await channelClient.write(address, {
-            payload,
-            publicPayload,
-            metadata,
-            type,
-        })
-    } catch (e) {
+    if (get(isAuthenticated)) {
+        try {
+            await channelClient.write(address, {
+                payload,
+                publicPayload,
+                metadata,
+                type,
+            })
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error writing message in channel',
+            })
+            console.error(Error, e);
+        }
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error writing message in channel',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.error(Error, e);
     }
-
 }
 
 export async function createChannel(topics: { type: string; source: string }[]): Promise<CreateChannelResponse> {
     let channel: CreateChannelResponse
-
-    try {
-        channel = await channelClient.create({
-            topics,
-        })
-    } catch (e) {
+    if (get(isAuthenticated)) {
+        try {
+            channel = await channelClient.create({
+                topics,
+            })
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error creating the channel',
+            })
+            console.error(Error, e);
+        }
+    } else {
         showNotification({
             type: NotificationType.Error,
-            message: 'There was an error creating the channel',
+            message: 'Cant perform action, user not authenticated',
         })
-        console.error(Error, e);
     }
     return channel
 }
 
 export async function addChannelToSearchResults(channelAddress: string): Promise<void> {
-    let channel: ExtendedChannelInfo = await channelClient.info(channelAddress)
+    if (get(isAuthenticated)) {
+        let channel: ExtendedChannelInfo = await channelClient.info(channelAddress)
 
-    if (channel) {
-        const authorId = channel.authorId
-        const userDid = get(authenticationData)?.did
+        if (channel) {
+            const authorId = channel.authorId
+            const userDid = get(authenticationData)?.did
 
-        channel = {
-            ...channel,
-            isOwned: authorId === userDid,
-            isSubscribed: isAChannelSubscribed(channel),
+            channel = {
+                ...channel,
+                isOwned: authorId === userDid,
+                isSubscribed: isUserSubscribedToChannel(get(authenticationData)?.did, channel),
+            }
+            searchChannelsResults?.update((_searchChannelsResults) => {
+                return [..._searchChannelsResults, channel]
+            })
         }
-        searchChannelsResults?.update((_searchChannelsResults) => {
-            return [..._searchChannelsResults, channel]
+    } else {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'Cant perform action, user not authenticated',
         })
     }
 }
 
-export function isAChannelSubscribed(channel: ExtendedChannelInfo): boolean {
-    const userDid = get(authenticationData)?.did
-    return channel.subscriberIds?.includes(userDid) && channel.authorId !== userDid;
+export function isUserSubscribedToChannel(userDID: string, channel: ExtendedChannelInfo): boolean {
+    return channel.subscriberIds?.includes(userDID) && channel.authorId !== userDID;
 }
-

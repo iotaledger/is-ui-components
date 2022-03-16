@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { Icon, Box } from '$lib/components'
     import { logout } from '$lib/app/identity'
+    import { Box, Icon } from '$lib/components'
     import { Button } from 'sveltestrap'
 
-    export let switchToLogin: () => void = () => {}
+    export let switchToLogin = (..._: any[]): void => {}
 
-    const handleLogout = async () => {
+    async function handleLogout(): Promise<void> {
         logout()
         switchToLogin()
     }

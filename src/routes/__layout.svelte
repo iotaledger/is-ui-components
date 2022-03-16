@@ -1,17 +1,17 @@
 <script context="module" lang="ts">
     export const SITE_PAGES = [
-        { title: 'Register and Login', url: '/login-register' },
         { title: 'Identity Manager', url: '/identity-manager' },
         { title: 'Streams Manager', url: '/streams-manager' },
         { title: 'Verify Credential', url: '/verify-credential' },
+        { title: 'Demos', url: '/demos' },
     ]
 </script>
 
 <script lang="ts">
-    import 'bootstrap/dist/css/bootstrap.min.css'
-    import { Icon } from '$lib/components'
-    import { Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'sveltestrap'
+    import { Icon, NotificationManager } from '$lib/components'
     import '$lib/scss/index.scss'
+    import 'bootstrap/dist/css/bootstrap.min.css'
+    import { Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'sveltestrap'
 
     let isOpen = false
 
@@ -45,6 +45,8 @@
 <main>
     <slot />
 </main>
+
+<NotificationManager />
 
 <style lang="scss">
     :global(.navbar) {

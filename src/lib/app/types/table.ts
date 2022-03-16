@@ -1,7 +1,6 @@
 import type { BoxColor } from "$lib/app/constants/colors";
 import type { Color } from "sveltestrap/src/shared";
 
-// TODO: Add missing pill|badge compatibility
 export interface TableData {
     headings: string[];
     rows: {
@@ -18,3 +17,8 @@ export interface TableData {
     }[]
 }
 
+export interface TableConfiguration {
+    isPaginated?: boolean;
+    siblingsCount?: number;
+    pageSize?: number;
+}

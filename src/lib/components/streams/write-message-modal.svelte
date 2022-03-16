@@ -1,13 +1,13 @@
 <script lang="ts">
+    import { channelBusy, writeMessage } from '$lib/app/streams'
     import { onDestroy } from 'svelte'
     import { Button, Label, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
     import Input from 'sveltestrap/src/Input.svelte'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
-    import { channelBusy, writeMessage } from '$lib/app/streams'
 
     export let isOpen: boolean = false
-    export let onModalClose: () => void = () => {}
+    export let onModalClose = (..._: any[]): void => {}
     export let address: string
 
     const MAX_LENGTH_TEXTAREA = 100
@@ -17,15 +17,21 @@
     let publicPayload = ''
     let metadata = ''
     let type = ''
-    let loading = false
+    let loading: boolean = false
     let timeout: NodeJS.Timeout
     let unsubscribe
-    let formValidated = false
-    let formContainer
+    let formValidated: boolean = false
+    let formContainer: HTMLFormElement
 
     $: formContainer, manageFormSubscription()
 
-    function manageFormSubscription() {
+    onDestroy(() => {
+        if (timeout) {
+            clearTimeout(timeout)
+        }
+    })
+
+    function manageFormSubscription(): void {
         if (formContainer) {
             unsubscribe = formContainer.addEventListener(
                 'submit',
@@ -44,13 +50,14 @@
             if (unsubscribe) unsubscribe()
         }
     }
-    function sanitizeFields() {
+    function sanitizeFields(): void {
         payload = payload === '' ? undefined : payload
         publicPayload = publicPayload === '' ? undefined : publicPayload
         metadata = metadata === '' ? undefined : metadata
         type = type === '' ? undefined : type
     }
-    async function handleWriteMessage() {
+
+    async function handleWriteMessage(): Promise<void> {
         loading = true
 
         // ---- Avoid locked channel error when sending messages ----
@@ -69,12 +76,6 @@
         formValidated = false
     }
 
-    onDestroy(() => {
-        if (timeout) {
-            clearTimeout(timeout)
-        }
-    })
-
     function resetMessage(): void {
         payload = ''
         publicPayload = ''
@@ -82,7 +83,7 @@
         type = ''
     }
 
-    function onClose() {
+    function onClose(): void {
         resetMessage()
         formValidated = false
         onModalClose()

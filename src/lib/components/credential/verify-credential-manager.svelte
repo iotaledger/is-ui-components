@@ -1,12 +1,14 @@
 <script lang="ts">
+    import { BoxColor } from '$lib/app/constants/colors'
+    import { CREDENTIAL_ICON } from '$lib/app/constants/identity'
+    import { verifyVC } from '$lib/app/identity'
+    import { Box, Icon, JSONViewer } from '$lib/components'
     import type { VerifiableCredentialInternal } from 'boxfish-studio--iota-is-sdk'
     import Dropzone from 'svelte-file-dropzone'
-    import { Badge, Spinner, Accordion, AccordionItem } from 'sveltestrap'
+    import { Accordion, AccordionItem, Badge, Spinner } from 'sveltestrap'
     import type { Color } from 'sveltestrap/src/shared'
-    import { Box, Icon, JSONViewer } from '$lib/components'
-    import { verifyVC } from '$lib/app/identity'
-    import { CREDENTIAL_ICON } from '$lib/app/constants/identity'
-    import { BoxColor } from '$lib/app/constants/colors'
+
+    export let maxFiles: number = 10
 
     let errorMessage: string
     let loading: boolean = false
@@ -18,7 +20,6 @@
         validFile?: boolean
     }[] = []
 
-    const MAX_FILES = 10
     const MESSAGES = {
         verified: {
             color: 'success' as Color,
@@ -34,7 +35,7 @@
         },
     }
 
-    function readFileAsText(file) {
+    function readFileAsText(file: Blob): Promise<string | ArrayBuffer> {
         return new Promise(function (resolve, reject) {
             let fr = new FileReader()
 
@@ -50,20 +51,20 @@
         })
     }
 
-    const handleFilesSelect = (e) => {
+    function handleFilesSelect(event: CustomEvent): void {
         errorMessage = null
         files = []
         loading = true
 
-        let uploadesFiles = e.detail.acceptedFiles
+        let uploadesFiles = event.detail.acceptedFiles
 
         // Abort if there were no files selected
         if (!uploadesFiles.length) return
 
-        if (uploadesFiles.length > MAX_FILES) {
+        if (uploadesFiles.length > maxFiles) {
             loading = false
             files = []
-            errorMessage = `You can only upload a maximum of ${MAX_FILES} files`
+            errorMessage = `You can only upload a maximum of ${maxFiles} files`
         } else {
             let readers = []
 

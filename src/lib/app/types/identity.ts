@@ -1,4 +1,4 @@
-import type { User, UserType } from 'boxfish-studio--iota-is-sdk'
+import type { CredentialTypes, User, UserType, VerifiableCredentialInternal } from 'boxfish-studio--iota-is-sdk';
 
 export enum FieldType {
     String = 'string',
@@ -7,6 +7,7 @@ export enum FieldType {
     StringArray = 'stringArray',
     Email = 'email',
     Date = 'date',
+    Number = 'number',
 }
 
 export enum ProductEnum {
@@ -68,7 +69,13 @@ export enum DeviceControlledProperty {
     'windSpeed' = 'windSpeed',
 }
 
-export type RegistrationUser = {
+export interface ExtendedUser extends User {
+    type?: UserType | string
+    numberOfCredentials?: number
+    vc?: VerifiableCredentialInternal[]
+}
+
+export type IdentityTemplate = {
     type: UserType
     fields: {
         id: string
@@ -79,7 +86,16 @@ export type RegistrationUser = {
     }[]
 }
 
-export interface ExtendedUser extends User {
-    type?: UserType | string
-    numberOfCredentials?: number
+export type VerifiableCredentialTemplate = {
+    id: string;
+    name: string;
+    fields: {
+        id: string
+        name: string
+        required?: boolean
+        type: FieldType
+        options?: Array<string>
+    }[];
+    credentialType: CredentialTypes;
+    userType: UserType;
 }

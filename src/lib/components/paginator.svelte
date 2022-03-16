@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Icon } from '../components'
+    import { Icon } from '$lib/components'
 
     export let currentPage: number = 0
     export let pageSize: number = 10

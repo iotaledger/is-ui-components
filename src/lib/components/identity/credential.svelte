@@ -1,21 +1,23 @@
 <script lang="ts">
+    import { CREDENTIAL_ICON } from '$lib/app/constants/identity'
+    import { createJsonDataUrl } from '$lib/app/utils'
+    import { Icon, JSONViewer } from '$lib/components'
     import type { VerifiableCredentialBody } from 'boxfish-studio--iota-is-sdk'
     import { Accordion, AccordionItem, Button, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
-    import { Icon, JSONViewer } from '$lib/components'
-    import { CREDENTIAL_ICON } from '$lib/app/constants/identity'
-    import { createJsonDataUrl } from '$lib/app/utils'
 
     export let vc: VerifiableCredentialBody
-    export let revoking: boolean
-    export let onRevoke: (vc: VerifiableCredentialBody) => void
+    export let revoking: boolean = false
+    export let onRevoke = (..._: any[]): void => {}
 
-    let { id, issuer, issuanceDate, credentialSubject } = vc
-    let type = vc.type?.[1]
     let isOpen = false
 
-    const onModalClose = () => (isOpen = !isOpen)
+    $: type = vc?.type?.[1]
+
+    function onModalClose(): void {
+        isOpen = !isOpen
+    }
 </script>
 
 <Accordion>
@@ -33,16 +35,16 @@
             <div class="d-flex justify-content-between flex-column-reverse flex-lg-row">
                 <div>
                     <div class="label">
-                        Credential ID
-                        <div class="text-break text-secondary">{id}</div>
+                        Holder ID
+                        <div class="text-break text-secondary">{vc?.id}</div>
                     </div>
                     <div class="label mt-4">
                         Issuer
-                        <div class="text-break text-secondary">{issuer}</div>
+                        <div class="text-break text-secondary">{vc?.id}</div>
                     </div>
                     <div class="label mt-4">
                         Issuance date
-                        <div class="text-secondary">{issuanceDate}</div>
+                        <div class="text-secondary">{vc?.issuanceDate}</div>
                     </div>
                 </div>
                 <div class="d-flex flex-lg-column mb-3 mb-lg-0 justify-content-end justify-content-lg-start">
@@ -50,7 +52,7 @@
                         <a
                             class="btn btn-sm btn-outline-info text-decoration-none d-flex justify-content-center align-items-center me-2 me-lg-0"
                             href={createJsonDataUrl(vc)}
-                            download={`verifiable-credential-${id}.json`}
+                            download={`verifiable-credential-${vc?.id}.json`}
                         >
                             <Icon type="download" size={16} />
                             <span class="ms-2">Download</span>
@@ -74,8 +76,8 @@
                                     <div class="p-3 d-flex flex-column">
                                         <ModalHeader toggle={onModalClose}>Are you sure?</ModalHeader>
                                         <ModalBody>
-                                            <div class="break-all">
-                                                Credential with ID <span class="fw-light">{id}</span> is going to be revoked.
+                                            <div class="text-break">
+                                                Credential with ID <span class="fw-light">{vc?.id}</span> is going to be revoked.
                                             </div>
                                         </ModalBody>
                                         <ModalFooter>
@@ -103,7 +105,7 @@
             <div>
                 <div class="label mt-4">JSON content</div>
                 <div class="mt-1 p-4 bg-light rounded">
-                    <JSONViewer json={JSON.stringify(credentialSubject, null, '\t')} />
+                    <JSONViewer json={JSON.stringify(vc?.credentialSubject, null, '\t')} />
                 </div>
             </div>
         </div>
@@ -117,13 +119,5 @@
     .label {
         font-weight: 500;
         font-size: 12px;
-    }
-    .actions div {
-        font-weight: 600;
-        font-size: 14px;
-    }
-
-    .break-all {
-        word-break: break-all;
     }
 </style>

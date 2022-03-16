@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { Toast } from '$lib/components'
     import { notifications } from '$lib/app/notification'
+    import { Toast } from '$lib/components'
     import { fade } from 'svelte/transition'
 </script>
 
