@@ -132,7 +132,7 @@
                     <Label class="d-flex justify-content-between align-items-center">
                         Topic
                         {#if topics.length > 1}
-                            <button class="border-0 bg-transparent p-0" on:click={() => handleRemoveTopic(i)}>
+                            <button type="button" class="border-0 bg-transparent p-0" on:click={() => handleRemoveTopic(i)}>
                                 <Icon type="trash" boxColor={BoxColor.Transparent} boxed size={18} />
                             </button>
                         {/if}
@@ -169,7 +169,7 @@
                 </div>
             {/each}
             <div class="w-100 d-flex align-items-center justify-content-end">
-                <Button size="sm" color="light" on:click={handleAddTopic} class="d-flex align-items-center">
+                <Button type="button" size="sm" color="light" on:click={handleAddTopic} class="d-flex align-items-center">
                     <Icon type="plus" size={16} />
                     <span class="ms-1">Add new topic</span>
                 </Button>
