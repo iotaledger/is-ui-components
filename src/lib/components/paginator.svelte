@@ -81,7 +81,7 @@
         lastPage = paginationRange[paginationRange.length - 1] as number
     }
 
-    $: totalCount, updateRange()
+    $: totalCount, currentPage, updateRange()
 </script>
 
 <ul
