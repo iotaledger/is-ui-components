@@ -1,14 +1,15 @@
 <script lang="ts">
-    import { channelBusy, writeMessage } from '$lib/app/streams'
+    import { selectedChannelBusy, writeMessage } from '$lib/app/streams'
     import { onDestroy } from 'svelte'
     import { Button, Label, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
     import Input from 'sveltestrap/src/Input.svelte'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
 
+    export let address: string
     export let isOpen: boolean = false
     export let onModalClose = (..._: any[]): void => {}
-    export let address: string
+    export let onSuccess = (..._: any[]): void => {}
 
     const MAX_LENGTH_TEXTAREA = 100
     const MIN_LENGTH_TEXTAREA = 3
@@ -61,19 +62,21 @@
         loading = true
 
         // ---- Avoid locked channel error when sending messages ----
-        while ($channelBusy) {
+        while ($selectedChannelBusy) {
             timeout = setTimeout(handleWriteMessage, 100)
             return
         }
         // ----------------------------------------------------------
 
         sanitizeFields()
-        await writeMessage(address, payload, publicPayload, metadata, type)
-
+        const message = await writeMessage(address, payload, publicPayload, metadata, type)
+        if (message) {
+            onSuccess()
+            resetMessage()
+            onModalClose()
+            formValidated = false
+        }
         loading = false
-        onModalClose()
-        resetMessage()
-        formValidated = false
     }
 
     function resetMessage(): void {

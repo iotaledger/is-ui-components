@@ -1,11 +1,6 @@
 <script lang="ts">
-    import {
-        DEFAULT_IDENTITIES_TEMPLATES,
-        DEFAULT_TABLE_CONFIGURATION,
-        DEFAULT_VCS_TEMPLATES,
-        USER_ICONS,
-        WELCOME_IDENTITIES_NUMBER,
-    } from '$lib/app/constants/identity'
+    import { DEFAULT_TABLE_CONFIGURATION, WELCOME_LIST_RESULTS_NUMBER } from '$lib/app/constants/base'
+    import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import {
         addIdentityToSearchResults,
         getVerifiableCredentials,
@@ -20,14 +15,14 @@
     import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
     import type { ActionButton } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
-    import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, IdentityList } from '$lib/components'
+    import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, ListManager } from '$lib/components'
     import type { IdentityJson } from 'boxfish-studio--iota-is-sdk'
     import { onDestroy, onMount } from 'svelte'
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
     export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
     export let showSearch: boolean = true
-    export let identyListButtons: ActionButton[] = [
+    export let listViewButtons: ActionButton[] = [
         {
             label: 'Create an identity',
             onClick: openCreateIdentityModal,
@@ -36,7 +31,7 @@
         },
     ]
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
-    export let identyDetailButtons: ActionButton[] = [
+    export let detailViewButtons: ActionButton[] = [
         {
             label: 'Add credential',
             onClick: openCreateCredentialModal,
@@ -54,8 +49,8 @@
     let loading: boolean = false
     let query: string = ''
     let message: string
-    let isCreateIdentityOpen = false
-    let isCreateCredentialOpen = false
+    let isCreateIdentityModalOpen = false
+    let isCreateCredentialModalOpen = false
 
     $: $selectedIdentity, updateState()
     $: state, loadVCsOnSelectedIdentity()
@@ -78,7 +73,7 @@
     } as TableData
 
     onMount(async () => {
-        searchAllIdentities('', { limit: WELCOME_IDENTITIES_NUMBER })
+        searchAllIdentities('', { limit: WELCOME_LIST_RESULTS_NUMBER })
     })
 
     onDestroy(() => {
@@ -141,32 +136,34 @@
     }
 
     function openCreateIdentityModal(): void {
-        isCreateIdentityOpen = true
+        isCreateIdentityModalOpen = true
     }
 
     function closeCreateIdentityModal(): void {
-        isCreateIdentityOpen = false
+        isCreateIdentityModalOpen = false
     }
 
     function openCreateCredentialModal(): void {
-        isCreateCredentialOpen = true
+        isCreateCredentialModalOpen = true
     }
 
     function closeCreateCredentialModal(): void {
-        isCreateCredentialOpen = false
+        isCreateCredentialModalOpen = false
     }
 </script>
 
 <Box>
     {#if state === State.ListIdentities}
-        <IdentityList
+        <ListManager
             {showSearch}
             {onSearch}
             {tableData}
             {message}
             {tableConfiguration}
+            title="Identities"
+            searchPlaceholder="Search identities"
             loading={loading || $isAsyncLoadingIdentities}
-            actionButtons={identyListButtons}
+            actionButtons={listViewButtons}
             bind:searchQuery={query}
         />
     {:else if state === State.IdentityDetail}
@@ -178,23 +175,23 @@
         </div>
         <IdentityDetails
             {loading}
-            actionButtons={identyDetailButtons}
+            actionButtons={detailViewButtons}
             onRevokeSuccess={updateIdentityInSearchResults}
             identity={$selectedIdentity}
         />
     {/if}
-    <CreateIdentityModal
-        isOpen={isCreateIdentityOpen}
-        onModalClose={closeCreateIdentityModal}
-        onSuccess={onCreateIdentitySuccess}
-        {identitiesTemplate}
-    />
-    <!-- TODO: add possility to not pass targetDid here -->
-    <CreateCredentialModal
-        isOpen={isCreateCredentialOpen}
-        onModalClose={closeCreateCredentialModal}
-        targetDid={$selectedIdentity?.id}
-        onSuccess={onCreateCredentialSuccess}
-        {credentialsTemplate}
-    />
 </Box>
+<CreateIdentityModal
+    isOpen={isCreateIdentityModalOpen}
+    onModalClose={closeCreateIdentityModal}
+    onSuccess={onCreateIdentitySuccess}
+    {identitiesTemplate}
+/>
+<!-- TODO: add possility to not pass targetDid here -->
+<CreateCredentialModal
+    isOpen={isCreateCredentialModalOpen}
+    onModalClose={closeCreateCredentialModal}
+    targetDid={$selectedIdentity?.id}
+    onSuccess={onCreateCredentialSuccess}
+    {credentialsTemplate}
+/>

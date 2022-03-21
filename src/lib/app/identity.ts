@@ -3,7 +3,7 @@ import { UserType } from 'boxfish-studio--iota-is-sdk';
 import type { Writable } from 'svelte/store';
 import { get, writable } from 'svelte/store';
 import { authenticationData, channelClient, identityClient, isAuthenticated } from './base';
-import { DEFAULT_IDENTITY_REQUEST_LIMIT } from './constants/identity';
+import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base';
 import { showNotification } from './notification';
 import type { ExtendedUser } from './types/identity';
 import { NotificationType } from './types/notification';
@@ -83,18 +83,17 @@ export async function searchAllIdentities(query: string, options?: { limit?: num
                 {
                     searchByType: _isType(query),
                     searchByUsername: !_isType(query),
-                    limit: options?.limit ?? DEFAULT_IDENTITY_REQUEST_LIMIT,
+                    limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
                     index,
                 }
             );
             // filter out old requests
-            // used to keep track of the last
             if (_searchAllHash === searchAllHash) {
                 if (newResults?.length) {
                     searchIdentitiesResults.update((results) => [...results, ...newResults])
                 }
                 // if the search is not finished, start a new search
-                if (!haltSearchAll && ((options?.limit && (get(searchIdentitiesResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_IDENTITY_REQUEST_LIMIT)))) {
+                if (!haltSearchAll && ((options?.limit && (get(searchIdentitiesResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_SDK_CLIENT_REQUEST_LIMIT)))) {
                     index++
                     await _search(_searchAllHash, query)
                 }
@@ -105,12 +104,10 @@ export async function searchAllIdentities(query: string, options?: { limit?: num
         }
     }
     stopIdentitiesSearch();
-    // used to keep track of the last
     searchAllHash = `${query}-${Math.floor(Math.random() * query.length)}`
     haltSearchAll = false
     isAsyncLoadingIdentities.set(true)
     searchIdentitiesResults.set([])
-    // used to keep track of the last
     await _search(searchAllHash, query, options)
 }
 

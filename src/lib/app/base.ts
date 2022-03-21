@@ -17,6 +17,8 @@ export const authenticationData = persistent<{ jwt: string; did: string }>(
 	null
 );
 
+export const authenticatedUserDID = derived(authenticationData, $authData => $authData?.did);
+
 export const isAuthenticated = derived(
 	authenticationData,
 	($authenticationData) => !!$authenticationData?.jwt

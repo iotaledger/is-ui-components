@@ -1,8 +1,10 @@
-import type { ChannelData, CreateChannelResponse, RequestSubscriptionResponse, Subscription } from 'boxfish-studio--iota-is-sdk'
-import { AccessRights } from 'boxfish-studio--iota-is-sdk'
+import type { AuthorizeSubscriptionResponse, ChannelData, CreateChannelResponse, RequestSubscriptionResponse, Subscription } from 'boxfish-studio--iota-is-sdk'
+import { AccessRights, ChannelInfo } from 'boxfish-studio--iota-is-sdk'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient, isAuthenticated } from './base'
+import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
+import { FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
 import type { ExtendedChannelInfo } from './types/streams'
@@ -10,63 +12,59 @@ import { SubscriptionState } from './types/streams'
 
 export const selectedChannel: Writable<ExtendedChannelInfo> = writable(null)
 export const searchChannelsResults: Writable<ExtendedChannelInfo[]> = writable([])
-export const channelData: Writable<ChannelData[]> = writable([])
-export const channelBusy = writable(false)
+export const selectedChannelData: Writable<ChannelData[]> = writable([])
+export const selectedChannelBusy = writable(false)
+export const selectedChannelSubscriptions: Writable<Subscription[]> = writable(null);
 // used for the async search that makes N background queries to get the full list of channels
 export const isAsyncLoadingChannels: Writable<boolean> = writable(false);
 
-let updateInterval
-const SEARCH_TIMEOUT = 200
-const DEFAULT_LIMIT = 500
-let index = 0
+let haltSearchAll = false;
+// used to keep track of the last search query
+let searchAllHash: string;
 
+let channelFeedInterval
+
+// Note: this is an async function that returns nothing, but fills the searchChannelsResults store.
+// This is because the searchAllChannels function is called in the background, and the results are 
+// stored in the searchChannelsResults store.
 // TODO: Improve search algorithm, now it is searching only by author id or topic type
-export async function searchChannels(
+let index = 0
+export async function searchAllChannels(
     query: string, options?: { limit?: number }
 ): Promise<void> {
-    const _search = async (query: string, options?: { limit?: number }): Promise<void> => {
+    const _search = async (_searchAllHash: string, query: string, options?: { limit?: number }): Promise<void> => {
         const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:');
-        const _isSource = !_isAuthorId(query);
-        let newResults: ExtendedChannelInfo[] = await searchChannelsSingleRequest(
+        const newResults: ExtendedChannelInfo[] = await searchChannelsSingleRequest(
             query,
             {
                 searchByAuthorId: _isAuthorId(query),
-                searchBySource: _isSource,
-                limit: options?.limit ?? DEFAULT_LIMIT,
+                searchBySource: !_isAuthorId(query),
+                limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
                 index,
             }
         );
-        if (newResults?.length) {
-            // Add isOwned and isSubscribed to the results
-            newResults = newResults.map((channel) => {
-                return { ...channel, isOwned: channel.authorId === get(authenticationData).did, isSubscribed: isUserSubscribedToChannel(get(authenticationData)?.did, channel) }
-            })
-            searchChannelsResults.update((results) => [...results, ...newResults])
-        }
-        // if the search is not finished, start a new search
-        if ((options?.limit && (get(searchChannelsResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_LIMIT))) {
-            updateInterval = setTimeout(async () => {
+        // filter out old requests
+        if (_searchAllHash === searchAllHash) {
+            if (newResults?.length) {
+                searchChannelsResults.update((results) => [...results, ...newResults])
+            }
+            // if the search is not finished, start a new search
+            if (!haltSearchAll && ((options?.limit && (get(searchChannelsResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_SDK_CLIENT_REQUEST_LIMIT)))) {
                 index++
-                _search(query)
-            }, SEARCH_TIMEOUT)
-        }
-        else {
-            index = 0
-            stopChannelsSearch()
+                await _search(_searchAllHash, query)
+            }
+            else {
+                stopChannelsSearch()
+            }
         }
     }
     stopChannelsSearch()
+    // used to keep track of the last
+    searchAllHash = `${query}-${Math.floor(Math.random() * query.length)}`
+    haltSearchAll = false
     isAsyncLoadingChannels.set(true)
     searchChannelsResults.set([]);
-    if (get(isAuthenticated)) {
-        await _search(query, options)
-    } else {
-        showNotification({
-            type: NotificationType.Error,
-            message: 'Cant perform action, user not authenticated',
-        })
-    }
-    isAsyncLoadingChannels.set(false)
+    await _search(searchAllHash, query, options)
 }
 
 export async function searchChannelsSingleRequest(query: string, options: { searchByAuthorId?: boolean, searchBySource?: boolean; limit: number, index?: number }): Promise<ExtendedChannelInfo[]> {
@@ -97,58 +95,32 @@ export async function searchChannelsSingleRequest(query: string, options: { sear
 }
 
 export function stopChannelsSearch(): void {
-    if (updateInterval) {
-        clearTimeout(updateInterval)
-    }
+    index = 0
+    haltSearchAll = true
     isAsyncLoadingChannels.set(false)
 }
 
-let timeout = 2000
-let updateTimer
-
-export async function readChannel(channelAddress: string): Promise<void> {
+export async function readChannelMessages(channelAddress: string): Promise<void> {
     if (get(isAuthenticated)) {
         try {
-            if (get(channelData)?.length) {
-                const lastMessage = get(channelData)?.[0]
-                const lastMessageDate = new Date(lastMessage.log.created)
+            const lastMessage = get(selectedChannelData)?.[0] ?? null
+            const lastMessageDate = lastMessage ? new Date(lastMessage.log.created) : null
+            const startDate = lastMessageDate ? new Date(lastMessageDate.setSeconds(lastMessageDate.getSeconds() + 1)) : null
 
-                const startDate = new Date(lastMessageDate.setSeconds(lastMessageDate.getSeconds() + 1))
-
-                try {
-                    channelBusy.set(true)
-                    const newMessages = await channelClient.read(channelAddress, {
-                        startDate,
-                        endDate: new Date(),
-                    })
-                    channelBusy.set(false)
-                    channelData.update((_chData) => [...newMessages, ..._chData])
-                    if (newMessages?.length) {
-                        timeout = 1000
-                    }
-                } catch (e) {
-                    showNotification({
-                        type: NotificationType.Error,
-                        message: 'There was an error reading channel',
-                    })
-                    console.error(Error, e);
-                }
-            } else {
-                channelBusy.set(true)
-                const _channelData = await channelClient.read(channelAddress)
-                channelData.set(_channelData)
-                channelBusy.set(false)
-                if (timeout < 1000) {
-                    timeout += 500
-                }
-            }
-
-        } catch (e) {
+            selectedChannelBusy.set(true)
+            const newMessages = await channelClient.read(channelAddress, {
+                startDate,
+                endDate: get(selectedChannelData)?.length ? new Date() : null,
+            })
+            selectedChannelBusy.set(false)
+            selectedChannelData.update((_chData) => [...newMessages, ..._chData])
+        }
+        catch (e) {
             showNotification({
                 type: NotificationType.Error,
                 message: 'There was an error reading channel',
             })
-            console.log(Error, e);
+            console.error(Error, e);
         }
     } else {
         showNotification({
@@ -156,27 +128,29 @@ export async function readChannel(channelAddress: string): Promise<void> {
             message: 'Cant perform action, user not authenticated',
         })
     }
+}
 
-    if (updateTimer) {
-        clearTimeout(updateTimer)
+export async function startReadingChannel(channelAddress: string): Promise<void> {
+    stopReadingChannel()
+    if (!get(selectedChannelBusy)) {
+        readChannelMessages(channelAddress)
     }
-
-    updateTimer = setTimeout(async () => readChannel(channelAddress), timeout)
+    channelFeedInterval = setInterval(async () => {
+        readChannelMessages(channelAddress)
+    }, FEED_INTERVAL_MS)
 }
 
 export function stopReadingChannel(): void {
-    if (updateTimer) {
-        clearTimeout(updateTimer)
-        updateTimer = undefined
-    }
-    channelData.set([])
+    clearInterval(channelFeedInterval)
+    channelFeedInterval = null
+    selectedChannelData.set([])
 }
 
 export async function requestSubscription(channelAddress: string): Promise<RequestSubscriptionResponse> {
-    let response
     if (get(isAuthenticated)) {
         try {
-            response = await channelClient.requestSubscription(channelAddress, { accessRights: AccessRights.ReadAndWrite })
+            const response: RequestSubscriptionResponse = await channelClient.requestSubscription(channelAddress, { accessRights: AccessRights.ReadAndWrite })
+            return response
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -190,14 +164,14 @@ export async function requestSubscription(channelAddress: string): Promise<Reque
             message: 'Cant perform action, user not authenticated',
         })
     }
-    return response
 }
 
-export async function requestUnsubscription(channelAddress: string): Promise<void> {
+export async function requestUnsubscription(channelAddress: string): Promise<boolean> {
     if (get(isAuthenticated)) {
         try {
             const subscription = await channelClient.findSubscription(channelAddress, get(authenticationData)?.did)
             await channelClient.removeSubscription(channelAddress, subscription.id)
+            return true
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -213,11 +187,12 @@ export async function requestUnsubscription(channelAddress: string): Promise<voi
     }
 }
 
-export async function acceptSubscription(channelAddress: string, id: string): Promise<void> {
+export async function acceptSubscription(channelAddress: string, id: string): Promise<AuthorizeSubscriptionResponse> {
     try {
-        await channelClient.authorizeSubscription(channelAddress, {
+        const response: AuthorizeSubscriptionResponse = await channelClient.authorizeSubscription(channelAddress, {
             id,
         })
+        return response
     } catch (e) {
         showNotification({
             type: NotificationType.Error,
@@ -227,12 +202,13 @@ export async function acceptSubscription(channelAddress: string, id: string): Pr
     }
 }
 
-export async function rejectSubscription(channelAddress: string, id: string): Promise<void> {
+export async function rejectSubscription(channelAddress: string, id: string): Promise<boolean> {
     if (get(isAuthenticated)) {
         try {
             await channelClient.revokeSubscription(channelAddress, {
                 id,
             })
+            return true
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -248,11 +224,10 @@ export async function rejectSubscription(channelAddress: string, id: string): Pr
     }
 }
 
-export async function getPendingSubscriptions(channelAddress: string): Promise<Subscription[]> {
-    let pendingSubscriptions = []
+export async function getSubscriptions(channelAddress: string): Promise<Subscription[]> {
+    let subscriptions: Subscription[] = []
     try {
-        const allSubscriptions = await channelClient.findAllSubscriptions(channelAddress)
-        pendingSubscriptions = allSubscriptions?.filter((s) => !s.isAuthorized) ?? []
+        subscriptions = await channelClient.findAllSubscriptions(channelAddress)
     } catch (e) {
         showNotification({
             type: NotificationType.Error,
@@ -260,20 +235,17 @@ export async function getPendingSubscriptions(channelAddress: string): Promise<S
         })
         console.error(Error, e);
     }
-    return pendingSubscriptions
+    return subscriptions
 }
 
 export async function getSubscriptionStatus(channelAddress: string): Promise<SubscriptionState> {
     if (get(isAuthenticated)) {
         try {
             const allSubscriptions = await channelClient.findAllSubscriptions(channelAddress)
-            const subscription = allSubscriptions.find((sub) => sub.id === get(authenticationData)?.did)
-            if (subscription) {
-                const isAuthorized = subscription.isAuthorized
-                return isAuthorized ? SubscriptionState.Subscribed : SubscriptionState.Pending
-            } else {
-                return SubscriptionState.Unsubscribed
-            }
+            const ownSuscription = allSubscriptions.find((subscription) => subscription.id === get(authenticationData)?.did)
+            return !ownSuscription ? SubscriptionState.NotSubscribed :
+                ownSuscription.isAuthorized ? SubscriptionState.Authorized :
+                    SubscriptionState.Subscribed
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -295,15 +267,16 @@ export async function writeMessage(
     publicPayload: string,
     metadata?: string,
     type?: string
-): Promise<void> {
+): Promise<ChannelData> {
     if (get(isAuthenticated)) {
         try {
-            await channelClient.write(address, {
+            const response: ChannelData = await channelClient.write(address, {
                 payload,
                 publicPayload,
                 metadata,
                 type,
             })
+            return response
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -320,12 +293,12 @@ export async function writeMessage(
 }
 
 export async function createChannel(topics: { type: string; source: string }[]): Promise<CreateChannelResponse> {
-    let channel: CreateChannelResponse
     if (get(isAuthenticated)) {
         try {
-            channel = await channelClient.create({
+            const channel: CreateChannelResponse = await channelClient.create({
                 topics,
             })
+            return channel
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -339,22 +312,13 @@ export async function createChannel(topics: { type: string; source: string }[]):
             message: 'Cant perform action, user not authenticated',
         })
     }
-    return channel
 }
 
 export async function addChannelToSearchResults(channelAddress: string): Promise<void> {
     if (get(isAuthenticated)) {
-        let channel: ExtendedChannelInfo = await channelClient.info(channelAddress)
+        const channel: ChannelInfo = await channelClient.info(channelAddress)
 
         if (channel) {
-            const authorId = channel.authorId
-            const userDid = get(authenticationData)?.did
-
-            channel = {
-                ...channel,
-                isOwned: authorId === userDid,
-                isSubscribed: isUserSubscribedToChannel(get(authenticationData)?.did, channel),
-            }
             searchChannelsResults?.update((_searchChannelsResults) => {
                 return [..._searchChannelsResults, channel]
             })
@@ -367,6 +331,10 @@ export async function addChannelToSearchResults(channelAddress: string): Promise
     }
 }
 
+export function isUserOwnerOfChannel(userDID: string, channel: ExtendedChannelInfo): boolean {
+    return channel?.authorId === userDID;
+}
+
 export function isUserSubscribedToChannel(userDID: string, channel: ExtendedChannelInfo): boolean {
-    return channel.subscriberIds?.includes(userDID) && channel.authorId !== userDID;
+    return channel?.subscriberIds?.includes(userDID) && channel?.authorId !== userDID;
 }

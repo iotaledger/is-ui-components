@@ -8,6 +8,8 @@ export { default as Paginator } from './paginator.svelte';
 export { default as SearchInput } from './search-input.svelte';
 export { default as Table } from './table.svelte';
 export { default as Toast } from './toast.svelte';
+// used for identity & streams list views
+export { default as ListManager } from './list-manager.svelte';
 
 // Identity Manager
 export { default as IdentityManager } from './identity/identity-manager.svelte';
@@ -16,8 +18,6 @@ export { default as CreateCredentialModal } from './identity/create-credential-m
 export { default as CreateIdentityModal } from './identity/create-identity-modal.svelte';
 export { default as Credential } from './identity/credential.svelte';
 export { default as IdentityDetails } from './identity/identity-details.svelte';
-export { default as IdentityList } from './identity/identity-list.svelte';
-
 
 // Login/Register Manager
 export { default as LoginRegisterManager } from './login-register/login-register-manager.svelte';
@@ -31,7 +31,11 @@ export { default as RegisterSuccess } from './login-register/register-success.sv
 export { default as StreamsManager } from './streams/streams-manager.svelte';
 // Streams Manager - Components
 export { default as ChannelDetails } from './streams/channel-details.svelte';
+export { default as ChannelInfo } from './streams/channel-info.svelte';
+export { default as ChannelSubscriptions } from './streams/channel-subscriptions.svelte';
+export { default as ChannelMessages } from './streams/channel-messages.svelte';
 export { default as CreateChannelModal } from './streams/create-channel-modal.svelte';
+export { default as Subscription } from './streams/subscription.svelte';
 export { default as WriteMessageModal } from './streams/write-message-modal.svelte';
 
 // Verify Credentials Manager

@@ -15,7 +15,7 @@
     import { FieldType } from '$lib/app/types/identity'
     import type { ActionButton } from '$lib/app/types/layout'
     import type { TableData } from '$lib/app/types/table'
-    import { CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, IdentityList } from '$lib/components'
+    import { CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, ListManager } from '$lib/components'
     import type { IdentityJson } from 'boxfish-studio--iota-is-sdk'
     import { UserType } from 'boxfish-studio--iota-is-sdk'
     import { onDestroy, onMount } from 'svelte'
@@ -193,7 +193,7 @@
 <Container class="py-5">
     <h1 class="mb-4">Demo 2: Device</h1>
     {#if state === State.ListIdentities}
-        <IdentityList
+        <ListManager
             showSearch
             {onSearch}
             {tableData}

@@ -1,13 +1,13 @@
 import type { ChannelInfo } from 'boxfish-studio--iota-is-sdk';
 
 export interface ExtendedChannelInfo extends ChannelInfo {
-    isOwned?: boolean;
-    isSubscribed?: boolean;
+    // NOTE: description & name are not yet supported by the SDK
+    description?: string;
+    name?: string;
 }
 
 export enum SubscriptionState {
-    Unsubscribed = 'Unsubscribed',
+    Authorized = 'Authorized',
     Subscribed = 'Subscribed',
-    Pending = 'Pending',
+    NotSubscribed = 'NotSubscribed',
 }
-

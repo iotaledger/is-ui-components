@@ -1,13 +1,7 @@
 import { CredentialTypes, UserType } from 'boxfish-studio--iota-is-sdk'
 import type { IdentityTemplate, VerifiableCredentialTemplate } from '../types/identity'
 import { DeviceControlledProperty, FieldType, ProductEnum } from '../types/identity'
-import type { TableConfiguration } from '../types/table'
 import { BoxColor } from './colors'
-
-export const WELCOME_IDENTITIES_NUMBER = 5
-export const DEFAULT_IDENTITIES_TABLE_PAGE_SIZE = 5
-export const DEFAULT_IDENTITY_SEARCH_TIMEOUT = 200
-export const DEFAULT_IDENTITY_REQUEST_LIMIT = 2
 
 export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
 	{
@@ -345,10 +339,4 @@ export const USER_ICONS = {
 export const CREDENTIAL_ICON = {
 	icon: 'credential',
 	boxColor: BoxColor.Purple,
-}
-
-export const DEFAULT_TABLE_CONFIGURATION: TableConfiguration = {
-	isPaginated: true,
-	siblingsCount: 2,
-	pageSize: DEFAULT_IDENTITIES_TABLE_PAGE_SIZE,
 }
