@@ -6,7 +6,7 @@
     import Dropzone from 'svelte-file-dropzone'
     import { Button, Spinner } from 'sveltestrap'
 
-    export let switchToRegister = (..._: any[]): void => {}
+    export let switchToRegister
     export let onSuccess = (..._: any[]): void => {}
 
     let fileReader: FileReader
@@ -50,10 +50,12 @@
             <Icon type="identity" size={48} />
         </div>
         <h1 class="mb-1">Log in with your DID</h1>
-        <div>
-            or
-            <span class="text-primary cursor-pointer" on:click={switchToRegister}>register a new DID</span>
-        </div>
+        {#if switchToRegister}
+            <div>
+                or
+                <span class="text-primary cursor-pointer" on:click={switchToRegister}>register a new DID</span>
+            </div>
+        {/if}
     </div>
     <div class="w-100">
         <Dropzone on:drop={handleFilesSelect}>
