@@ -15,13 +15,13 @@ export function showNotification(Notification: Notification): string {
   })
 
   if (Notification.timeout !== NOTIFICATION_TIMEOUT_NEVER) {
-    setTimeout(() => removeNotificacion(Notification.id), Notification.timeout)
+    setTimeout(() => removeNotification(Notification.id), Notification.timeout)
   }
 
   return Notification.id
 }
 
-export function removeNotificacion(id: string | undefined): void {
+export function removeNotification(id: string | undefined): void {
   notifications.update((_currentNotification) => {
     const idx = _currentNotification.findIndex((n) => n.id === id)
     if (idx >= 0) {
@@ -31,7 +31,7 @@ export function removeNotificacion(id: string | undefined): void {
   })
 }
 
-export function updateNotificacion(id: string, updateData: Notification): void {
+export function updateNotification(id: string, updateData: Notification): void {
   notifications.update((_currentNotification) => {
     const notification = _currentNotification.find((n) => n.id === id)
     if (notification) {
@@ -39,7 +39,7 @@ export function updateNotificacion(id: string, updateData: Notification): void {
       notification.timeout = updateData.timeout ?? NOTIFICATION_TIMEOUT_DEFAULT;
 
       if (notification.timeout !== NOTIFICATION_TIMEOUT_NEVER) {
-        setTimeout(() => removeNotificacion(notification.id), notification.timeout);
+        setTimeout(() => removeNotification(notification.id), notification.timeout);
       }
     }
     return _currentNotification
