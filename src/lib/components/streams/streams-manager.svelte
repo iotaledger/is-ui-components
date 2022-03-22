@@ -17,6 +17,7 @@
         searchChannelsResults,
         selectedChannel,
         selectedChannelBusy,
+        selectedChannelData,
         selectedChannelSubscriptions,
         startReadingChannel,
         stopChannelsSearch,
@@ -269,6 +270,7 @@
             {subscriptionStatus}
             subscriptions={$selectedChannelSubscriptions}
             channel={$selectedChannel}
+            channelData={$selectedChannelData}
             {messageFeedButtons}
         />
     {/if}
