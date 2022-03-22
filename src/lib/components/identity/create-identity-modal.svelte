@@ -11,12 +11,14 @@
     export let title = 'Create identity'
     export let isOpen: boolean = false
     export let onModalClose = (..._: any[]): void => {}
+    export let onSuccess = (..._: any[]): void => {}
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
 
     let registeredIdentity: IdentityJson
 
     function onCreateIdentitySuccess(identity: IdentityJson): void {
         registeredIdentity = identity
+        onSuccess(identity)
         onModalClose()
     }
 </script>
