@@ -27,7 +27,7 @@
                 </div>
             {/if}
         </div>
-        <div class="box d-flex flex-column align-items-center">
+        <div class="box d-flex flex-column align-items-end">
             {#if actionButtons}
                 {#each actionButtons as { label, onClick, icon, color }}
                     <Button size="sm" outline color={color ?? 'dark'} on:click={onClick} class="d-flex align-items-center mt-3">
