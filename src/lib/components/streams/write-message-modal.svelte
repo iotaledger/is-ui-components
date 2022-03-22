@@ -1,30 +1,101 @@
 <script lang="ts">
+    import { FieldType } from '$lib/app'
     import { selectedChannelBusy, writeMessage } from '$lib/app/streams'
+    import type { Input as InputType, SubmitButton } from '$lib/app/types/form'
+    import { Form } from '$lib/components'
     import { onDestroy } from 'svelte'
-    import { Button, Label, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
-    import Input from 'sveltestrap/src/Input.svelte'
+    import { ModalBody, ModalHeader } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
 
     export let address: string
     export let isOpen: boolean = false
+    export let title: string = 'Write a message'
     export let onModalClose = (..._: any[]): void => {}
     export let onSuccess = (..._: any[]): void => {}
 
     const MAX_LENGTH_TEXTAREA = 100
     const MIN_LENGTH_TEXTAREA = 3
 
-    let payload = ''
-    let publicPayload = ''
-    let metadata = ''
-    let type = ''
-    let loading: boolean = false
     let timeout: NodeJS.Timeout
-    let unsubscribe
-    let formValidated: boolean = false
-    let formContainer: HTMLFormElement
+    let formLoading = false
+    let formInputs: InputType[] = [
+        {
+            id: 'payload',
+            name: 'Payload',
+            placeholder: 'Payload',
+            required: true,
+            type: FieldType.TextArea,
+            minLength: MIN_LENGTH_TEXTAREA,
+            maxLength: MAX_LENGTH_TEXTAREA,
+        },
+        {
+            id: 'publicPayload',
+            name: 'Public payload',
+            placeholder: 'Public payload',
+            required: true,
+            type: FieldType.TextArea,
+            minLength: MIN_LENGTH_TEXTAREA,
+            maxLength: MAX_LENGTH_TEXTAREA,
+        },
+        {
+            id: 'metadata',
+            name: 'Metadata',
+            placeholder: 'Metadata',
+            required: true,
+            type: FieldType.TextArea,
+            minLength: MIN_LENGTH_TEXTAREA,
+            maxLength: MAX_LENGTH_TEXTAREA,
+        },
+        {
+            id: 'type',
+            name: 'Type',
+            placeholder: 'Type',
+            required: true,
+            type: FieldType.TextArea,
+            minLength: MIN_LENGTH_TEXTAREA,
+            maxLength: MAX_LENGTH_TEXTAREA,
+        },
+    ]
 
-    $: formContainer, manageFormSubscription()
+    let onSubmitButton: SubmitButton = {
+        onSubmit: (formFieldsValues) => {
+            handleWriteMessage(formFieldsValues)
+        },
+        loading: false,
+        label: 'Write message',
+        labelWhileLoading: 'Writing message...',
+    }
+
+    async function handleWriteMessage(formFieldsValues): Promise<void> {
+        formLoading = true
+
+        // ---- Avoid locked channel error when sending messages ----
+        while ($selectedChannelBusy) {
+            timeout = setTimeout(() => handleWriteMessage(formFieldsValues), 100)
+            return
+        }
+        // ----------------------------------------------------------
+
+        const { payload, publicPayload, metadata, type } = formFieldsValues
+        const message = await writeMessage(address, payload, publicPayload, metadata, type)
+        if (message) {
+            onSuccess()
+            onModalClose()
+        }
+        formLoading = false
+    }
+
+    function onClose(): void {
+        onModalClose()
+    }
+
+    function updateLoading(): void {
+        onSubmitButton = {
+            ...onSubmitButton,
+            loading: formLoading,
+        }
+    }
 
     onDestroy(() => {
         if (timeout) {
@@ -32,134 +103,12 @@
         }
     })
 
-    function manageFormSubscription(): void {
-        if (formContainer) {
-            unsubscribe = formContainer.addEventListener(
-                'submit',
-                function (event) {
-                    if (!formContainer.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    } else {
-                        handleWriteMessage()
-                    }
-                    formValidated = true
-                },
-                false
-            )
-        } else {
-            if (unsubscribe) unsubscribe()
-        }
-    }
-    function sanitizeFields(): void {
-        payload = payload === '' ? undefined : payload
-        publicPayload = publicPayload === '' ? undefined : publicPayload
-        metadata = metadata === '' ? undefined : metadata
-        type = type === '' ? undefined : type
-    }
-
-    async function handleWriteMessage(): Promise<void> {
-        loading = true
-
-        // ---- Avoid locked channel error when sending messages ----
-        while ($selectedChannelBusy) {
-            timeout = setTimeout(handleWriteMessage, 100)
-            return
-        }
-        // ----------------------------------------------------------
-
-        sanitizeFields()
-        const message = await writeMessage(address, payload, publicPayload, metadata, type)
-        if (message) {
-            onSuccess()
-            resetMessage()
-            onModalClose()
-            formValidated = false
-        }
-        loading = false
-    }
-
-    function resetMessage(): void {
-        payload = ''
-        publicPayload = ''
-        metadata = ''
-        type = ''
-    }
-
-    function onClose(): void {
-        resetMessage()
-        formValidated = false
-        onModalClose()
-    }
+    $: formLoading, updateLoading()
 </script>
 
 <Modal {isOpen} toggle={onClose}>
-    <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
-        <ModalHeader toggle={onClose} class="px-4 pt-3">Write your message</ModalHeader>
-        <ModalBody>
-            <div class="mb-4">
-                <Label>Payload</Label>
-                <Input
-                    class="p-3 "
-                    placeholder="Please write your message here..."
-                    type="textarea"
-                    name="text"
-                    bind:value={payload}
-                    minlength={MIN_LENGTH_TEXTAREA}
-                    maxlength={MAX_LENGTH_TEXTAREA}
-                    required
-                />
-                <div class="invalid-feedback">
-                    This field is required and it needs to be less than {MAX_LENGTH_TEXTAREA} characters.
-                </div>
-            </div>
-            <div class="mb-4">
-                <Label>Public payload</Label>
-
-                <Input
-                    class="p-3"
-                    placeholder="Please write your message here..."
-                    type="textarea"
-                    name="text"
-                    bind:value={publicPayload}
-                    minlength={MIN_LENGTH_TEXTAREA}
-                    maxlength={MAX_LENGTH_TEXTAREA}
-                    required
-                />
-                <div class="invalid-feedback">
-                    This field is required and it needs to be less than {MAX_LENGTH_TEXTAREA} characters.
-                </div>
-            </div>
-            <div class="mb-4">
-                <Label>Metadata</Label>
-                <Input
-                    class="p-3"
-                    placeholder="Please write your message here..."
-                    type="textarea"
-                    name="text"
-                    bind:value={metadata}
-                />
-            </div>
-            <div class="mb-4">
-                <Label>Type</Label>
-                <Input
-                    class="p-3"
-                    placeholder="Please write your message here..."
-                    type="textarea"
-                    name="text"
-                    bind:value={type}
-                />
-            </div>
-        </ModalBody>
-        <ModalFooter>
-            <Button disabled={loading} class="d-flex" color="primary">
-                {loading ? 'Writing a message...' : 'Write a message'}
-                {#if loading}
-                    <div class="ms-2">
-                        <Spinner size="sm" type="border" color="light" />
-                    </div>
-                {/if}
-            </Button>
-        </ModalFooter>
-    </form>
+    <ModalHeader toggle={onClose} class="px-4 pt-3">{title}</ModalHeader>
+    <ModalBody class="px-4 pb-4">
+        <Form enableValidation inputs={formInputs} {onSubmitButton} />
+    </ModalBody>
 </Modal>

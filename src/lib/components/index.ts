@@ -1,6 +1,7 @@
 // General Components
 export { default as Box } from './box.svelte';
 export { default as CustomIcon } from './icon/custom-icon.svelte';
+export { default as Form } from './form.svelte';
 export { default as Icon } from './icon/icon.svelte';
 export { default as JSONViewer } from './json-viewer.svelte';
 export { default as Multiselect } from './multiselect.svelte';
@@ -15,6 +16,7 @@ export { default as ListManager } from './list-manager.svelte';
 export { default as IdentityManager } from './identity/identity-manager.svelte';
 // Identity Manager - Components
 export { default as CreateCredentialModal } from './identity/create-credential-modal.svelte';
+export { default as CreateIdentityForm } from './identity/create-identity-form.svelte';
 export { default as CreateIdentityModal } from './identity/create-identity-modal.svelte';
 export { default as Credential } from './identity/credential.svelte';
 export { default as IdentityDetails } from './identity/identity-details.svelte';

@@ -29,7 +29,7 @@
                 {
                     id: 'username',
                     name: 'username',
-                    type: FieldType.String,
+                    type: FieldType.Text,
                     required: true,
                 },
                 {
@@ -42,7 +42,7 @@
                 {
                     id: 'channel',
                     name: 'Streams Channel',
-                    type: FieldType.String,
+                    type: FieldType.Text,
                     required: true,
                 },
             ],

@@ -1,6 +1,6 @@
 {
 	"name": "boxfish-studio--is-ui-components",
-	"version": "0.0.28",
+	"version": "0.0.30",
 	"scripts": {
 		"dev": "svelte-kit dev --port 3001",
 		"build": "svelte-kit build",

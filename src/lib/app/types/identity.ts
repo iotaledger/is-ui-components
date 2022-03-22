@@ -1,13 +1,15 @@
+import type { Input } from '$lib/app/types/form';
 import type { CredentialTypes, User, UserType, VerifiableCredentialInternal } from 'boxfish-studio--iota-is-sdk';
 
 export enum FieldType {
-    String = 'string',
+    Date = 'date',
+    Email = 'email',
     MultipleSelector = 'multipleSelector',
+    Number = 'number',
     Selector = 'selector',
     StringArray = 'stringArray',
-    Email = 'email',
-    Date = 'date',
-    Number = 'number',
+    Text = 'text',
+    TextArea = "textarea",
 }
 
 export enum ProductEnum {
@@ -82,20 +84,17 @@ export type IdentityTemplate = {
         name: string
         required?: boolean
         type: FieldType
-        options?: Array<string>
+        options?: {
+            label: string
+            value: string
+        }[]
     }[]
 }
 
 export type VerifiableCredentialTemplate = {
     id: string;
     name: string;
-    fields: {
-        id: string
-        name: string
-        required?: boolean
-        type: FieldType
-        options?: Array<string>
-    }[];
+    fields: Input[];
     credentialType: CredentialTypes;
     userType: UserType;
 }
