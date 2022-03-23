@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { ActionButton } from '$lib/app/types/layout'
-    import { isJson } from '$lib/app/utils'
+    import { isAnArrayOfObjects, isAnObject, isJson } from '$lib/app/utils'
     import { Icon, JSONViewer } from '$lib/components'
     import type { ChannelData } from '@iota/is-client'
     import { Button, Spinner } from 'sveltestrap'
@@ -31,30 +31,38 @@
                 <div class="text-break">{msg?.link}</div>
             </div>
 
-            <div class="mb-4">
-                <div class="text-secondary">Public data</div>
-                {#if isJson(msg?.log?.publicPayload)}
-                    <JSONViewer json={msg?.log?.publicPayload} />
-                {:else}
-                    <span>{msg?.log?.publicPayload}</span>
-                {/if}
-            </div>
-            <div class="mb-4">
-                <div class="text-secondary">Encrypted data</div>
-                {#if isJson(msg?.log?.payload)}
-                    <JSONViewer json={msg?.log?.payload} />
-                {:else}
-                    <span>{msg?.log?.payload}</span>
-                {/if}
-            </div>
-            <div class="mb-4">
-                <div class="text-secondary">Metadata</div>
-                {#if isJson(msg?.log?.metadata)}
-                    <JSONViewer json={msg?.log?.metadata} />
-                {:else}
-                    <span>{msg?.log?.metadata}</span>
-                {/if}
-            </div>
+            {#if msg?.log?.publicPayload}
+                <div class="mb-4">
+                    <div class="text-secondary">Public data</div>
+                    {#if isJson(msg?.log?.publicPayload) || isAnArrayOfObjects(msg?.log?.publicPayload) || isAnObject(msg?.log?.publicPayload)}
+                        <JSONViewer json={JSON.stringify(msg?.log?.publicPayload, null, '\t')} />
+                    {:else}
+                        <span>{msg?.log?.publicPayload}</span>
+                    {/if}
+                </div>
+            {/if}
+
+            {#if msg?.log?.payload}
+                <div class="mb-4">
+                    <div class="text-secondary">Encrypted data</div>
+                    {#if isJson(msg?.log?.payload) || isAnArrayOfObjects(msg?.log?.payload) || isAnObject(msg?.log?.payload)}
+                        <JSONViewer json={JSON.stringify(msg?.log?.payload, null, '\t')} />
+                    {:else if msg?.log?.payload}
+                        <span>{msg?.log?.payload}</span>
+                    {/if}
+                </div>
+            {/if}
+
+            {#if msg?.log?.metadata}
+                <div class="mb-4">
+                    <div class="text-secondary">Metadata</div>
+                    {#if isJson(msg?.log?.metadata) || isAnArrayOfObjects(msg?.log?.metadata) || isAnObject(msg?.log?.metadata)}
+                        <JSONViewer json={JSON.stringify(msg?.log?.metadata, null, ' \t')} />
+                    {:else if msg?.log?.metadata}
+                        <span>{msg?.log?.metadata}</span>
+                    {/if}
+                </div>
+            {/if}
         </div>
     {/each}
     <div class="d-flex justify-content-end mt-4">

@@ -110,6 +110,18 @@ export function isJson(str: string): boolean {
     return true
 }
 
+export function isAnObject(object: any): boolean {
+    return (object !== null && typeof (object) === 'object')
+}
+
+export function isArray(array: any): boolean {
+    return Array.isArray(array)
+}
+
+export function isAnArrayOfObjects(array: any[]): boolean {
+    return isArray(array) && array.every(isAnObject)
+}
+
 export const generateRandomId = (): string => {
     return Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => {
         return ('0' + (byte & 0xff).toString(16)).slice(-2)
