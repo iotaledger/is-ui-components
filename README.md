@@ -1,28 +1,831 @@
-# is-ui-components
+# boxfish-studio--is-ui-components
 
-Set of reusable components for Integration Service API-based frontends.
+Collection of [Integration Services](https://github.com/iotaledger/integration-services/) UI components, Svelte stores and useful functions than can be used in SvelteKit webapps.
 
-## Update theme
+## Installation
+
+1. Add the `boxfish-studio--is-ui-components` package
+
+```bash
+$ npm i boxfish-studio--is-ui-components
+```
+
+2. Rename the `.env.example` file to `.env` and add the corresponding necessary configuration:
+
+```bash
+VITE_API_KEY= HERE_YOUR_IS_API_KEY
+VITE_BASE_URL= HERE_THE_BASE_URL_TO_CONNECT_WITH_IS_API
+```
+
+## Authentication
+
+### Stores
+
+This library creates a persistent Svelte Store that allows the data necessary for authentication to be stored in the browser's `localStorage` object. We can import it using:
+
+```js
+import { authenticationData } from 'boxfish-studio--is-ui-components'
+```
+
+-   `authenticationData`
+    -   `jwt`: token necessary to send authenticated requests to Integration Services Rest API
+    -   `did`: identity identifier
+
+The library also provides Derived stores that allow access to some relevant data related to authentication. They can be imported as follows:
+
+```js
+import { authenticatedUserDID, isAuthenticated } from 'boxfish-studio--is-ui-components'
+```
+
+-   `authenticatedUserDID`: identity logged identifier
+-   `isAuthenticated`: true if there is an identity authenticated
+
+### UI Components
+
+The library allows the use of Svelte components that we can group into isolated components that fulfill an independent function (they are like a piece of a puzzle) and manager components that form a complete puzzle from some isolated components.
+
+#### Isolated components
+
+Isolated components can be imported from the library as follows:
+
+```js
+import { Login, Logout, Register, RegisterSuccess } from 'boxfish-studio--is-ui-components'
+```
+
+These components can be customized by adjusting their props:
+
+-   `Login`: panel that allows the authentication of an identity by dragging or selecting the json file that defines it.
+    -   `switchToRegister`: function that is executed if we want to create a new identity (e.g change the view to offer an identity registration form)
+    -   `onSuccess`: function that is executed when the login has been successful
+-   `Logout`: panel to be able to log out
+    -   `switchToLogin`: function that is executed if we want to log in an identity (e.g change the view to offer an identity login form)
+-   `Register`: panel to create a new identity
+    -   `switchToLogin`: function that is executed if we want to log in an identity (e.g change the view to offer an identity login form)
+    -   `onSuccess`: function that is executed when the identity has been successfully created.
+    -   `identitiesTemplate`: identities template with type and fields that can be created. By default [this template](#identities-template) is used.
+-   `RegisterSuccess`: show info (type and username) of an identity and allow download it as a JSON file
+    -   `identity`: identity JSON object created
+    -   `type`: identity type
+    -   `username`: identity username
+
+#### Manager
+
+We can put several of the isolated components together to form a manager that has greater logical complexity. The library offers a manager that allows you to manage the login, logout and registration of a new identity, as well as the possibility of downloading it in JSON format once it has been created. This manager can be imported as follows:
+
+```js
+import { LoginRegisterManager } from 'boxfish-studio--is-ui-components'
+```
+
+This manager can be customized through the adjustment of its props:
+
+-   `LoginRegisterManager`: show info (type and username) of an identity and allow download it as a JSON file
+    -   `onLoginSuccess`: function that is executed when the login has been successful
+    -   `identitiesTemplate`: identities template with type and fields that can be created. By default [this template](#identities-templates) is used.
+
+### Functions
+
+The library offers functions that can be used to facilitate the authentication process. To import them it is necessary to do it in the following way:
+
+```js
+import { authenticate, logout } from 'boxfish-studio--is-ui-components'
+```
+
+-   `authenticate(id, secret)`: Allows to authenticate an identity. Returns `true` if authentication is successful or `false` if not.
+    -   `id`: identity to be authenticated identifier
+    -   `secret`: secret of identity to be authenticated
+-   `logout()`:Allows you to log out of an identity
+
+## Identities
+
+### Stores
+
+The library exposes Writable Stores where relevant data regarding identity management is stored. . We can import them using:
+
+```js
+import { searchIdentitiesResults, selectedIdentity, isLoadingIdentities } from 'boxfish-studio--is-ui-components'
+```
+
+-   `searchIdentitiesResults`: an array with all the identities that result from the search
+
+-   `selectedIdentity`: displays the details of the selected identity
+
+-   `isLoadingIdentities`: `true` if the library is busy searching for identities
+
+### UI Components
+
+The library allows the use of Svelte components that we can group into isolated components that fulfill an independent function (they are like a piece of a puzzle) and manager components that form a complete puzzle from some isolated components.
+
+#### Isolated components
+
+Isolated components can be imported from the library as follows:
+
+```js
+import {
+    IdentityList,
+    IdentityDetails,
+    CreateIdentityModal,
+    CreateIdentityForm,
+    Credential,
+    CreateCredentialModal,
+} from 'boxfish-studio--is-ui-components'
+```
+
+These components can be customized by adjusting their props:
+
+-   `IdentityList`: list of identities.
+
+    -   `title`: list title (by default: `Identities`)
+    -   `tableData`: table data
+    -   `loading`: if `true` a spinner is rendered
+    -   `actionButtons`: array with button actions available in the list
+    -   `message`: message shown if there is no data in the table
+    -   `showSearch`: if `true` the search is available in the list
+    -   `onSearch`: function that is executed when searching. By default it executes an standard search by identity did, type and username.
+    -   `searchQuery`: query placeholder
+    -   `tableConfiguration`: table configuration. [This config](#default-table-configuration) is used by default.
+
+-   `IdentityDetails`: it shows information details of a specific identity. We can see general information like DID, type or username. We can see also more advanced info like its claims or its verifiable credentials.
+    -   `identity`: the identity to see the details
+    -   `loading`: if `true`a spinner is rendered.
+    -   `onRevokeSuccess`: function that is executed when a specific credential is successfully revoked.
+    -   `actionButtons`: set of buttons that calls additional actions.
+-   `CreateIdentityForm`: form with the fields necessary to create an identity
+    -   `onSuccess`: function that is executed when an identity is created successfully.
+    -   `identitiesTemplate`: identities template with type and fields that can be created. By default [this template](#identities-templates) is used.
+-   `CreateIdentityModal`: modal that allows to create an identity
+    -   `title`: list title (by default: `Create identity`)
+    -   `isOpen`: if `true`modal is opened
+    -   `onModalClose`: function that will be executed when the modal is closed
+    -   `onSuccess`: function that will be executed when identity is successfully created
+    -   `identitiesTemplate`: identities template with type and fields that can be created. By default [this template](#identities-templates) is used.
+-   `Credential`: accordion that show data of a specific credential - `vc`: verifiable credential - `revoking`: `true` if credential is being revoked - `onRevoke`: function that will be executed when the credential is successfully revoked.
+-   `CreateCredentialModal`: modal that allows to create a credential
+    -   `isOpen`: if `true`modal is opened
+    -   `onModalClose`: function that will be executed when the modal is closed
+    -   `onSuccess`: function that will be executed when credential is successfully created
+    -   `credentialsTemplate`: credentials template with type and fields that can be created. By default [this template](#credentials-template) is used.
+
+#### Manager
+
+We can put several of the isolated components together to form a manager that has greater logical complexity. The library offers a manager that allows you to manage identities such as listing them, searching by DID, user or type or creating them as well as access the details of a specific identity and create or revoke credentials. This manager can be imported as follows:
+
+```js
+import { IdentitiesManager } from 'boxfish-studio--is-ui-components'
+```
+
+This manager can be customized through the adjustment of its props:
+
+-   `IdentitiesManager`: show a initial list with the last identities. Also, it is possible to search by type, DID or username. This manager also provides a section with the identity details of a particular identity selected. In this section you can add verifiable credentials and revoke credential that has been created previously.
+
+    -   `identitiesTemplate`: identities template with type and fields that can be created. By default [this template](#identities-templates) is used.
+    -   `credentialsTemplate`: credentials template with type and fields that can be created. By default [this template](#credential-templates) is used.
+    -   `showSearch`: if `true`the search is avaliable.
+    -   `listViewButtons`: set of action buttons of identities list view
+    -   `detailViewButtons`: set of action buttons of identity details view
+    -   `tableConfiguration`: table configuration. [This config](#default-table-configuration) is used by default.
+
+### Functions
+
+The library offers functions that can be used to facilitate the identities management. To import them it is necessary to do it in the following way:
+
+```js
+import {
+    searchAllIdentities,
+    searchIdentityByDID,
+    searchIdentitiesSingleRequest,
+    stopIdentitiesSearch,
+    createVC,
+    revokeVC,
+    updateIdentityInSearchResults,
+    addIdentityToSearchResults,
+    getVerifiableCredentials,
+} from 'boxfish-studio--is-ui-components'
+```
+
+-   `searchAllIdentities(query, {limit})`: Search identities by DID, type or username with a selected maximum results limit. In order not to overload the front part and allow a better user experience, the search function has been implemented in such a way that a set of requests with a few results is made to the library so as not to block the front. That is why the search function needs the `searchIdentitiesSingleRequest` function to be able to make these calls until the established limit is reached.
+    -   `query`: query
+    -   `limit`: maximum search results
+-   `searchIdentityByDID(did)`: Search an identity by DID
+    -   `did`: identity identifier
+-   `searchIdentitiesSingleRequest(query, {searchByType, searchByUsername, limit, index})`: Single identities request.
+    -   `query`: query
+    -   `searchByType`: `true` if we want to search by type
+    -   `searchByUsername`: `true` if we want to search by username
+    -   `limit`: maximum search results
+    -   `index`: search index
+-   `stopIdentitiesSearch()`: function to stop the search. This is necessary because `searchAllIdentities` function not have to perform a single search, but rather, it normally makes several requests to the back part.
+-   `createVC(initiatorVC, targetDid, credentialType, claimType, claim)`: function to create a new verifiable credential
+    -   `initiatorVC`: initiator verifiable credential (or `undefined`)
+    -   `targetDid`: identifier of the identity associated with the credential to be created
+    -   `credentialType`: verifiable credential type
+    -   `claimType`: claim type
+    -   `claim`: claim object
+-   `revokeVC(signatureValue)`: function to revoke an existing verifiable credential
+    -   `signatureValue`: signature value of veriable credential to be revoked
+-   `updateIdentityInSearchResults(identity)`: updates the identity that is passed as a parameter in the search results, the DID cannot be modified.
+    -   `identity`. The identity with the new changes updated. The function overrides the identity with the same DID in search results.
+-   `addIdentityInSearchResults(id)`: search the identity with the id provided and add it to the search results store.
+    -   `id`. Identity identifier to be added to search results store.
+-   `getVerifiableCredentials(identityId)`: returns an array of the verifiable credentials related to a specific identity.
+    -   `identityId`: Identity identifier to get verifiable credentials.
+
+### Credentials verifier (manager)
+
+#### UI Component
+
+The library offers a special component to be able to verify credentials. This component can be imported like this:
+
+```js
+import { VerifyCredentialManager } from 'boxfish-studio--is-ui-components'
+```
+
+It can be customized adjusting its props:
+
+-   `VerifyCredentialManager`: It allows verifying one or more credentials by dragging a document in JSON format of the credential or adding it from the box.
+    -   `maxFiles`: maximum number of files that can be verified simultaneously (by default its value is 10)
+
+#### Function
+
+The library also offers a function to verify a verifiable credential. This can be imported like this:
+
+```js
+import { verifyVC } from 'boxfish-studio--is-ui-components'
+```
+
+-   `verifyVC(json)`: returns `true`if the credential is verified or false if not.
+    -   `json`: credential to be verified
+
+## Streams
+
+### Stores
+
+The library offers Svelte Writable stores that allow the storage of data related to stream management. To import them we need to do it in the following way:
+
+```js
+import {
+    selectedChannel,
+    searchChannelsResults,
+    selectedChannelData,
+    selectedChannelBusy,
+    selectedChannelSubscriptions,
+    isAsyncLoadingChannels,
+} from 'boxfish-studio--is-ui-components'
+```
+
+-   `selectedChannel`: contains the information about the selected channel
+-   `searchChannelsResults`: contains an array with the search results
+-   `selectedChannelData`: contains the messages of a channel
+-   `selectedChannelBusy`: indicates if the library is busy (`true`) to launch an action referring to a channel (read a channel, write a message, ...)
+-   `selectedChannelSubscriptions`: contains the information about the subscriptions of the selected channel
+-   `isAsyncLoadingChannels`: `true` if the library is busy searching for channels
+
+### UI Components
+
+#### Isolated components
+
+```js
+import {
+    ChannelDetails,
+    ChannelInfo,
+    ChannelMessages,
+    ChannelSubscriptions,
+    CreateChannelModal,
+    Subscription,
+    WriteMessageModal,
+} from 'boxfish-studio--is-ui-components'
+```
+
+These components can be customized by adjusting their props:
+
+-   `ChannelDetails`: contains the information about the selected channel
+    -   `channel`: channel to get the details
+    -   `channelData`: messages related to selected channel
+    -   `subscriptionStatus`: state of subscription (authorized, subscribed, not subscribed)
+    -   `subscriptions`: set of all subscriptions related to the channel
+    -   `loading`: if `true` a spinner is rendered to indicate that details are loading
+    -   `messageFeedButtons`: action buttons related to channel feed messages section (e.g write a message)
+    -   `handleAcceptSubscription`: function that will be executed when clicking in Accept subscription
+    -   `handleRejectSubscription`: function that will be executed when clicking in Reject subscription
+-   `ChannelInfo`: show general information about a channel (title, description, ...)
+    -   `channel`: channel
+    -   `subscriptionStatus`: state of subscription (authorized, subscribed, not subscribed)
+    -   `loading` if `true` a spinner is rendered to indicate that info is loading
+    -   `onSubscriptionAction`: function that will be executed when a user request a subscription
+-   `ChannelMessages`: shows the messages of a channel
+    -   `channelData`: channel messages
+    -   `actionButtons`: buttons to call actions related to messages (write a message, ...)
+-   `ChannelSubscriptions`: contains a subscription management section
+    -   `channel`: channel
+    -   `subscriptions`: set of all subscriptions related to the channel
+    -   `handleAcceptSubscription`: function that will be executed when clicking in Accept subscription
+    -   `handleRejectSubscription`: function that will be executed when clicking in Reject subscription
+-   `CreateChannelModal`: modal to create a channel
+    -   `isOpen`: if `true`modal is opened
+    -   `onModalClose`: function that will be executed when the modal is closed
+    -   `onSuccess`: function that will be executed when channel is successfully created
+-   `Subscription`: subscription box
+    -   `displayActionButtons`: if `true`buttons are displayed
+    -   `subscription`: subscription object
+    -   `label`: subscription label
+    -   `handleAcceptSubscription`: function that will be executed when clicking in Accept subscription
+    -   `handleRejectSubscription`: function that will be executed when clicking in Reject subscription
+-   `WriteMessageModal`: contains the messages of a channel
+    -   `address`: channel address
+    -   `isOpen`: if `true`modal is opened
+    -   `title`: title (by default: `Write a message`)
+    -   `onModalClose`: function that will be executed when the modal is closed
+    -   `onSuccess`: function that will be executed when message is successfully sent
+
+#### Manager
+
+```js
+import { StreamsManager } from 'boxfish-studio--is-ui-components'
+```
+
+This component can be customized by adjusting their props:
+
+-   `StreamsManager`: Initially, a set of channels is shown in the form of a list in which you can see some characteristics such as their name, description, channel address, as well as information about the topics (source and type). This component also allows you to search for channels and select a particular channel to access a details view where you can manage subscriptions as well as write messages within that channel if the logged in identity has the necessary permissions.
+    -   `showSearch`: if `true` search is available
+    -   `listViewButtons`: buttons to create actions related to list view
+    -   `messageFeedButtons`: buttons to create actions related to messages view (details)
+    -   `tableConfiguration`: table configuration. [This config](#default-table-configuration) is used by default.
+
+### Functions
+
+```js
+import {
+    searchAllChannels,
+    searchChannelsSingleRequest,
+    readChannelMessages,
+    startReadingChannel,
+    requestSubscription,
+    requestUnsubscription,
+    acceptSubscription,
+    rejectSubscription,
+    getSubscriptions,
+    getSubscriptionStatus,
+    writeMessage,
+    createChannel,
+    addChannelToSearchResults,
+    isUserOwnerOfChannel,
+    isUserSubscribedToChannel,
+} from 'boxfish-studio--is-ui-components'
+```
+
+-   `searchAllChannels(query, { limit })`: function that allows to search in all the channels by means of a query. The search is performed on the author id or on the topic source. It is important to know that the search through this function is done progressively with the intention of avoiding overloading the front. In this way, the procedure consists of performing small searches (calling the `searchChannelsSingleRequest` function) until reaching the total number of results or the maximum number of results required by the `limit` parameter.
+    -   `query`: query
+    -   `limit`: maximum number of search results
+-   `searchChannelsSingleRequest(query, {searchByAuthorId, searchBySource, limit, index})`: this function allows you to perform a simple search. To learn more about the reason for the existence of this function, we recommend carefully reading the documentation referring to the function `searchAllChannels`.
+    -   `query`: query
+    -   `searchByAuthorId`: `true` if we want to search by author id
+    -   `searchBySource`: `true` if we want to search by topic source
+    -   `limit`: maximum search results
+    -   `index`: search index
+-   `readChannelMessages(channelAddress)`: this function allows you to store in the svelte store dedicated to the messages of a channel (`channelData`) the messages associated with the channel whose address is passed to it as a parameter.
+    -   `channelAddress`: channel address from which to extract the associated messages.
+-   `startReadingChannel(channelAddress)`: this function allows you to continuously listen to the messages of a channel and, therefore, update the arrival of new messages in real time.
+-   `channelAddress`: address of the channel on which you continually listen for new messages.
+-   `stopReadingChannel()`: this function allows you to stop the continuous listening of the messages associated with a channel whose address is passed as a parameter.
+    -   `channelAddress`: address of the channel on which to stop continuous listening for new messages.
+-   `requestSubscription(channelAddress)`: this function allows you to send a subscription request by the logged in identity to a certain channel.
+    -   `channelAddress`: channel address to subscribe to
+-   `requestUnsubscription(channelAddress)`: this function allows you to request an unsubscription of the channel by the logged in identity in a certain channel.
+    -   `channelAddress`: channel address to unsubscribe to
+-   `acceptSubscription(channelAddress)`: this function allows the owner of a certain channel to accept the subscription request to that channel by an identity.
+    -   `channelAddress`: address of the channel to accept the subscription request
+-   `rejectSubscription(channelAddress)`this function allows the owner of a certain channel to reject the subscription request to that channel by an identity.
+    -   `channelAddress`: address of the channel to reject the subscription request
+-   `getSubscriptions(channelAddress)`: this function allows you to obtain a list of all the subscriptions of a certain channel
+    -   `channelAddress`: channel address to get all subscriptions
+-   `getSubscriptionStatus(channelAddress)`: This function allows knowing the status of the subscription of the logged in identity on a certain channel.
+    -   `channelAddress`: address of the channel on which to know the status of the subscription
+-   `writeMessage(address, payload, publicPayload, metadata, type)`: this function allows to write a message in a certain channel.
+    -   `address`: address of the channel to which to write a message
+    -   `payload`: encrypted payload of a channel
+    -   `publicPayload`: public payload of a channel can be seen when checking at explorer
+    -   `metadata`: public metadata of a channel can be seen when checking at explorer
+    -   `type`: type describing the type of what is logged
+-   `createChannel(topics)`: This function allows the creation of a channel
+    -   `topics`: topics of a channel.
+-   `isUserOwnerOfChannel(channelAddress)`: this function returns `true` if the logged in identity is the owner of a given channel
+    -   `channelAddress`: address of the channel involved
+-   `isUserSubscribedToChannel(channelAddress)`: this function returns `true` if the logged in identity is a subscriber of a given channel
+    -   `channelAddress`: address of the channel involved
+
+## Notifications system
+
+The library also allows you to introduce a notification system in the form of toasts.
+
+### Store
+
+The library exposes a Svelte Writable Store to manage the notification set. It can be imported in the following way:
+
+```js
+import { notifications } from 'boxfish-studio--is-ui-components'
+```
+
+-   `notifications`: It is a set (array) of the notifications
+
+### IS UI Components
+
+#### Manager
+
+The library offers a notification manager to be able to integrate it into a website.
+It is very important that the notification system is only imported once in the entire project, since if this condition is not met, the behavior of the notification manager may not be adequate.
+To import it you need to do it as follows:
+
+```js
+import { NotificationManager } from 'boxfish-studio--is-ui-components'
+```
+
+`NotificationManager`: This component allows you to automatically manage notifications in the form of floating toasts.
+
+### Functions
+
+The library allows access to functions that are useful for managing notifications:
+
+-   `showNotification(notification)`: this function allows you to add a notification
+    -   `notification`: notification to be added
+-   `removeNotification(notification)`: this function allows you to remove a notification
+    -   `notification`: notification to be removed
+-   `updateNotification(id, updateData)`: this function allows you to update a notification
+    -   `id`: notification id to be updated
+    -   `updateData`: new notification details
+
+## Color customization
 
 You can customize the default Bootstrap 5 theme
-using scss with svelete-preprocess.
+using `scss` with `svelte-preprocess`.
 
 Example:
 
 ```css
 /* global.scss or some root component */
 $theme-colors: (
-	primary: pink
+    primary: pink
 );
 @import 'node_modules/bootstrap/scss/bootstrap.scss';
 ```
 
 [Color reference](https://getbootstrap.com/docs/5.0/customize/color/#theme-colors)
 
-## Generate package
+## Collaborate with the project
 
-To generate a package to be used as a library in other projects, it is necessary to execute:
+Clone the repo:
 
-`npm run package`
+```sh
+git clone https://github.com/iota-community/is-ui-components.git
+```
 
-This takes all the files in the src folder and generates a package with them which is saved in package folder.
+Add a `.env` file like based on `.env.example`:
+
+```sh
+VITE_API_KEY= HERE_YOUR_IS_API_KEY
+VITE_BASE_URL= HERE_THE_BASE_URL_TO_CONNECT_WITH_IS_API
+```
+
+You have to install dependencies and run the project
+
+```sh
+npm install
+npm run start
+```
+
+and IS UI library will run on
+
+```sh
+http://localhost:3001/
+```
+
+## Authors
+
+[Begoña Álvarez de la Cruz](https://github.com/begonaalvarezd) (balvarez@boxfish.studio)  
+[Eva Virseda Sanz](https://github.com/evavirseda) (evirseda@boxfish.studio)  
+[Rubén Álvarez Gallego](https://github.com/evavirseda) (ralvarez@boxfish.studio)
+
+## Default templates
+
+### Default table configuration
+
+```js
+{
+   "isPaginated":true,
+   "siblingsCount":2,
+   "pageSize":"DEFAULT_TABLE_PAGE_SIZE"
+}
+```
+
+### Credentials template
+
+```js
+{
+   "id":"demoTemplateFullName",
+   "name":"[Demo Template] Full Name",
+   "fields":[
+      {
+         "id":"fullName",
+         "name":"Full name",
+         "type":"FieldType.Text",
+         "required":true,
+         "minLength":3,
+         "maxLength":100
+      }
+   ],
+   "credentialType":"CredentialTypes.VerifiedIdentityCredential",
+   "userType":"UserType.Person"
+},
+{
+   "id":"demoTemplateSmallCompany",
+   "name":"[Demo Template] Small company",
+   "fields":[
+      {
+         "id":"companyName",
+         "name":"Company name",
+         "type":"FieldType.Text",
+         "required":true,
+         "minLength":3,
+         "maxLength":100
+      },
+      {
+         "id":"employees",
+         "name":"Total of employees",
+         "type":"FieldType.Number",
+         "required":true
+      }
+   ],
+   "credentialType":"CredentialTypes.BasicIdentityCredential",
+   "userType":"UserType.Organization"
+}
+```
+
+### Identities template
+
+```js
+    {
+        type: UserType.Person,
+        fields: [
+            {
+                id: 'username',
+                name: 'username',
+                required: true,
+                type: FieldType.Text,
+            },
+            {
+                id: 'name',
+                name: 'name',
+                type: FieldType.Text,
+                required: true,
+            },
+            {
+                id: 'firstName',
+                name: 'First name',
+                type: FieldType.Text,
+                required: true,
+            },
+            {
+                id: 'lastName',
+                name: 'Last name',
+                type: FieldType.Text,
+                required: true,
+            },
+            {
+                id: 'description',
+                name: 'Description',
+                type: FieldType.Text,
+            },
+            {
+                id: 'image',
+                name: 'Image',
+                type: FieldType.Text,
+            },
+            {
+                id: 'address',
+                name: 'Address',
+                type: FieldType.Text,
+            },
+            {
+                id: 'jobTitle',
+                name: 'Job title',
+                type: FieldType.Text,
+            },
+            {
+                id: 'email',
+                name: 'Email',
+                type: FieldType.Email,
+            },
+            {
+                id: 'bithdate',
+                name: 'Birth date',
+                type: FieldType.Date,
+            },
+        ],
+    },
+    {
+        type: UserType.Organization,
+        fields: [
+            {
+                id: 'username',
+                name: 'username',
+                type: FieldType.Text,
+                required: true,
+            },
+            {
+                id: 'name',
+                name: 'Name',
+                type: FieldType.Text,
+                required: true,
+            },
+            {
+                id: 'description',
+                name: 'Description',
+                type: FieldType.Text,
+            },
+            {
+                id: 'url',
+                name: 'Url',
+                type: FieldType.Text,
+            },
+            {
+                id: 'image',
+                name: 'Image',
+                type: FieldType.Text,
+            },
+            {
+                id: 'address',
+                name: 'Address',
+                type: FieldType.Text,
+            },
+            {
+                id: 'brand',
+                name: 'Brand',
+                type: FieldType.Text,
+            },
+            {
+                id: 'email',
+                name: 'Email',
+                type: FieldType.Email,
+            },
+        ],
+    },
+    {
+        type: UserType.Service,
+        fields: [
+            {
+                id: 'username',
+                name: 'username',
+                type: FieldType.Text,
+                required: true,
+            },
+            {
+                id: 'name',
+                name: 'Name',
+                type: FieldType.Text,
+                required: true,
+            },
+            {
+                id: 'description',
+                name: 'Description',
+                type: FieldType.Text,
+            },
+            {
+                id: 'url',
+                name: 'Url',
+                type: FieldType.Text,
+            },
+            {
+                id: 'category',
+                name: 'Category',
+                type: FieldType.Text,
+            },
+            {
+                id: 'brand',
+                name: 'Brand',
+                type: FieldType.Text,
+            },
+        ],
+    },
+    {
+        type: UserType.Device,
+        fields: [
+            {
+                id: 'username',
+                name: 'username',
+                type: FieldType.Text,
+                required: true,
+            },
+            {
+                id: 'name',
+                name: 'name',
+                type: FieldType.Text,
+                required: true,
+            },
+            {
+                id: 'description',
+                name: 'Description',
+                type: FieldType.Text,
+            },
+            {
+                id: 'url',
+                name: 'Url',
+                type: FieldType.Text,
+            },
+            {
+                id: 'category',
+                name: 'Category',
+                type: FieldType.MultipleSelector,
+                options: Object.keys(ProductEnum).map((key) => ({ label: key, value: key })),
+            },
+            {
+                id: 'controlledProperty',
+                name: 'Controlled property',
+                type: FieldType.MultipleSelector,
+                options: Object.keys(DeviceControlledProperty).map((key) => ({ label: key, value: key })),
+            },
+        ],
+    },
+    {
+        type: UserType.Product,
+        fields: [
+            {
+                id: 'username',
+                name: 'username',
+                type: FieldType.Text,
+                required: true,
+            },
+            {
+                id: 'name',
+                name: 'name',
+                type: FieldType.Text,
+                required: true,
+            },
+            {
+                id: 'description',
+                name: 'Description',
+                type: FieldType.Text,
+            },
+            {
+                id: 'url',
+                name: 'Url',
+                type: FieldType.Text,
+            },
+            {
+                id: 'image',
+                name: 'Image',
+                type: FieldType.Text,
+            },
+            {
+                id: 'address',
+                name: 'Address',
+                type: FieldType.Text,
+            },
+            {
+                id: 'brand',
+                name: 'Brand',
+                type: FieldType.Text,
+            },
+            {
+                id: 'manufacturer',
+                name: 'Manufacturer',
+                type: FieldType.Text,
+            },
+            {
+                id: 'category',
+                name: 'Category',
+                type: FieldType.TextArray,
+            },
+            {
+                id: 'productId',
+                name: 'Product Id',
+                type: FieldType.Text,
+            },
+            {
+                id: 'productionDate',
+                name: 'Production date',
+                type: FieldType.Text,
+            },
+            {
+                id: 'material',
+                name: 'Material',
+                type: FieldType.Text,
+            },
+        ],
+    },
+    {
+        type: UserType.Unknown,
+        fields: [
+            {
+                id: 'username',
+                name: 'username',
+                type: FieldType.Text,
+                required: true,
+            },
+            {
+                id: 'name',
+                name: 'name',
+                type: FieldType.Text,
+                required: true,
+            },
+        ],
+    },
+]
+```
