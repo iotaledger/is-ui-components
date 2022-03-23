@@ -1,11 +1,13 @@
-import type { ClientConfig } from 'boxfish-studio--iota-is-sdk';
-import { ApiVersion, ChannelClient, IdentityClient } from 'boxfish-studio--iota-is-sdk';
+import type { ClientConfig } from '@iota/is-client';
+import { ApiVersion, ChannelClient, IdentityClient } from '@iota/is-client';
 import { derived } from 'svelte/store';
 import { persistent } from './utils';
 
 const config: ClientConfig = {
-	apiKey: import.meta.env.VITE_API_KEY as string, // Deployed Integration Services API KEY
-	baseUrl: import.meta.env.VITE_BASE_URL as string, // URL of the Integration Services API
+	apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
+	isGatewayUrl: import.meta.env.VITE_IOTA_IS_SDK_GATEWAY_URL as string,
+	ssiBridgeUrl: import.meta.env.VITE_IOTA_IS_SDK_SSI_BRIDGE_URL as string,
+	auditTrailUrl: import.meta.env.VITE_IOTA_IS_SDK_AUDIT_TRAIL_URL as string,
 	apiVersion: ApiVersion.v01
 };
 

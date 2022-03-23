@@ -1,4 +1,4 @@
-import type { ChannelInfo } from 'boxfish-studio--iota-is-sdk';
+import type { ChannelInfo } from '@iota/is-client';
 
 export interface ExtendedChannelInfo extends ChannelInfo {
     // NOTE: description & name are not yet supported by the SDK

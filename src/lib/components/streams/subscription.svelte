@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Subscription } from 'boxfish-studio--iota-is-sdk'
+    import type { Subscription } from '@iota/is-client'
     import { Button, Spinner } from 'sveltestrap'
 
     export let displayActionButtons: boolean = true

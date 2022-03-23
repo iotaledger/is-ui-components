@@ -1,7 +1,7 @@
 <script lang="ts">
     import { createJsonDataUrl } from '$lib/app/utils'
     import { Box, Icon } from '$lib/components'
-    import type { IdentityJson, UserType } from 'boxfish-studio--iota-is-sdk'
+    import type { IdentityJson, UserType } from '@iota/is-client'
 
     export let identity: IdentityJson
     export let type: UserType

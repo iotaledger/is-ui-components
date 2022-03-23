@@ -10,11 +10,18 @@ Collection of [Integration Services](https://github.com/iotaledger/integration-s
 $ npm i boxfish-studio--is-ui-components
 ```
 
-2. Rename the `.env.example` file to `.env` and add the corresponding necessary configuration:
+2. Create a `.env` in the root of the projects and add the corresponding necessary configuration:
 
 ```bash
-VITE_API_KEY= HERE_YOUR_IS_API_KEY
-VITE_BASE_URL= HERE_THE_BASE_URL_TO_CONNECT_WITH_IS_API
+VITE_IOTA_IS_SDK_API_KEY="XXXXXXXXXX"
+# Use VITE_IOTA_IS_SDK_GATEWAY_URL for a single gateway url
+VITE_IOTA_IS_SDK_GATEWAY_URL="XXXXXXXXXX"
+# Use SSI Bridge & Audit Trail urls when you have separated instances
+VITE_IOTA_IS_SDK_SSI_BRIDGE_URL="XXXXXXXXXX"
+VITE_IOTA_IS_SDK_AUDIT_TRAIL_URL="XXXXXXXXXX"
+```
+
+If you dont add this file the IOTA IS SDK will use the default values
 ```
 
 ## Authentication
@@ -480,8 +487,12 @@ git clone https://github.com/iota-community/is-ui-components.git
 Add a `.env` file like based on `.env.example`:
 
 ```sh
-VITE_API_KEY= HERE_YOUR_IS_API_KEY
-VITE_BASE_URL= HERE_THE_BASE_URL_TO_CONNECT_WITH_IS_API
+VITE_IOTA_IS_SDK_API_KEY="XXXXXXXXXX"
+# Use VITE_IOTA_IS_SDK_GATEWAY_URL for a single gateway url
+VITE_IOTA_IS_SDK_GATEWAY_URL="XXXXXXXXXX"
+# Use SSI Bridge & Audit Trail urls when you have separated instances
+VITE_IOTA_IS_SDK_SSI_BRIDGE_URL="XXXXXXXXXX"
+VITE_IOTA_IS_SDK_AUDIT_TRAIL_URL="XXXXXXXXXX"
 ```
 
 You have to install dependencies and run the project

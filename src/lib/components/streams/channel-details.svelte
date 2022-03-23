@@ -5,7 +5,7 @@
     import type { ExtendedChannelInfo } from '$lib/app/types/streams'
     import { SubscriptionState } from '$lib/app/types/streams'
     import { ChannelInfo, ChannelMessages, ChannelSubscriptions } from '$lib/components'
-    import type { ChannelData, Subscription } from 'boxfish-studio--iota-is-sdk'
+    import type { ChannelData, Subscription } from '@iota/is-client'
 
     export let channel: ExtendedChannelInfo
     export let channelData: ChannelData[] = []

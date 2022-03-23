@@ -5,7 +5,7 @@
     import type { VerifiableCredentialTemplate } from '$lib/app/types/identity'
     import { createJsonDataUrl } from '$lib/app/utils'
     import { Form } from '$lib/components'
-    import type { VerifiableCredentialJson } from 'boxfish-studio--iota-is-sdk'
+    import type { VerifiableCredentialJson } from '@iota/is-client'
     import { ModalBody, ModalFooter, ModalHeader } from 'sveltestrap'
     // We have to import Input this way, otherwise it shouts SSR issues.
     import Input from 'sveltestrap/src/Input.svelte'

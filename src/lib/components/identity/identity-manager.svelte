@@ -16,7 +16,7 @@
     import type { ActionButton } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, ListManager } from '$lib/components'
-    import type { IdentityJson } from 'boxfish-studio--iota-is-sdk'
+    import type { IdentityJson } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
