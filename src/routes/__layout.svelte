@@ -3,7 +3,6 @@
         { title: 'Identity Manager', url: '/identity-manager' },
         { title: 'Streams Manager', url: '/streams-manager' },
         { title: 'Verify Credential', url: '/verify-credential' },
-        { title: 'Demos', url: '/demos' },
     ]
 </script>
 
