@@ -270,12 +270,14 @@ export async function writeMessage(
 ): Promise<ChannelData> {
     if (get(isAuthenticated)) {
         try {
+            stopReadingChannel()
             const response: ChannelData = await channelClient.write(address, {
                 payload,
                 publicPayload,
                 metadata,
                 type,
             })
+            startReadingChannel(address)
             return response
         } catch (e) {
             showNotification({
