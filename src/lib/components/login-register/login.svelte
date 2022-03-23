@@ -13,6 +13,7 @@
     let json: IdentityJson
     let file: File
     let loading: boolean = false
+    let invalidJsonFile: boolean = false
 
     onMount(() => {
         fileReader = new FileReader()
@@ -24,7 +25,7 @@
 
     async function handleLogin(): Promise<void> {
         loading = true
-        if (json?.doc?.id) {
+        if (!invalidJsonFile && json?.doc?.id) {
             const success = await authenticate(json?.doc?.id, json?.key?.secret)
             if (success) {
                 onSuccess()
@@ -40,7 +41,12 @@
     }
 
     function loadJson(): void {
-        json = JSON.parse(fileReader?.result?.toString())
+        try {
+            json = JSON.parse(fileReader?.result?.toString())
+            invalidJsonFile = false
+        } catch {
+            invalidJsonFile = true
+        }
     }
 </script>
 
@@ -62,7 +68,13 @@
             <p>{file?.name ?? 'Upload a JSON file or drag and drop'}</p>
         </Dropzone>
     </div>
-    <Button size="lg" block class="mt-4" color="primary" disabled={!file || loading} on:click={handleLogin}>
+    {#if invalidJsonFile}
+        <div class="d-flex justify-content-between w-100 mt-4">
+            <div>{file?.name}</div>
+            <div class="text-danger ms-4">Invalid JSON file</div>
+        </div>
+    {/if}
+    <Button size="lg" block class="mt-4" color="primary" disabled={!file || loading || invalidJsonFile} on:click={handleLogin}>
         <div class="text-center d-flex flex-row align-items-center justify-content-center">
             {#if loading}
                 <div class="me-1">Processing...</div>
