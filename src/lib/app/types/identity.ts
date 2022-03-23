@@ -1,5 +1,5 @@
 import type { Input } from '$lib/app/types/form';
-import type { CredentialTypes, User, UserType, VerifiableCredentialInternal } from 'boxfish-studio--iota-is-sdk';
+import type { CredentialTypes, User, UserType, VerifiableCredentialInternal } from '@iota/is-client';
 
 export enum FieldType {
     Date = 'date',

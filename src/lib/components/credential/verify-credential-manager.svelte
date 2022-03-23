@@ -3,7 +3,7 @@
     import { CREDENTIAL_ICON } from '$lib/app/constants/identity'
     import { verifyVC } from '$lib/app/identity'
     import { Box, Icon, JSONViewer } from '$lib/components'
-    import type { VerifiableCredentialInternal } from 'boxfish-studio--iota-is-sdk'
+    import type { VerifiableCredentialInternal } from '@iota/is-client'
     import Dropzone from 'svelte-file-dropzone'
     import { Accordion, AccordionItem, Badge, Spinner } from 'sveltestrap'
     import type { Color } from 'sveltestrap/src/shared'

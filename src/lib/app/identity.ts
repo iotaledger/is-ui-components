@@ -1,5 +1,5 @@
-import type { CredentialTypes, IdentityJson, RevokeVerificationBody, VerifiableCredentialInternal, VerifiableCredentialJson } from 'boxfish-studio--iota-is-sdk';
-import { UserType } from 'boxfish-studio--iota-is-sdk';
+import type { CredentialTypes, IdentityJson, RevokeVerificationBody, VerifiableCredentialInternal, VerifiableCredentialJson } from '@iota/is-client';
+import { UserType } from '@iota/is-client';
 import type { Writable } from 'svelte/store';
 import { get, writable } from 'svelte/store';
 import { authenticationData, channelClient, identityClient, isAuthenticated } from './base';

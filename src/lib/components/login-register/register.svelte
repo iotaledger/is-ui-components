@@ -2,7 +2,7 @@
     import { DEFAULT_IDENTITIES_TEMPLATES } from '$lib/app/constants/identity'
     import type { IdentityTemplate } from '$lib/app/types/identity'
     import { Box, Icon, RegisterSuccess } from '$lib/components'
-    import type { IdentityJson, UserType } from 'boxfish-studio--iota-is-sdk'
+    import type { IdentityJson, UserType } from '@iota/is-client'
     import CreateIdentityForm from '../identity/create-identity-form.svelte'
 
     export let switchToLogin = (..._: any[]): void => {}

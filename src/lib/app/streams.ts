@@ -1,5 +1,5 @@
-import type { AuthorizeSubscriptionResponse, ChannelData, CreateChannelResponse, RequestSubscriptionResponse, Subscription } from 'boxfish-studio--iota-is-sdk'
-import { AccessRights, ChannelInfo } from 'boxfish-studio--iota-is-sdk'
+import type { AuthorizeSubscriptionResponse, ChannelData, CreateChannelResponse, RequestSubscriptionResponse, Subscription } from '@iota/is-client'
+import { AccessRights, ChannelInfo } from '@iota/is-client'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient, isAuthenticated } from './base'
@@ -81,7 +81,7 @@ export async function searchChannelsSingleRequest(query: string, options: { sear
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
-                message: 'There was an error searching for user',
+                message: 'There was an error searching for channel',
             })
             console.error(Error, e);
         }

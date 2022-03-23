@@ -1,5 +1,5 @@
-import type { ClientConfig } from 'boxfish-studio--iota-is-sdk';
-import { ApiVersion, ChannelClient, IdentityClient } from 'boxfish-studio--iota-is-sdk';
+import type { ClientConfig } from '@iota/is-client';
+import { ApiVersion, ChannelClient, IdentityClient } from '@iota/is-client';
 import { derived } from 'svelte/store';
 import { persistent } from './utils';
 

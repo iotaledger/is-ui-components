@@ -2,7 +2,7 @@
     import type { ActionButton } from '$lib/app/types/layout'
     import { isJson } from '$lib/app/utils'
     import { Icon, JSONViewer } from '$lib/components'
-    import type { ChannelData } from 'boxfish-studio--iota-is-sdk'
+    import type { ChannelData } from '@iota/is-client'
     import { Button, Spinner } from 'sveltestrap'
 
     export let channelData: ChannelData[] = []

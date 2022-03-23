@@ -5,7 +5,7 @@
     import type { ActionButton } from '$lib/app/types/layout'
     import { createJsonDataUrl } from '$lib/app/utils'
     import { Credential, Icon, JSONViewer } from '$lib/components'
-    import type { VerifiableCredentialBody } from 'boxfish-studio--iota-is-sdk'
+    import type { VerifiableCredentialBody } from '@iota/is-client'
     import { Accordion, AccordionItem, Button, Spinner } from 'sveltestrap'
 
     export let identity: ExtendedUser

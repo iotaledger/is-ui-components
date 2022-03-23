@@ -4,7 +4,7 @@
     import type { Input as InputType, SubmitButton } from '$lib/app/types/form'
     import type { IdentityTemplate } from '$lib/app/types/identity'
     import { Form } from '$lib/components'
-    import type { IdentityJson, UserType } from 'boxfish-studio--iota-is-sdk'
+    import type { IdentityJson, UserType } from '@iota/is-client'
     import { Input, Label } from 'sveltestrap'
 
     export let onSuccess = (identity: IdentityJson, userType?: UserType, username: string): void => {}

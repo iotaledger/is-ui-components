@@ -1,4 +1,4 @@
-import { CredentialTypes, UserType } from 'boxfish-studio--iota-is-sdk'
+import { CredentialTypes, UserType } from '@iota/is-client'
 import type { IdentityTemplate, VerifiableCredentialTemplate } from '../types/identity'
 import { DeviceControlledProperty, FieldType, ProductEnum } from '../types/identity'
 import { BoxColor } from './colors'
