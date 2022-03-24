@@ -38,10 +38,9 @@
                     {#each authorizedSubscriptions as subscription}
                         <Subscription
                             {subscription}
-                            {handleAcceptSubscription}
                             {handleRejectSubscription}
                             label="Subscriber Id"
-                            displayActionButtons={false}
+                            allowRejectAction={isUserOwner && subscription?.id !== $authenticatedUserDID}
                         />
                     {/each}
                 </AccordionItem>
@@ -65,7 +64,8 @@
                             {handleAcceptSubscription}
                             {handleRejectSubscription}
                             label="Requester Id"
-                            displayActionButtons={isUserOwner}
+                            allowAcceptAction={isUserOwner}
+                            allowRejectAction={isUserOwner}
                         />
                     {/each}
                 </AccordionItem>

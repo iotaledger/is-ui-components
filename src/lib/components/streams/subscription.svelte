@@ -2,7 +2,8 @@
     import type { Subscription } from '@iota/is-client'
     import { Button, Spinner } from 'sveltestrap'
 
-    export let displayActionButtons: boolean = true
+    export let allowAcceptAction: boolean = false
+    export let allowRejectAction: boolean = false
     export let subscription: Subscription = undefined
     export let label: string = 'Subscriber Id'
     export let handleAcceptSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
@@ -29,35 +30,46 @@
             <div class="text-secondary mb-1">{label}</div>
             <span class="text-break">{subscription?.id}</span>
         </div>
-        {#if displayActionButtons}
+        {#if allowAcceptAction || allowRejectAction}
             <div class="d-flex flex-column flex-lg-row ">
-                <Button class="ms-2" size="sm" outline color="dark" disabled={isAccepting || isRejecting} on:click={handleAccept}>
-                    <div class="d-flex justify-content-center align-items-center">
-                        {isAccepting ? 'Accepting...' : 'Accept'}
-                        {#if isAccepting}
-                            <div class="ms-2">
-                                <Spinner size="sm" type="border" color="success" />
-                            </div>
-                        {/if}
-                    </div>
-                </Button>
-                <Button
-                    class="ms-2 mt-2 mt-lg-0"
-                    size="sm"
-                    outline
-                    color="danger"
-                    disabled={isAccepting || isRejecting}
-                    on:click={handleReject}
-                >
-                    <div class="d-flex justify-content-center align-items-center">
-                        {isRejecting ? 'Revoking...' : 'Revoke'}
-                        {#if isRejecting}
-                            <div class="ms-2">
-                                <Spinner size="sm" type="border" color="success" />
-                            </div>
-                        {/if}
-                    </div>
-                </Button>
+                {#if allowAcceptAction}
+                    <Button
+                        class="ms-2"
+                        size="sm"
+                        outline
+                        color="dark"
+                        disabled={isAccepting || isRejecting}
+                        on:click={handleAccept}
+                    >
+                        <div class="d-flex justify-content-center align-items-center">
+                            {isAccepting ? 'Accepting...' : 'Accept'}
+                            {#if isAccepting}
+                                <div class="ms-2">
+                                    <Spinner size="sm" type="border" color="success" />
+                                </div>
+                            {/if}
+                        </div>
+                    </Button>
+                {/if}
+                {#if allowRejectAction}
+                    <Button
+                        class="ms-2 mt-2 mt-lg-0"
+                        size="sm"
+                        outline
+                        color="danger"
+                        disabled={isAccepting || isRejecting}
+                        on:click={handleReject}
+                    >
+                        <div class="d-flex justify-content-center align-items-center">
+                            {isRejecting ? 'Revoking...' : 'Revoke'}
+                            {#if isRejecting}
+                                <div class="ms-2">
+                                    <Spinner size="sm" type="border" color="success" />
+                                </div>
+                            {/if}
+                        </div>
+                    </Button>
+                {/if}
             </div>
         {/if}
     </div>
