@@ -21,7 +21,7 @@
          * If the number of pages is less than the page numbers we want to show in our
          * paginationComponent, we return the range [1..totalPageCount].
          */
-        if (totalPageNumbers >= totalPageCount) {
+        if (totalPageNumbers >= totalPageCount - 1) {
             return range(1, totalPageCount)
         }
         const leftSiblingIndex = Math.max(currentPage - siblingsCount, 1)
