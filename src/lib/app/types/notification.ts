@@ -7,6 +7,6 @@ export type Notification = {
 }
 
 export enum NotificationType {
+  Info = 'info',
   Error = 'error',
 }
-

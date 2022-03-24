@@ -1,8 +1,8 @@
 <script lang="ts">
     import { NotificationType } from '$lib/app/types/notification'
+    import { Icon } from '$lib/components'
     import { fade } from 'svelte/transition'
-    import { Toast,ToastBody,ToastHeader } from 'sveltestrap'
-    import Icon from './icon/icon.svelte'
+    import { Toast, ToastBody, ToastHeader } from 'sveltestrap'
 
     export let title: string | undefined = undefined
     export let message: string
@@ -21,9 +21,13 @@
     <Toast isOpen={showToast}>
         <ToastHeader {toggle}>
             <div class="d-flex align-items-center text-{color}">
-                <Icon type="exclamation-circle" size={12} />
+                {#if type === NotificationType.Error}
+                    <div class="me-2">
+                        <Icon type="exclamation-circle" size={12} />
+                    </div>
+                {/if}
                 {#if title}
-                    <span class="ms-2 text-capitalize">{title}</span>
+                    <span class="text-capitalize">{title}</span>
                 {/if}
             </div>
         </ToastHeader>
