@@ -110,15 +110,16 @@ export function isJson(str: string): boolean {
     return true
 }
 
-export function isAnObject(object: any): boolean {
+
+export function isAnObject(object: unknown): boolean {
     return (object !== null && typeof (object) === 'object')
 }
 
-export function isArray(array: any): boolean {
+export function isArray(array: unknown): boolean {
     return Array.isArray(array)
 }
 
-export function isAnArrayOfObjects(array: any[]): boolean {
+export function isAnArrayOfObjects(array: unknown[]): boolean {
     return isArray(array) && array.every(isAnObject)
 }
 

@@ -4,7 +4,7 @@
     import { isUserOwnerOfChannel } from '$lib/app/streams'
     import type { ExtendedChannelInfo } from '$lib/app/types/streams'
     import { Icon, Subscription } from '$lib/components'
-    import type { Subscription as SubscriptionType } from '@iota/is-client'
+    import type { SubscriptionInternal as SubscriptionType } from '@iota/is-client'
     import { Accordion, AccordionItem, Badge } from 'sveltestrap'
 
     export let channel: ExtendedChannelInfo

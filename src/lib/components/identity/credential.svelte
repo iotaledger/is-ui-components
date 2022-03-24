@@ -2,12 +2,12 @@
     import { CREDENTIAL_ICON } from '$lib/app/constants/identity'
     import { createJsonDataUrl } from '$lib/app/utils'
     import { Icon, JSONViewer } from '$lib/components'
-    import type { VerifiableCredentialBody } from '@iota/is-client'
+    import type { VerifiableCredentialInternal } from '@iota/is-client'
     import { Accordion, AccordionItem, Button, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
 
-    export let vc: VerifiableCredentialBody
+    export let vc: VerifiableCredentialInternal
     export let revoking: boolean = false
     export let onRevoke = (..._: any[]): void => {}
 

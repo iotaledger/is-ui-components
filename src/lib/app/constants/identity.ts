@@ -234,7 +234,7 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
 			{
 				id: 'category',
 				name: 'Category',
-				type: FieldType.TextArray,
+				type: FieldType.StringArray,
 			},
 			{
 				id: 'productId',

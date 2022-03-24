@@ -5,7 +5,7 @@
     import type { ActionButton } from '$lib/app/types/layout'
     import { createJsonDataUrl } from '$lib/app/utils'
     import { Credential, Icon, JSONViewer } from '$lib/components'
-    import type { VerifiableCredentialBody } from '@iota/is-client'
+    import type { VerifiableCredentialInternal } from '@iota/is-client'
     import { Accordion, AccordionItem, Button, Spinner } from 'sveltestrap'
 
     export let identity: ExtendedUser
@@ -17,7 +17,7 @@
 
     $: type = identity?.claim?.type
 
-    async function handleRevoke(vc: VerifiableCredentialBody): Promise<void> {
+    async function handleRevoke(vc: VerifiableCredentialInternal): Promise<void> {
         revoking = true
         const success = await revokeVC({ signatureValue: vc.proof.signatureValue })
         if (success) {

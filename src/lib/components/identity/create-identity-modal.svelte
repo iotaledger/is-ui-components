@@ -3,7 +3,7 @@
     import type { IdentityTemplate } from '$lib/app/types/identity'
     import { createJsonDataUrl } from '$lib/app/utils'
     import { CreateIdentityForm } from '$lib/components'
-    import type { IdentityJson } from '@iota/is-client/lib'
+    import type { IdentityJson } from '@iota/is-client'
     import { ModalBody, ModalFooter, ModalHeader } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'

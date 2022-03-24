@@ -1,5 +1,5 @@
-import type { AuthorizeSubscriptionResponse, ChannelData, CreateChannelResponse, RequestSubscriptionResponse, Subscription } from '@iota/is-client'
-import { AccessRights, ChannelInfo } from '@iota/is-client'
+import type { AuthorizeSubscriptionResponse, ChannelData, CreateChannelResponse, RequestSubscriptionResponse, SubscriptionInternal } from '@iota/is-client'
+import { AccessRights, type ChannelInfo } from '@iota/is-client'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient, isAuthenticated } from './base'
@@ -14,7 +14,7 @@ export const selectedChannel: Writable<ExtendedChannelInfo> = writable(null)
 export const searchChannelsResults: Writable<ExtendedChannelInfo[]> = writable([])
 export const selectedChannelData: Writable<ChannelData[]> = writable([])
 export const selectedChannelBusy = writable(false)
-export const selectedChannelSubscriptions: Writable<Subscription[]> = writable(null);
+export const selectedChannelSubscriptions: Writable<SubscriptionInternal[]> = writable(null);
 // used for the async search that makes N background queries to get the full list of channels
 export const isAsyncLoadingChannels: Writable<boolean> = writable(false);
 
@@ -224,8 +224,8 @@ export async function rejectSubscription(channelAddress: string, id: string): Pr
     }
 }
 
-export async function getSubscriptions(channelAddress: string): Promise<Subscription[]> {
-    let subscriptions: Subscription[] = []
+export async function getSubscriptions(channelAddress: string): Promise<SubscriptionInternal[]> {
+    let subscriptions: SubscriptionInternal[] = []
     try {
         subscriptions = await channelClient.findAllSubscriptions(channelAddress)
     } catch (e) {

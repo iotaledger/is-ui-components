@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { DEFAULT_TABLE_CONFIGURATION } from '$lib/app/constants/identity'
+    import { DEFAULT_TABLE_CONFIGURATION } from '$lib/app/constants/base'
     import type { ActionButton } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Icon, SearchInput, Table } from '$lib/components'
