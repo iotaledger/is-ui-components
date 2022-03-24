@@ -2,12 +2,11 @@
     import { authenticatedUserDID } from '$lib/app/base'
     import { BoxColor } from '$lib/app/constants/colors'
     import { isUserOwnerOfChannel } from '$lib/app/streams'
-    import type { ExtendedChannelInfo } from '$lib/app/types/streams'
     import { Icon, Subscription } from '$lib/components'
-    import type { SubscriptionInternal as SubscriptionType } from '@iota/is-client'
+    import type { ChannelInfo, Subscription as SubscriptionType } from '@iota/is-client'
     import { Accordion, AccordionItem, Badge } from 'sveltestrap'
 
-    export let channel: ExtendedChannelInfo
+    export let channel: ChannelInfo
     export let subscriptions: SubscriptionType[] = undefined
     export let handleAcceptSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
     export let handleRejectSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()

@@ -176,7 +176,7 @@ export async function createVC(
     targetDid: string,
     credentialType: CredentialTypes,
     claimType: UserType,
-    claim?: any
+    claim?: unknown
 ): Promise<VerifiableCredentialJson> {
     let credential
     if (get(isAuthenticated)) {

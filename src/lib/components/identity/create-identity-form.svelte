@@ -7,7 +7,7 @@
     import type { IdentityJson, UserType } from '@iota/is-client'
     import { Input, Label } from 'sveltestrap'
 
-    export let onSuccess = (identity: IdentityJson, userType?: UserType, username: string): void => {}
+    export let onSuccess = (identity: IdentityJson, username: string, userType?: UserType): void => {}
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
 
     let registeredIdentity: IdentityJson

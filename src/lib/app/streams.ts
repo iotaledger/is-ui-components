@@ -1,4 +1,4 @@
-import type { AuthorizeSubscriptionResponse, ChannelData, CreateChannelResponse, RequestSubscriptionResponse, SubscriptionInternal } from '@iota/is-client'
+import type { AuthorizeSubscriptionResponse, ChannelData, CreateChannelResponse, RequestSubscriptionResponse, Subscription } from '@iota/is-client'
 import { AccessRights, type ChannelInfo } from '@iota/is-client'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
@@ -7,14 +7,13 @@ import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
 import { FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
-import type { ExtendedChannelInfo } from './types/streams'
 import { SubscriptionState } from './types/streams'
 
-export const selectedChannel: Writable<ExtendedChannelInfo> = writable(null)
-export const searchChannelsResults: Writable<ExtendedChannelInfo[]> = writable([])
+export const selectedChannel: Writable<ChannelInfo> = writable(null)
+export const searchChannelsResults: Writable<ChannelInfo[]> = writable([])
 export const selectedChannelData: Writable<ChannelData[]> = writable([])
 export const selectedChannelBusy = writable(false)
-export const selectedChannelSubscriptions: Writable<SubscriptionInternal[]> = writable(null);
+export const selectedChannelSubscriptions: Writable<Subscription[]> = writable(null);
 // used for the async search that makes N background queries to get the full list of channels
 export const isAsyncLoadingChannels: Writable<boolean> = writable(false);
 
@@ -34,7 +33,7 @@ export async function searchAllChannels(
 ): Promise<void> {
     const _search = async (_searchAllHash: string, query: string, options?: { limit?: number }): Promise<void> => {
         const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:');
-        const newResults: ExtendedChannelInfo[] = await searchChannelsSingleRequest(
+        const newResults: ChannelInfo[] = await searchChannelsSingleRequest(
             query,
             {
                 searchByAuthorId: _isAuthorId(query),
@@ -67,7 +66,7 @@ export async function searchAllChannels(
     await _search(searchAllHash, query, options)
 }
 
-export async function searchChannelsSingleRequest(query: string, options: { searchByAuthorId?: boolean, searchBySource?: boolean; limit: number, index?: number }): Promise<ExtendedChannelInfo[]> {
+export async function searchChannelsSingleRequest(query: string, options: { searchByAuthorId?: boolean, searchBySource?: boolean; limit: number, index?: number }): Promise<ChannelInfo[]> {
     let partialResults = []
     if (get(isAuthenticated)) {
         const { searchByAuthorId, searchBySource, limit, index } = options
@@ -224,8 +223,8 @@ export async function rejectSubscription(channelAddress: string, id: string): Pr
     }
 }
 
-export async function getSubscriptions(channelAddress: string): Promise<SubscriptionInternal[]> {
-    let subscriptions: SubscriptionInternal[] = []
+export async function getSubscriptions(channelAddress: string): Promise<Subscription[]> {
+    let subscriptions: Subscription[] = []
     try {
         subscriptions = await channelClient.findAllSubscriptions(channelAddress)
     } catch (e) {
@@ -333,10 +332,10 @@ export async function addChannelToSearchResults(channelAddress: string): Promise
     }
 }
 
-export function isUserOwnerOfChannel(userDID: string, channel: ExtendedChannelInfo): boolean {
+export function isUserOwnerOfChannel(userDID: string, channel: ChannelInfo): boolean {
     return channel?.authorId === userDID;
 }
 
-export function isUserSubscribedToChannel(userDID: string, channel: ExtendedChannelInfo): boolean {
+export function isUserSubscribedToChannel(userDID: string, channel: ChannelInfo): boolean {
     return channel?.subscriberIds?.includes(userDID) && channel?.authorId !== userDID;
 }

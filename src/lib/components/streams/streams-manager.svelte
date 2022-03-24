@@ -24,10 +24,10 @@
         stopReadingChannel,
     } from '$lib/app/streams'
     import type { ActionButton } from '$lib/app/types/layout'
-    import type { ExtendedChannelInfo } from '$lib/app/types/streams'
     import { SubscriptionState } from '$lib/app/types/streams'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, ChannelDetails, CreateChannelModal, Icon, ListManager, WriteMessageModal } from '$lib/components'
+    import type { ChannelInfo } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
 
     export let showSearch: boolean = true
@@ -137,7 +137,7 @@
         }
     }
 
-    function handleSelectChannel(channel: ExtendedChannelInfo): void {
+    function handleSelectChannel(channel: ChannelInfo): void {
         selectedChannel.set(channel)
     }
 

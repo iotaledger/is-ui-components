@@ -2,12 +2,12 @@
     import { authenticatedUserDID } from '$lib/app/base'
     import { BoxColor } from '$lib/app/constants/colors'
     import { isUserOwnerOfChannel } from '$lib/app/streams'
-    import type { ExtendedChannelInfo } from '$lib/app/types/streams'
     import { SubscriptionState } from '$lib/app/types/streams'
     import { Icon } from '$lib/components'
+    import type { ChannelInfo } from '@iota/is-client'
     import { Badge, Button, Spinner } from 'sveltestrap'
 
-    export let channel: ExtendedChannelInfo = undefined
+    export let channel: ChannelInfo = undefined
     export let subscriptionStatus: SubscriptionState = undefined
     export let loading: boolean = false
     export let onSubscriptionAction: (...__any) => void = () => {}
