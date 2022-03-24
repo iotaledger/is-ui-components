@@ -72,12 +72,12 @@ export async function searchAllIdentities(query: string, options?: { limit?: num
         if (_isDID(query)) {
             const identity = await searchIdentityByDID(query)
             if (identity) {
-
                 searchIdentitiesResults.set([identity])
             }
         }
 
         else {
+
             const newResults = await searchIdentitiesSingleRequest(
                 query,
                 {
@@ -146,7 +146,8 @@ export async function searchIdentitiesSingleRequest(query: string, options: { se
                 username: searchByUsername ? query : undefined,
                 type: searchByType ? query : undefined,
                 limit: limit,
-                index: index
+                index: index,
+                asc: false,
             })
         } catch (e) {
             showNotification({
@@ -230,12 +231,12 @@ export function updateIdentityInSearchResults(identity: ExtendedUser): void {
     })
 }
 
-export async function addIdentityToSearchResults(id: string): Promise<void> {
+export async function addIdentityToSortedSearchResults(id: string): Promise<void> {
     if (get(isAuthenticated)) {
         const identity = await searchIdentityByDID(id)
         if (identity) {
             searchIdentitiesResults?.update((_searchIdentitiesResults) => {
-                return [..._searchIdentitiesResults, identity]
+                return [..._searchIdentitiesResults, identity].sort((a, b) => ((new Date(a?.registrationDate))?.getTime() - (new Date(b?.registrationDate))?.getTime()))
             })
         }
     } else {

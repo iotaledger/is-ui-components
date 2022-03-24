@@ -2,7 +2,7 @@
     import { DEFAULT_TABLE_CONFIGURATION, WELCOME_LIST_RESULTS_NUMBER } from '$lib/app/constants/base'
     import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import {
-        addIdentityToSearchResults,
+        addIdentityToSortedSearchResults,
         getVerifiableCredentials,
         isAsyncLoadingIdentities,
         searchAllIdentities,
@@ -117,7 +117,7 @@
             await onSearch()
         } else {
             // Add the identity to the search results directly, no need to search again
-            await addIdentityToSearchResults(identity?.doc?.id)
+            await addIdentityToSortedSearchResults(identity?.doc?.id)
         }
         loading = false
     }
