@@ -262,8 +262,8 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
 
 export async function writeMessage(
     address: string,
-    payload: string,
-    publicPayload: string,
+    payload?: string,
+    publicPayload?: string,
     metadata?: string,
     type?: string
 ): Promise<ChannelData> {
