@@ -1,7 +1,8 @@
 name: Publish Package to npmjs
 on:
   push:
-      branches: [ master ]
+      branches:
+        - main 
       paths: 
         - "src/**"
         - "./*.json"
