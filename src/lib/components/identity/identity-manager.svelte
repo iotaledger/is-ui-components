@@ -3,6 +3,7 @@
     import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import {
         addIdentityToSortedSearchResults,
+        getIdentityClaim,
         getVerifiableCredentials,
         isAsyncLoadingIdentities,
         searchAllIdentities,
@@ -53,7 +54,7 @@
     let isCreateCredentialModalOpen = false
 
     $: $selectedIdentity, updateState()
-    $: state, loadVCsOnSelectedIdentity()
+    $: state, loadIdentityDetails()
     $: message = $isAsyncLoadingIdentities || loading || $searchIdentitiesResults?.length ? null : 'No identities found'
     $: tableData = {
         headings: ['Identity', 'Type', 'Date created', 'Credentials'],
@@ -92,11 +93,16 @@
         }
     }
 
-    async function loadVCsOnSelectedIdentity(): Promise<void> {
+    async function loadIdentityDetails(): Promise<void> {
         if (state === State.IdentityDetail) {
             loading = true
             const vc = await getVerifiableCredentials($selectedIdentity?.id)
-            selectedIdentity.update((identity) => ({ ...identity, vc }))
+            const claim = (await getIdentityClaim($selectedIdentity?.id)) as {}
+            selectedIdentity.update((identity) => ({
+                ...identity,
+                vc,
+                claim: { ...claim, type: $selectedIdentity?.claim?.type },
+            }))
             loading = false
         }
     }

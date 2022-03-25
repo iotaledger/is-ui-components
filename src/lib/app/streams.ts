@@ -317,12 +317,19 @@ export async function createChannel(topics: { type: string; source: string }[]):
 
 export async function addChannelToSearchResults(channelAddress: string): Promise<void> {
     if (get(isAuthenticated)) {
-        const channel: ChannelInfo = await channelClient.info(channelAddress)
-
-        if (channel) {
-            searchChannelsResults?.update((_searchChannelsResults) => {
-                return [..._searchChannelsResults, channel]
+        try {
+            const channel: ChannelInfo = await channelClient.info(channelAddress)
+            if (channel) {
+                searchChannelsResults?.update((_searchChannelsResults) => {
+                    return [..._searchChannelsResults, channel]
+                })
+            }
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error fetching channel information',
             })
+            console.error(Error, e);
         }
     } else {
         showNotification({

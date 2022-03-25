@@ -56,37 +56,39 @@
     </div>
 
     <div class="credentials">
-        <Accordion class="mt-4">
-            <AccordionItem>
-                <div slot="header" class="d-flex align-items-center">
-                    <Icon type="collection" boxed boxColor={CREDENTIAL_ICON.boxColor} size={48} />
-                    <div class="ms-4">
-                        <div class="fs-6 fw-bold">Claim</div>
-                        <div class="label fw-bold text-secondary mt-1">
-                            {type}
+        {#if identity?.claim}
+            <Accordion class="mt-4">
+                <AccordionItem>
+                    <div slot="header" class="d-flex align-items-center">
+                        <Icon type="collection" boxed boxColor={CREDENTIAL_ICON.boxColor} size={48} />
+                        <div class="ms-4">
+                            <div class="fs-6 fw-bold">Claim</div>
+                            <div class="label fw-bold text-secondary mt-1">
+                                {type}
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="my-2 my-lg-4">
-                    <div class="d-flex flex-column">
-                        <a
-                            class="btn btn-sm btn-outline-info text-decoration-none ms-auto d-flex align-items-center"
-                            href={createJsonDataUrl(identity?.claim)}
-                            download={`claim-identity-${identity?.id}.json`}
-                        >
-                            <Icon type="download" size={16} />
-                            <span class="ms-2">Download</span>
-                        </a>
-                    </div>
-                    <div>
-                        <div class="label fw-bold">JSON content</div>
-                        <div class="mt-1 p-4 bg-light rounded">
-                            <JSONViewer json={JSON.stringify(identity?.claim, null, '\t')} />
+                    <div class="my-2 my-lg-4">
+                        <div class="d-flex flex-column">
+                            <a
+                                class="btn btn-sm btn-outline-info text-decoration-none ms-auto d-flex align-items-center"
+                                href={createJsonDataUrl(identity?.claim)}
+                                download={`claim-identity-${identity?.id}.json`}
+                            >
+                                <Icon type="download" size={16} />
+                                <span class="ms-2">Download</span>
+                            </a>
+                        </div>
+                        <div>
+                            <div class="label fw-bold">JSON content</div>
+                            <div class="mt-1 p-4 bg-light rounded">
+                                <JSONViewer json={JSON.stringify(identity?.claim, null, '\t')} />
+                            </div>
                         </div>
                     </div>
-                </div>
-            </AccordionItem>
-        </Accordion>
+                </AccordionItem>
+            </Accordion>
+        {/if}
         {#if identity?.vc}
             {#each identity?.vc as vc}
                 <div class="credential mt-4">

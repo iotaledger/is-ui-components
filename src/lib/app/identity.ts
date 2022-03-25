@@ -273,8 +273,16 @@ export async function verifyVC(json: VerifiableCredentialInternal): Promise<bool
 export async function getVerifiableCredentials(identityId: string): Promise<VerifiableCredentialInternal[]> {
     let credentials = []
     if (get(isAuthenticated)) {
-        const identityDetails = await identityClient.find(identityId)
-        credentials = identityDetails?.verifiableCredentials ?? []
+        try {
+            const identityDetails = await identityClient.find(identityId)
+            credentials = identityDetails?.verifiableCredentials ?? []
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error fetching identity verifiable credentials',
+            })
+            console.error(Error, e);
+        }
     } else {
         showNotification({
             type: NotificationType.Error,
@@ -282,4 +290,26 @@ export async function getVerifiableCredentials(identityId: string): Promise<Veri
         })
     }
     return credentials
+}
+
+export async function getIdentityClaim(identityId: string): Promise<unknown> {
+    let claim = {}
+    if (get(isAuthenticated)) {
+        try {
+            const identityDetails = await identityClient.find(identityId)
+            claim = identityDetails?.claim ?? {}
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error fetching identity claims',
+            })
+            console.error(Error, e);
+        }
+    } else {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'Cant perform action, user not authenticated',
+        })
+    }
+    return claim
 }
