@@ -187,11 +187,13 @@ export async function requestUnsubscription(channelAddress: string): Promise<boo
 }
 
 export async function acceptSubscription(channelAddress: string, id: string): Promise<AuthorizeSubscriptionResponse> {
+    let authorizedResponse: AuthorizeSubscriptionResponse
+    stopReadingChannel()
     try {
         const response: AuthorizeSubscriptionResponse = await channelClient.authorizeSubscription(channelAddress, {
             id,
         })
-        return response
+        authorizedResponse = response
     } catch (e) {
         showNotification({
             type: NotificationType.Error,
@@ -199,15 +201,19 @@ export async function acceptSubscription(channelAddress: string, id: string): Pr
         })
         console.error(Error, e);
     }
+    startReadingChannel(channelAddress)
+    return authorizedResponse
 }
 
 export async function rejectSubscription(channelAddress: string, id: string): Promise<boolean> {
+    let isRejected = false
     if (get(isAuthenticated)) {
+        stopReadingChannel()
         try {
             await channelClient.revokeSubscription(channelAddress, {
                 id,
             })
-            return true
+            isRejected = true
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -215,6 +221,8 @@ export async function rejectSubscription(channelAddress: string, id: string): Pr
             })
             console.error(Error, e);
         }
+        startReadingChannel(channelAddress)
+        return isRejected
     } else {
         showNotification({
             type: NotificationType.Error,
@@ -268,16 +276,16 @@ export async function writeMessage(
     type?: string
 ): Promise<ChannelData> {
     if (get(isAuthenticated)) {
+        let channelDataResponse: ChannelData
+        stopReadingChannel()
         try {
-            stopReadingChannel()
             const response: ChannelData = await channelClient.write(address, {
                 payload,
                 publicPayload,
                 metadata,
                 type,
             })
-            startReadingChannel(address)
-            return response
+            channelDataResponse = response
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -285,6 +293,8 @@ export async function writeMessage(
             })
             console.error(Error, e);
         }
+        startReadingChannel(address)
+        return channelDataResponse
     } else {
         showNotification({
             type: NotificationType.Error,
