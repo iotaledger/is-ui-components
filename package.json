@@ -1,5 +1,5 @@
 {
-    "name": "testina-magica",
+    "name": "@iota/is-ui-components",
     "type": "module",
     "version": "0.0.1",
     "description": "Svelte UI components for IOTA Integration Services",
