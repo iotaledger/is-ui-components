@@ -40,7 +40,7 @@
     </a>
     <h3 align="center">Integration Services UI Components</h3>
     <p align="center">
-        Collection of [Integration Services](https://github.com/iotaledger/integration-services/) UI components, Svelte stores and useful functions than can be used in SvelteKit webapps.
+        Collection of <a href="https://github.com/iotaledger/integration-services/">Integration Services</a> UI components, Svelte stores and useful functions than can be used in SvelteKit webapps.
         <br />
         <a href="https://wiki.iota.org"><strong>Explore the docs »</strong></a>
         <br />
@@ -686,9 +686,9 @@ http://localhost:3001/
 
 ### Templates
 
-* (Default table)[templates/defaultTable.json]
-* (Credentials)[templates/credential.json]
-* (Identities)[templates/identities.js]
+* [Default table](templates/defaultTable.json)
+* [Credentials](templates/credential.json)
+* [Identities](templates/identities.js)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
