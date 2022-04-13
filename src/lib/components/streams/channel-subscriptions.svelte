@@ -26,7 +26,7 @@
                             type="person-check
                         "
                             boxed
-                            boxColor={BoxColor.Red}
+                            boxColor={BoxColor.Gray}
                             size={48}
                         />
                         <div class="ms-4 d-flex">
@@ -51,7 +51,7 @@
             <Accordion>
                 <AccordionItem>
                     <div slot="header" class="d-flex align-items-center">
-                        <Icon type="exclamation-circle" boxed boxColor={BoxColor.Red} size={48} />
+                        <Icon type="exclamation-circle" boxed boxColor={BoxColor.Gray} size={48} />
                         <div class="ms-4 d-flex">
                             <div class="fs-6 fw-bold me-2">Pending subscriptions</div>
                             <Badge color="danger">{pendingSubscriptions.length}</Badge>
