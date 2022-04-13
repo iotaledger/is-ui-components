@@ -12,5 +12,7 @@ export type ActionButton = {
     onClick: (..._: any[]) => void,
     icon?: string,
     color?: Color,
+    disabled?: boolean,
+    loading?: boolean,
 }
 
