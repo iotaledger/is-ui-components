@@ -28,14 +28,24 @@
         </div>
         <div class="box d-flex flex-column align-items-center">
             {#if actionButtons}
-                {#each actionButtons as { label, onClick, icon, color }}
-                    <Button size="sm" outline color={color ?? 'dark'} on:click={onClick} class="d-flex align-items-center mt-3">
+                {#each actionButtons as { label, onClick, icon, color, loading, disabled }}
+                    <Button
+                        size="sm"
+                        outline
+                        color={color ?? 'dark'}
+                        on:click={onClick}
+                        {disabled}
+                        class="d-flex align-items-center mt-3"
+                    >
                         {#if icon}
                             <div class="me-1">
                                 <Icon type={icon} size={16} />
                             </div>
                         {/if}
                         <span>{label}</span>
+                        {#if loading}
+                            <div class="ms-2 flex align-items-center"><Spinner size="sm" type="border" /></div>
+                        {/if}
                     </Button>
                 {/each}
             {/if}
