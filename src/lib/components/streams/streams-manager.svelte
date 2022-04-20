@@ -194,7 +194,7 @@
         }
         // ----------------------------------------------------------
 
-        await acceptSubscription($selectedChannel?.channelAddress, subscriptionId)
+        await acceptSubscription($selectedChannel?.channelAddress, subscriptionId, true)
         await updateSubscriptions()
     }
 
@@ -209,7 +209,7 @@
         }
         // ----------------------------------------------------------
 
-        await rejectSubscription($selectedChannel?.channelAddress, subscriptionId)
+        await rejectSubscription($selectedChannel?.channelAddress, subscriptionId, true)
         await updateSubscriptions()
     }
 
