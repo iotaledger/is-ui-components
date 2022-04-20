@@ -564,23 +564,23 @@ import {
     -   `channelAddress`: channel address to subscribe to
 -   `requestUnsubscription(channelAddress)`: this function allows you to request an unsubscription of the channel by the logged in identity in a certain channel.
     -   `channelAddress`: channel address to unsubscribe to
--   `acceptSubscription(channelAddress, manageReadingOfChannelMessages)`: this function allows the owner of a certain channel to accept the subscription request to that channel by an identity.
+-   `acceptSubscription(channelAddress, triggerReadChannel)`: this function allows the owner of a certain channel to accept the subscription request to that channel by an identity.
     -   `channelAddress`: address of the channel to accept the subscription request
-    -   `manageReadingOfChannelMessages`: allows you to stop reading channel messages and then accept subscription and finally continue reading channel messages.
--   `rejectSubscription(channelAddress, manageReadingOfChannelMessages)`this function allows the owner of a certain channel to reject the subscription request to that channel by an identity.
+    -   `triggerReadChannel`: when `true` it will start reading the channel messages (polling) if there are no errors.
+-   `rejectSubscription(channelAddress, triggerReadChannel)`this function allows the owner of a certain channel to reject the subscription request to that channel by an identity.
     -   `channelAddress`: address of the channel to reject the subscription request
-    -   `manageReadingOfChannelMessages`: true if we want to stop reading channel messages and then reject subscription and funally continue reading channel messages.
+    -   `triggerReadChannel`: when `true` it will start reading the channel messages (polling) if there are no errors.
 -   `getSubscriptions(channelAddress)`: this function allows you to obtain a list of all the subscriptions of a certain channel
     -   `channelAddress`: channel address to get all subscriptions
 -   `getSubscriptionStatus(channelAddress)`: This function allows knowing the status of the subscription of the logged in identity on a certain channel.
     -   `channelAddress`: address of the channel on which to know the status of the subscription
--   `writeMessage(address, payload, publicPayload, metadata, type, manageReadingOfChannelMessages)`: this function allows to write a message in a certain channel.
+-   `writeMessage(address, payload, publicPayload, metadata, type, triggerReadChannel)`: this function allows to write a message in a certain channel.
     -   `address`: address of the channel to which to write a message
     -   `payload`: encrypted payload of a channel
     -   `publicPayload`: public payload of a channel can be seen when checking at explorer
     -   `metadata`: public metadata of a channel can be seen when checking at explorer
     -   `type`: type describing the type of what is logged
-    -   `manageReadingOfChannelMessages`: allows you to stop reading messages and when a message is written then it continues reading messages.
+    -   `triggerReadChannel`: when `true` it will start reading the channel messages (polling) if there are no errors.
 -   `createChannel(topics)`: This function allows the creation of a channel
     -   `topics`: topics of a channel.
 -   `isUserOwnerOfChannel(channelAddress)`: this function returns `true` if the logged in identity is the owner of a given channel
