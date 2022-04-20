@@ -2,7 +2,7 @@ import type { ClientConfig } from '@iota/is-client';
 import { ApiVersion, ChannelClient, IdentityClient } from '@iota/is-client';
 import type { JwtPayload } from "jwt-decode";
 import jwt_decode from "jwt-decode";
-import { derived } from 'svelte/store';
+import { derived, get } from 'svelte/store';
 import { logout } from './identity';
 import { showNotification } from './notification';
 import { NotificationType } from './types';
@@ -29,7 +29,7 @@ export const authenticatedUserDID = derived(authenticationData, $authData => $au
 
 export const isAuthenticated = derived(
 	authenticationData,
-	($authenticationData) => (!!$authenticationData?.jwt && !isJwtExpired($authenticationData.jwt))
+	($authenticationData) => (!!$authenticationData?.jwt)
 );
 
 authenticationData?.subscribe(($authenticationData) => {
@@ -41,18 +41,8 @@ export const isJwtExpired = (token: string): boolean => {
 	try {
 		const expiry = jwt_decode<JwtPayload>(token)?.exp;
 		const now = new Date();
-
-		const isJwtExpired = now.getTime() > (expiry * 1000)
-
-		//Logout if JWT is expired
-		if (isJwtExpired) {
-			logout()
-			showNotification({
-				type: NotificationType.Error,
-				message: 'JWT expired. Please login again.',
-			})
-		}
-		return isJwtExpired;
+		
+		return now.getTime() > (expiry * 1000);
 	}
 	catch (error) {
 		showNotification({
@@ -61,4 +51,26 @@ export const isJwtExpired = (token: string): boolean => {
 		})
 		console.error("Failed to get JWT expiration status: ", error)
 	}
+}
+
+let jwtExpirationCheckInterval: NodeJS.Timeout;
+export function startPollExpirationCheckJWT(): void {
+	clearInterval(jwtExpirationCheckInterval)
+	jwtExpirationCheckInterval = setInterval(() => {
+		const jwt = get(authenticationData)?.jwt
+		if (jwt) {
+			const isJWTExpired = isJwtExpired(jwt)
+			if (isJWTExpired) {
+				logout()
+				showNotification({
+					type: NotificationType.Error,
+					message: 'JWT expired. Please login again.',
+				})
+			}
+		}
+	}, 60000);
+}
+
+export function stopPollExpirationCheckJWT(): void {
+	clearInterval(jwtExpirationCheckInterval)
 }

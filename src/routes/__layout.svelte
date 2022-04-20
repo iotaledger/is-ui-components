@@ -7,12 +7,21 @@
 </script>
 
 <script lang="ts">
+    import { startPollExpirationCheckJWT, stopPollExpirationCheckJWT } from '$lib/app/base'
     import { Icon, NotificationManager } from '$lib/components'
     import '$lib/scss/index.scss'
     import 'bootstrap/dist/css/bootstrap.min.css'
+    import { onMount } from 'svelte'
     import { Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'sveltestrap'
 
     let isOpen = false
+
+    onMount(() => {
+        startPollExpirationCheckJWT()
+        return () => {
+            stopPollExpirationCheckJWT()
+        }
+    })
 
     function handleCollapse(event) {
         isOpen = event.detail.isOpen
