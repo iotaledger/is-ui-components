@@ -78,7 +78,7 @@
         // ----------------------------------------------------------
 
         const { payload, publicPayload, metadata, type } = formFieldsValues
-        const message = await writeMessage(address, payload, publicPayload, metadata, type)
+        const message = await writeMessage(address, payload, publicPayload, metadata, type, true)
         if (message) {
             onSuccess()
             onModalClose()

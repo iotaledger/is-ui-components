@@ -16,6 +16,7 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -23,6 +24,7 @@
 [![Apache 2.0 license][license-shield]][license-url]
 [![Discord][discord-shield]][discord-url]
 [![StackExchange][stackexchange-shield]][stackexchange-url]
+
 <!-- Add additional Badges. Some examples >
 ![Format Badge](https://github.com/iotaledger/is-ui-components/workflows/Format/badge.svg "Format Badge")
 ![Audit Badge](https://github.com/iotaledger/is-ui-components/workflows/Audit/badge.svg "Audit Badge")
@@ -52,8 +54,8 @@
 </div>
 
 <!-- TABLE OF CONTENTS -->
-<!-- TODO 
-Edit the ToC to your needs. If your project is part of the wiki, you should link directly to the Wiki where possible and remove unneeded sections to prevent duplicates 
+<!-- TODO
+Edit the ToC to your needs. If your project is part of the wiki, you should link directly to the Wiki where possible and remove unneeded sections to prevent duplicates
 -->
 <!--
 <details>
@@ -145,11 +147,12 @@ Edit the ToC to your needs. If your project is part of the wiki, you should link
 -->
 
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
-This library aim to provide a rich set of reusable components to interact 
+This library aim to provide a rich set of reusable components to interact
 with IOTA Integration Services. Those components simplify the creation of
-Svelte-based UI that manage: Decentralize Identities, Secure Auditable 
+Svelte-based UI that manage: Decentralize Identities, Secure Auditable
 Channels and Verifiable Credentials.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -157,13 +160,15 @@ Channels and Verifiable Credentials.
 <!-- TODO
 This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples:
 -->
+
 ### Built With
 
-* [Svelte](https://svelte.dev/)
+-   [Svelte](https://svelte.dev/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
+
 ## Getting Started
 
 1. Add the `@iota/is-ui-components` package
@@ -559,20 +564,23 @@ import {
     -   `channelAddress`: channel address to subscribe to
 -   `requestUnsubscription(channelAddress)`: this function allows you to request an unsubscription of the channel by the logged in identity in a certain channel.
     -   `channelAddress`: channel address to unsubscribe to
--   `acceptSubscription(channelAddress)`: this function allows the owner of a certain channel to accept the subscription request to that channel by an identity.
+-   `acceptSubscription(channelAddress, triggerReadChannel)`: this function allows the owner of a certain channel to accept the subscription request to that channel by an identity.
     -   `channelAddress`: address of the channel to accept the subscription request
--   `rejectSubscription(channelAddress)`this function allows the owner of a certain channel to reject the subscription request to that channel by an identity.
+    -   `triggerReadChannel`: when `true` it will start reading the channel messages (polling) if there are no errors.
+-   `rejectSubscription(channelAddress, triggerReadChannel)`this function allows the owner of a certain channel to reject the subscription request to that channel by an identity.
     -   `channelAddress`: address of the channel to reject the subscription request
+    -   `triggerReadChannel`: when `true` it will start reading the channel messages (polling) if there are no errors.
 -   `getSubscriptions(channelAddress)`: this function allows you to obtain a list of all the subscriptions of a certain channel
     -   `channelAddress`: channel address to get all subscriptions
 -   `getSubscriptionStatus(channelAddress)`: This function allows knowing the status of the subscription of the logged in identity on a certain channel.
     -   `channelAddress`: address of the channel on which to know the status of the subscription
--   `writeMessage(address, payload, publicPayload, metadata, type)`: this function allows to write a message in a certain channel.
+-   `writeMessage(address, payload, publicPayload, metadata, type, triggerReadChannel)`: this function allows to write a message in a certain channel.
     -   `address`: address of the channel to which to write a message
     -   `payload`: encrypted payload of a channel
     -   `publicPayload`: public payload of a channel can be seen when checking at explorer
     -   `metadata`: public metadata of a channel can be seen when checking at explorer
     -   `type`: type describing the type of what is logged
+    -   `triggerReadChannel`: when `true` it will start reading the channel messages (polling) if there are no errors.
 -   `createChannel(topics)`: This function allows the creation of a channel
     -   `topics`: topics of a channel.
 -   `isUserOwnerOfChannel(channelAddress)`: this function returns `true` if the logged in identity is the owner of a given channel
@@ -686,13 +694,14 @@ http://localhost:3001/
 
 ### Templates
 
-* [Default table](templates/defaultTable.json)
-* [Credentials](templates/credential.json)
-* [Identities](templates/identities.js)
+-   [Default table](templates/defaultTable.json)
+-   [Credentials](templates/credential.json)
+-   [Identities](templates/identities.js)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the Apache License. See `LICENSE` for more information.
@@ -700,6 +709,7 @@ Distributed under the Apache License. See `LICENSE` for more information.
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
@@ -709,16 +719,18 @@ Project Link: [https://github.com/iotaledger/is-ui-components](https://github.co
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Contributions
 
-* [Begoña Álvarez de la Cruz](https://github.com/begonaalvarezd)
-* [Eva Virseda Sanz](https://github.com/evavirseda)  
-* [Rubén Álvarez Gallego](https://github.com/evavirseda)
+-   [Begoña Álvarez de la Cruz](https://github.com/begonaalvarezd)
+-   [Eva Virseda Sanz](https://github.com/evavirseda)
+-   [Rubén Álvarez Gallego](https://github.com/evavirseda)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/iotaledger/is-ui-components.svg?style=for-the-badge
 [contributors-url]: https://github.com/iotaledger/is-ui-components/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/iotaledger/is-ui-components.svg?style=for-the-badge
