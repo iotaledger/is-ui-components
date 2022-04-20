@@ -2,7 +2,7 @@ import type { AuthorizeSubscriptionResponse, ChannelData, CreateChannelResponse,
 import { AccessRights, type ChannelInfo } from '@iota/is-client'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
-import { authenticationData, channelClient, isAuthenticated } from './base'
+import { authenticationData, channelClient, isAuthenticated, isJwtExpired } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
 import { FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
@@ -107,6 +107,7 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
             const startDate = lastMessageDate ? new Date(lastMessageDate.setSeconds(lastMessageDate.getSeconds() + 1)) : null
 
             selectedChannelBusy.set(true)
+
             const newMessages = await channelClient.read(channelAddress, {
                 startDate,
                 endDate: get(selectedChannelData)?.length ? new Date() : null,
@@ -187,27 +188,29 @@ export async function requestUnsubscription(channelAddress: string): Promise<boo
 }
 
 export async function acceptSubscription(channelAddress: string, id: string): Promise<AuthorizeSubscriptionResponse> {
-    let authorizedResponse: AuthorizeSubscriptionResponse
-    stopReadingChannel()
-    try {
-        const response: AuthorizeSubscriptionResponse = await channelClient.authorizeSubscription(channelAddress, {
-            id,
-        })
-        authorizedResponse = response
-    } catch (e) {
-        showNotification({
-            type: NotificationType.Error,
-            message: 'There was an error getting subscription state',
-        })
-        console.error(Error, e);
+    if (get(isAuthenticated)) {
+        let authorizedResponse: AuthorizeSubscriptionResponse
+        stopReadingChannel()
+        try {
+            const response: AuthorizeSubscriptionResponse = await channelClient.authorizeSubscription(channelAddress, {
+                id,
+            })
+            authorizedResponse = response
+        } catch (e) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error getting subscription state',
+            })
+            console.error(Error, e);
+        }
+        startReadingChannel(channelAddress)
+        return authorizedResponse
     }
-    startReadingChannel(channelAddress)
-    return authorizedResponse
 }
 
 export async function rejectSubscription(channelAddress: string, id: string): Promise<boolean> {
-    let isRejected = false
     if (get(isAuthenticated)) {
+        let isRejected = false
         stopReadingChannel()
         try {
             await channelClient.revokeSubscription(channelAddress, {

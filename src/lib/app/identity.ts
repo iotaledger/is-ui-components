@@ -36,6 +36,7 @@ export async function authenticate(id: string, secret: string): Promise<boolean>
         console.error(Error, e);
     }
 }
+
 /**
  * Logout the current user
  * @returns void
@@ -49,7 +50,9 @@ export function logout(): void {
 export async function registerIdentity(username?: string, claimType = UserType.Person, claim?: any): Promise<IdentityJson> {
     let registeredIdentity
     try {
-        registeredIdentity = await identityClient.create(username, claimType, claim)
+        if (get(isAuthenticated)) {
+            registeredIdentity = await identityClient.create(username, claimType, claim)
+        }
     } catch (e) {
         showNotification({
             type: NotificationType.Error,
@@ -137,6 +140,7 @@ export async function searchIdentityByDID(did: string): Promise<ExtendedUser> {
         })
     }
 }
+
 export async function searchIdentitiesSingleRequest(query: string, options: { searchByType?: boolean, searchByUsername?: boolean, limit: number, index: number }): Promise<ExtendedUser[]> {
     let partialResults = []
     if (get(isAuthenticated)) {
