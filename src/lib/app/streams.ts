@@ -186,11 +186,9 @@ export async function requestUnsubscription(channelAddress: string): Promise<boo
     }
 }
 
-export async function acceptSubscription(channelAddress: string, id: string, manageReadingOfChannelMessages = false): Promise<AuthorizeSubscriptionResponse> {
+export async function acceptSubscription(channelAddress: string, id: string, triggerReadChannel = false): Promise<AuthorizeSubscriptionResponse> {
     let authorizedResponse: AuthorizeSubscriptionResponse
-    if (manageReadingOfChannelMessages) {
-        stopReadingChannel()
-    }
+    stopReadingChannel()
     try {
         const response: AuthorizeSubscriptionResponse = await channelClient.authorizeSubscription(channelAddress, {
             id,
@@ -203,18 +201,16 @@ export async function acceptSubscription(channelAddress: string, id: string, man
         })
         console.error(Error, e);
     }
-    if (manageReadingOfChannelMessages) {
+    if (triggerReadChannel) {
         startReadingChannel(channelAddress)
     }
     return authorizedResponse
 }
 
-export async function rejectSubscription(channelAddress: string, id: string, manageReadingOfChannelMessages = false): Promise<boolean> {
+export async function rejectSubscription(channelAddress: string, id: string, triggerReadChannel = false): Promise<boolean> {
     let isRejected = false
     if (get(isAuthenticated)) {
-        if (manageReadingOfChannelMessages) {
-            stopReadingChannel()
-        }
+        stopReadingChannel()
         try {
             await channelClient.revokeSubscription(channelAddress, {
                 id,
@@ -227,7 +223,7 @@ export async function rejectSubscription(channelAddress: string, id: string, man
             })
             console.error(Error, e);
         }
-        if (manageReadingOfChannelMessages) {
+        if (triggerReadChannel) {
             startReadingChannel(channelAddress)
         }
         return isRejected
@@ -282,13 +278,11 @@ export async function writeMessage(
     publicPayload?: string,
     metadata?: string,
     type?: string,
-    manageReadingOfChannelMessages = false
+    triggerReadChannel = false
 ): Promise<ChannelData> {
     if (get(isAuthenticated)) {
         let channelDataResponse: ChannelData
-        if (manageReadingOfChannelMessages) {
-            stopReadingChannel()
-        }
+        stopReadingChannel()
         try {
             const response: ChannelData = await channelClient.write(address, {
                 payload,
@@ -304,7 +298,7 @@ export async function writeMessage(
             })
             console.error(Error, e);
         }
-        if (manageReadingOfChannelMessages) {
+        if (triggerReadChannel) {
             startReadingChannel(address)
         }
         return channelDataResponse
