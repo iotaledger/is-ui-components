@@ -188,26 +188,25 @@ export async function requestUnsubscription(channelAddress: string): Promise<boo
 }
 
 export async function acceptSubscription(channelAddress: string, id: string, triggerReadChannel = false): Promise<AuthorizeSubscriptionResponse> {
-    if (get(isAuthenticated)) {
-        let authorizedResponse: AuthorizeSubscriptionResponse
-        stopReadingChannel()
-        try {
-            const response: AuthorizeSubscriptionResponse = await channelClient.authorizeSubscription(channelAddress, {
-                id,
-            })
-            authorizedResponse = response
-        } catch (e) {
-            showNotification({
-                type: NotificationType.Error,
-                message: 'There was an error getting subscription state',
-            })
-            console.error(Error, e);
-        }
-        if (triggerReadChannel) {
-            startReadingChannel(channelAddress)
-        }
-        return authorizedResponse
+    let authorizedResponse: AuthorizeSubscriptionResponse
+    stopReadingChannel()
+    try {
+        const response: AuthorizeSubscriptionResponse = await channelClient.authorizeSubscription(channelAddress, {
+            id,
+        })
+        authorizedResponse = response
+    } catch (e) {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error getting subscription state',
+        })
+        console.error(Error, e);
     }
+    if (triggerReadChannel) {
+        startReadingChannel(channelAddress)
+    }
+    return authorizedResponse
+
 }
 
 export async function rejectSubscription(channelAddress: string, id: string, triggerReadChannel = false): Promise<boolean> {

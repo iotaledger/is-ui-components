@@ -211,7 +211,7 @@ import { authenticatedUserDID, isAuthenticated } from '@iota/is-ui-components'
 ```
 
 -   `authenticatedUserDID`: identity logged identifier
--   `isAuthenticated`: true if there is an identity authenticated and JWT is not expired.
+-   `isAuthenticated`: true if there is an identity authenticated.
 
 ### UI Components
 

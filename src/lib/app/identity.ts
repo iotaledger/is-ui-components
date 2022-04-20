@@ -50,9 +50,7 @@ export function logout(): void {
 export async function registerIdentity(username?: string, claimType = UserType.Person, claim?: any): Promise<IdentityJson> {
     let registeredIdentity
     try {
-        if (get(isAuthenticated)) {
-            registeredIdentity = await identityClient.create(username, claimType, claim)
-        }
+        registeredIdentity = await identityClient.create(username, claimType, claim)
     } catch (e) {
         showNotification({
             type: NotificationType.Error,
