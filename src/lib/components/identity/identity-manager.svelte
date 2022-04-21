@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { BoxColor } from '$lib/app'
+
     import { DEFAULT_TABLE_CONFIGURATION, WELCOME_LIST_RESULTS_NUMBER } from '$lib/app/constants/base'
     import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import {
@@ -45,7 +47,6 @@
         ListIdentities = 'listIdentities',
         IdentityDetail = 'identityDetail',
     }
-
     let state: State = State.ListIdentities
     let loading: boolean = false
     let query: string = ''
@@ -62,8 +63,10 @@
             onClick: () => handleSelectIdentity(identity),
             content: [
                 {
-                    icon: USER_ICONS[identity.claim?.type]?.icon,
-                    boxColor: USER_ICONS[identity.claim?.type]?.boxColor,
+                    icon: !USER_ICONS[identity.claim?.type]?.icon ? 'gear' : USER_ICONS[identity.claim?.type]?.icon,
+                    boxColor: !USER_ICONS[identity.claim?.type]?.boxColor
+                        ? BoxColor.Purple
+                        : USER_ICONS[identity.claim?.type]?.boxColor,
                     value: identity?.username,
                 },
                 { value: identity?.claim?.type },

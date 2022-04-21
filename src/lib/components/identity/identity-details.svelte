@@ -7,6 +7,7 @@
     import { Credential, Icon, JSONViewer } from '$lib/components'
     import type { VerifiableCredentialInternal } from '@iota/is-client'
     import { Accordion, AccordionItem, Button, Spinner } from 'sveltestrap'
+    import { BoxColor } from '$lib/app'
 
     export let identity: ExtendedUser
     export let loading: boolean = false
@@ -32,7 +33,12 @@
 <div class="identity-details w-100">
     <div class="d-xl-flex align-items-center justify-content-between bg-light rounded p-4">
         <div class="d-flex align-items-center">
-            <Icon size={64} boxed boxColor={USER_ICONS[type]?.boxColor} type={USER_ICONS[type]?.icon} />
+            <Icon
+                size={64}
+                boxed
+                boxColor={!USER_ICONS[type]?.boxColor ? BoxColor.Purple : USER_ICONS[type]?.boxColor}
+                type={!USER_ICONS[type]?.icon ? 'gear' : USER_ICONS[type]?.icon}
+            />
             <div class="ms-4 me-4">
                 <div class="text-secondary fst-italic">{type}</div>
                 <div class="fs-4 fw-bold">{identity?.username}</div>
