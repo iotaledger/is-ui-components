@@ -5,7 +5,7 @@ import jwt_decode from "jwt-decode";
 import { derived, get } from 'svelte/store';
 import { logout } from './identity';
 import { showNotification } from './notification';
-import { NotificationType } from './types';
+import { NotificationType } from './types/notification';
 import { persistent } from './utils';
 
 const config: ClientConfig = {
