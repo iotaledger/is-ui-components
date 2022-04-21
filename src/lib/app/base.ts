@@ -28,7 +28,7 @@ export const authenticatedUserDID = derived(authenticationData, $authData => $au
 
 export const isAuthenticated = derived(
 	authenticationData,
-	($authenticationData) => (!!$authenticationData?.jwt)
+	($authenticationData) => !!$authenticationData?.jwt
 );
 
 authenticationData?.subscribe(($authenticationData) => {

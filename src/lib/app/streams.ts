@@ -208,8 +208,8 @@ export async function acceptSubscription(channelAddress: string, id: string, tri
 }
 
 export async function rejectSubscription(channelAddress: string, id: string, triggerReadChannel = false): Promise<boolean> {
+    let isRejected = false
     if (get(isAuthenticated)) {
-        let isRejected = false
         stopReadingChannel()
         try {
             await channelClient.revokeSubscription(channelAddress, {
