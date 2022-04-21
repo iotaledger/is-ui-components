@@ -186,7 +186,7 @@ export async function requestUnsubscription(channelAddress: string): Promise<boo
     }
 }
 
-export async function acceptSubscription(channelAddress: string, id: string): Promise<AuthorizeSubscriptionResponse> {
+export async function acceptSubscription(channelAddress: string, id: string, triggerReadChannel = false): Promise<AuthorizeSubscriptionResponse> {
     let authorizedResponse: AuthorizeSubscriptionResponse
     stopReadingChannel()
     try {
@@ -201,11 +201,13 @@ export async function acceptSubscription(channelAddress: string, id: string): Pr
         })
         console.error(Error, e);
     }
-    startReadingChannel(channelAddress)
+    if (triggerReadChannel) {
+        startReadingChannel(channelAddress)
+    }
     return authorizedResponse
 }
 
-export async function rejectSubscription(channelAddress: string, id: string): Promise<boolean> {
+export async function rejectSubscription(channelAddress: string, id: string, triggerReadChannel = false): Promise<boolean> {
     let isRejected = false
     if (get(isAuthenticated)) {
         stopReadingChannel()
@@ -221,7 +223,9 @@ export async function rejectSubscription(channelAddress: string, id: string): Pr
             })
             console.error(Error, e);
         }
-        startReadingChannel(channelAddress)
+        if (triggerReadChannel) {
+            startReadingChannel(channelAddress)
+        }
         return isRejected
     } else {
         showNotification({
@@ -273,7 +277,8 @@ export async function writeMessage(
     payload?: string,
     publicPayload?: string,
     metadata?: string,
-    type?: string
+    type?: string,
+    triggerReadChannel = false
 ): Promise<ChannelData> {
     if (get(isAuthenticated)) {
         let channelDataResponse: ChannelData
@@ -293,7 +298,9 @@ export async function writeMessage(
             })
             console.error(Error, e);
         }
-        startReadingChannel(address)
+        if (triggerReadChannel) {
+            startReadingChannel(address)
+        }
         return channelDataResponse
     } else {
         showNotification({
