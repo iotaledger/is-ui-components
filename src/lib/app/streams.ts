@@ -2,7 +2,7 @@ import type { AuthorizeSubscriptionResponse, ChannelData, CreateChannelResponse,
 import { AccessRights, type ChannelInfo } from '@iota/is-client'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
-import { authenticationData, channelClient, isAuthenticated, isJwtExpired } from './base'
+import { authenticationData, channelClient, isAuthenticated } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
 import { FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
@@ -107,7 +107,6 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
             const startDate = lastMessageDate ? new Date(lastMessageDate.setSeconds(lastMessageDate.getSeconds() + 1)) : null
 
             selectedChannelBusy.set(true)
-
             const newMessages = await channelClient.read(channelAddress, {
                 startDate,
                 endDate: get(selectedChannelData)?.length ? new Date() : null,
@@ -206,7 +205,6 @@ export async function acceptSubscription(channelAddress: string, id: string, tri
         startReadingChannel(channelAddress)
     }
     return authorizedResponse
-
 }
 
 export async function rejectSubscription(channelAddress: string, id: string, triggerReadChannel = false): Promise<boolean> {

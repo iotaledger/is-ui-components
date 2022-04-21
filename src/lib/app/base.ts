@@ -8,7 +8,6 @@ import { showNotification } from './notification';
 import { NotificationType } from './types';
 import { persistent } from './utils';
 
-
 const config: ClientConfig = {
 	apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
 	isGatewayUrl: import.meta.env.VITE_IOTA_IS_SDK_GATEWAY_URL as string,
@@ -41,7 +40,7 @@ export const isJwtExpired = (token: string): boolean => {
 	try {
 		const expiry = jwt_decode<JwtPayload>(token)?.exp;
 		const now = new Date();
-		
+
 		return now.getTime() > (expiry * 1000);
 	}
 	catch (error) {
