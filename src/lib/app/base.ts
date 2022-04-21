@@ -2,6 +2,7 @@ import type { ClientConfig } from '@iota/is-client';
 import { ApiVersion, ChannelClient, IdentityClient } from '@iota/is-client';
 import { derived } from 'svelte/store';
 import { persistent } from './utils';
+import { NotificationType } from './types/notification';
 
 const config: ClientConfig = {
 	apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
@@ -30,3 +31,6 @@ authenticationData?.subscribe(($authenticationData) => {
 	identityClient.jwtToken = $authenticationData?.jwt;
 	channelClient.jwtToken = $authenticationData?.jwt;
 });
+
+
+console.log(NotificationType.Error)
