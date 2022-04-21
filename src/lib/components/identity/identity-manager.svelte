@@ -63,10 +63,8 @@
             onClick: () => handleSelectIdentity(identity),
             content: [
                 {
-                    icon: !USER_ICONS[identity.claim?.type]?.icon ? 'gear' : USER_ICONS[identity.claim?.type]?.icon,
-                    boxColor: !USER_ICONS[identity.claim?.type]?.boxColor
-                        ? BoxColor.Purple
-                        : USER_ICONS[identity.claim?.type]?.boxColor,
+                    icon: USER_ICONS[identity.claim?.type]?.icon ?? 'gear',
+                    boxColor: USER_ICONS[identity.claim?.type]?.boxColor ?? BoxColor.Purple,
                     value: identity?.username,
                 },
                 { value: identity?.claim?.type },

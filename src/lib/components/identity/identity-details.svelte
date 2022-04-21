@@ -36,8 +36,8 @@
             <Icon
                 size={64}
                 boxed
-                boxColor={!USER_ICONS[type]?.boxColor ? BoxColor.Purple : USER_ICONS[type]?.boxColor}
-                type={!USER_ICONS[type]?.icon ? 'gear' : USER_ICONS[type]?.icon}
+                boxColor={USER_ICONS[type]?.boxColor ?? BoxColor.Purple}
+                type={USER_ICONS[type]?.icon ?? 'gear'}
             />
             <div class="ms-4 me-4">
                 <div class="text-secondary fst-italic">{type}</div>
