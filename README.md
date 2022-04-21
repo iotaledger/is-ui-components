@@ -267,6 +267,8 @@ import { authenticate, logout } from '@iota/is-ui-components'
     -   `id`: identity to be authenticated identifier
     -   `secret`: secret of identity to be authenticated
 -   `logout()`:Allows you to log out of an identity
+-   `startPollExpirationCheckJWT()`:Allows to start checking every second if the JWT is expired.
+-   `stopPollExpirationCheckJWT()`:Allows to stop interval of checking every second if the JWT is expired.
 
 ## Identities
 
