@@ -1,7 +1,5 @@
 import type { ClientConfig } from '@iota/is-client';
 import { ApiVersion, ChannelClient, IdentityClient } from '@iota/is-client';
-import type { JwtPayload } from "jwt-decode";
-import jwt_decode from "jwt-decode";
 import { derived, get } from 'svelte/store';
 import { logout } from './identity';
 import { showNotification } from './notification';
@@ -38,7 +36,7 @@ authenticationData?.subscribe(($authenticationData) => {
 
 export const isJwtExpired = (token: string): boolean => {
 	try {
-		const expiry = jwt_decode<JwtPayload>(token)?.exp;
+		const expiry = (JSON.parse(window?.atob(token?.split('.')?.[1])))?.exp;
 		const now = new Date();
 
 		return now.getTime() > (expiry * 1000);
