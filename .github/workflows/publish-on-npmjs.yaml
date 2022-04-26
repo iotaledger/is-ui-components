@@ -10,16 +10,6 @@ on:
         - "./*.json"
         - "./*.js"
         - ".github/workflows/publish-on-npmjs.yml"
-  pull_request:
-      branches:
-        - main 
-        - dev
-      tags:
-        - 'v*'
-      paths: 
-        - "src/**"
-        - "./*.json"
-        - "./*.js"
   
   workflow_dispatch:
 
