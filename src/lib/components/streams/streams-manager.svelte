@@ -79,8 +79,7 @@
                     {
                         icon: 'broadcast',
                         boxColor: BoxColor.Blue,
-                        // TODO: Change this to real channel name when SDK is ready
-                        value: ['Channel name', 'Channel description'],
+                        value: [channel.name || '-', channel.description || '-'],
                     },
                     { value: channel.channelAddress },
                     { value: channel.topics.map((topic) => topic?.type) },
