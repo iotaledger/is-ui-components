@@ -2,7 +2,11 @@
     import { BoxColor } from '$lib/app'
 
     import { UserType } from '@iota/is-client'
-    import { DEFAULT_TABLE_CONFIGURATION, WELCOME_LIST_RESULTS_NUMBER } from '$lib/app/constants/base'
+    import {
+        DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+        DEFAULT_TABLE_CONFIGURATION,
+        WELCOME_LIST_RESULTS_NUMBER,
+    } from '$lib/app/constants/base'
     import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import {
         addIdentityToSortedSearchResults,
@@ -95,8 +99,8 @@
         const newIdentities = await searchIdentitiesSingleRequest(query, {
             searchByType: _isType(query),
             searchByUsername: !_isType(query),
-            limit: WELCOME_LIST_RESULTS_NUMBER,
-            index: entries / WELCOME_LIST_RESULTS_NUMBER,
+            limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+            index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
         })
         searchIdentitiesResults.update((results) => [...results, ...newIdentities])
     }

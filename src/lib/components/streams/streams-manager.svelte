@@ -1,6 +1,10 @@
 <script lang="ts">
     import { authenticatedUserDID } from '$lib/app/base'
-    import { DEFAULT_TABLE_CONFIGURATION, WELCOME_LIST_RESULTS_NUMBER } from '$lib/app/constants/base'
+    import {
+        DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+        DEFAULT_TABLE_CONFIGURATION,
+        WELCOME_LIST_RESULTS_NUMBER,
+    } from '$lib/app/constants/base'
     import { BoxColor } from '$lib/app/constants/colors'
     import {
         acceptSubscription,
@@ -113,19 +117,19 @@
     })
 
     async function onSearch(): Promise<void> {
-        await searchAllChannels(query, { limit: WELCOME_LIST_RESULTS_NUMBER })
+        await searchAllChannels(query, { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
     }
 
-    async function loadMore(entries:number): Promise<void> {
-        const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:');
+    async function loadMore(entries: number): Promise<void> {
+        const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:')
 
-        const newChannels = await searchChannelsSingleRequest(query, { 
-                searchByAuthorId: _isAuthorId(query),
-                searchBySource: !_isAuthorId(query),
-                limit:WELCOME_LIST_RESULTS_NUMBER, 
-                index: entries/WELCOME_LIST_RESULTS_NUMBER}
-                ); // TODO check if we have correct VAR here
-        searchChannelsResults.update((results) => [...results, ...newChannels]);
+        const newChannels = await searchChannelsSingleRequest(query, {
+            searchByAuthorId: _isAuthorId(query),
+            searchBySource: !_isAuthorId(query),
+            limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+            index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+        })
+        searchChannelsResults.update((results) => [...results, ...newChannels])
     }
 
     async function updateStateMachine(): Promise<void> {
@@ -263,7 +267,7 @@
             {tableConfiguration}
             title="Channels"
             searchPlaceholder="Search channels"
-            loadMore={loadMore}
+            {loadMore}
             loading={loading || $isAsyncLoadingChannels}
             actionButtons={listViewButtons}
             bind:searchQuery={query}
