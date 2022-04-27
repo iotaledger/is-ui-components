@@ -117,8 +117,15 @@
     }
 
     async function loadMore(entries:number): Promise<void> {
-        const newChannels = await searchChannelsSingleRequest(query, {limit:WELCOME_LIST_RESULTS_NUMBER, index: entries/WELCOME_LIST_RESULTS_NUMBER})
-        searchChannelsResults.update((results) => [...results, ...newChannels])
+        const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:');
+
+        const newChannels = await searchChannelsSingleRequest(query, { 
+                searchByAuthorId: _isAuthorId(query),
+                searchBySource: !_isAuthorId(query),
+                limit:WELCOME_LIST_RESULTS_NUMBER, 
+                index: entries/WELCOME_LIST_RESULTS_NUMBER}
+                ); // TODO check if we have correct VAR here
+        searchChannelsResults.update((results) => [...results, ...newChannels]);
     }
 
     async function updateStateMachine(): Promise<void> {

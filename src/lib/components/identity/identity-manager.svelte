@@ -1,6 +1,7 @@
 <script lang="ts">
     import { BoxColor } from '$lib/app'
 
+    import { UserType } from '@iota/is-client'
     import { DEFAULT_TABLE_CONFIGURATION, WELCOME_LIST_RESULTS_NUMBER } from '$lib/app/constants/base'
     import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import {
@@ -9,6 +10,7 @@
         getVerifiableCredentials,
         isAsyncLoadingIdentities,
         searchAllIdentities,
+        searchIdentitiesSingleRequest,
         searchIdentitiesResults,
         searchIdentityByDID,
         selectedIdentity,
@@ -86,11 +88,17 @@
         await searchAllIdentities(query)
     }
 
-   async function loadMore(entries:number): Promise<void> {
-        console.log('searching for identities');
-        
-        // const newChannels = await searchChannelsSingleRequest(query, {limit:WELCOME_LIST_RESULTS_NUMBER, index: entries/WELCOME_LIST_RESULTS_NUMBER})
-        // searchChannelsResults.update((results) => [...results, ...newChannels])
+    async function loadMore(entries: number): Promise<void> {
+        const _isType = (query: string): boolean =>
+            Object.values(UserType).some((userType) => userType.toLowerCase() === query.toLowerCase())
+
+        const newIdentities = await searchIdentitiesSingleRequest(query, {
+            searchByType: _isType(query),
+            searchByUsername: !_isType(query),
+            limit: WELCOME_LIST_RESULTS_NUMBER,
+            index: entries / WELCOME_LIST_RESULTS_NUMBER,
+        })
+        searchIdentitiesResults.update((results) => [...results, ...newIdentities])
     }
 
     async function updateState(): Promise<void> {

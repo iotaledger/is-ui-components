@@ -4,6 +4,7 @@
     import { Icon, Paginator } from '$lib/components'
     import { onMount } from 'svelte'
     import { Badge, ListGroup, ListGroupItem, Spinner } from 'sveltestrap'
+    import { DEFAULT_TABLE_PAGE_SIZE } from '$lib/app/constants/base'
 
     export let data: TableData = {
         headings: [],
@@ -23,9 +24,6 @@
 
     $: data?.rows, updateVisibleResults()
 
-    // function loadMore(): void {
-    //     console.log(searchQuery);
-    // }
     export let loadMore = (..._: any[]): void => {}
 
     onMount(() => {
@@ -78,12 +76,19 @@
                             {/if}
                         </div>
                     {/each}
-             
                 </div>
             </ListGroupItem>
         {/each}
         {#if showLoadMoreButton}
-            <ListGroupItem tag="button" action class="border-bottom" on:click={()=> loadMore(data.rows.length)}>
+            <ListGroupItem
+                tag="button"
+                action
+                class="border-bottom"
+                on:click={async () => {
+                    await loadMore(data.rows.length)
+                    showLoadMoreButton = false
+                }}
+            >
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="item d-flex align-items-center">
                         <span class="text-truncate load-more">load more...</span>
@@ -103,20 +108,14 @@
                 <Paginator
                     onPageChange={(page) => {
                         currentPage = page
-                        console.log(currentPage)
-                        console.log(data.rows.length)
-                        console.log('startAt, endAt',startAt, endAt);
-                        
-                         if (data.rows.length / currentPage <= 10) {
-                            showLoadMoreButton = true
-                         } else {
-                             showLoadMoreButton = false
-                         }
-                         console.log('showLoadModata.rows.length / (currentPage -1)reButton',data.rows.length / (currentPage ));
-                         console.log('showLoadMoreButton',showLoadMoreButton);
-                         
-                        updateVisibleResults()
 
+                        if (data.rows.length / currentPage <= DEFAULT_TABLE_PAGE_SIZE) {
+                            showLoadMoreButton = true
+                        } else {
+                            showLoadMoreButton = false
+                        }
+
+                        updateVisibleResults()
                     }}
                     totalCount={data.rows.length}
                     {pageSize}
