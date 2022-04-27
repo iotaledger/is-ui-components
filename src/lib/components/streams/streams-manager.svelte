@@ -14,6 +14,7 @@
         requestSubscription,
         requestUnsubscription,
         searchAllChannels,
+        searchChannelsSingleRequest,
         searchChannelsResults,
         selectedChannel,
         selectedChannelBusy,
@@ -112,7 +113,12 @@
     })
 
     async function onSearch(): Promise<void> {
-        await searchAllChannels(query)
+        await searchAllChannels(query, { limit: WELCOME_LIST_RESULTS_NUMBER })
+    }
+
+    async function loadMore(entries:number): Promise<void> {
+        const newChannels = await searchChannelsSingleRequest(query, {limit:WELCOME_LIST_RESULTS_NUMBER, index: entries/WELCOME_LIST_RESULTS_NUMBER})
+        searchChannelsResults.update((results) => [...results, ...newChannels])
     }
 
     async function updateStateMachine(): Promise<void> {
@@ -250,6 +256,7 @@
             {tableConfiguration}
             title="Channels"
             searchPlaceholder="Search channels"
+            loadMore={loadMore}
             loading={loading || $isAsyncLoadingChannels}
             actionButtons={listViewButtons}
             bind:searchQuery={query}

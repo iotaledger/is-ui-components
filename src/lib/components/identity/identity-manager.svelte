@@ -86,6 +86,13 @@
         await searchAllIdentities(query)
     }
 
+   async function loadMore(entries:number): Promise<void> {
+        console.log('searching for identities');
+        
+        // const newChannels = await searchChannelsSingleRequest(query, {limit:WELCOME_LIST_RESULTS_NUMBER, index: entries/WELCOME_LIST_RESULTS_NUMBER})
+        // searchChannelsResults.update((results) => [...results, ...newChannels])
+    }
+
     async function updateState(): Promise<void> {
         if ($selectedIdentity) {
             state = State.IdentityDetail
@@ -164,6 +171,7 @@
         <ListManager
             {showSearch}
             {onSearch}
+            {loadMore}
             {tableData}
             {message}
             {tableConfiguration}

@@ -19,8 +19,14 @@
     let startAt = 0
     let endAt = pageSize
     let visibleResults
+    let showLoadMoreButton = false
 
     $: data?.rows, updateVisibleResults()
+
+    // function loadMore(): void {
+    //     console.log(searchQuery);
+    // }
+    export let loadMore = (..._: any[]): void => {}
 
     onMount(() => {
         updateVisibleResults()
@@ -72,9 +78,19 @@
                             {/if}
                         </div>
                     {/each}
+             
                 </div>
             </ListGroupItem>
         {/each}
+        {#if showLoadMoreButton}
+            <ListGroupItem tag="button" action class="border-bottom" on:click={()=> loadMore(data.rows.length)}>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="item d-flex align-items-center">
+                        <span class="text-truncate load-more">load more...</span>
+                    </div>
+                </div>
+            </ListGroupItem>
+        {/if}
     </ListGroup>
     {#if loading}
         <div class="spinner">
@@ -87,7 +103,20 @@
                 <Paginator
                     onPageChange={(page) => {
                         currentPage = page
+                        console.log(currentPage)
+                        console.log(data.rows.length)
+                        console.log('startAt, endAt',startAt, endAt);
+                        
+                         if (data.rows.length / currentPage <= 10) {
+                            showLoadMoreButton = true
+                         } else {
+                             showLoadMoreButton = false
+                         }
+                         console.log('showLoadModata.rows.length / (currentPage -1)reButton',data.rows.length / (currentPage ));
+                         console.log('showLoadMoreButton',showLoadMoreButton);
+                         
                         updateVisibleResults()
+
                     }}
                     totalCount={data.rows.length}
                     {pageSize}
@@ -100,6 +129,10 @@
 </div>
 
 <style lang="scss">
+    .load-more {
+        text-align: center;
+        width: 100%;
+    }
     .item {
         flex: 1 1 0;
         white-space: nowrap;
