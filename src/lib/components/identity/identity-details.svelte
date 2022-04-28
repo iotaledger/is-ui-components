@@ -31,7 +31,7 @@
 </script>
 
 <div class="identity-details w-100">
-    <div class="d-xl-flex  flex-column bg-light rounded p-4">
+    <div class="d-xl-flex flex-column bg-light rounded p-4">
         <div class="d-flex align-items-center mb-2">
             <Icon
                 size={64}
@@ -45,7 +45,7 @@
                 <div class="text-secondary fw-bolder mt-1 text-break">{identity?.id}</div>
             </div>
         </div>
-        <div class="d-flex align-items-center">
+        <div class="d-xl-flex align-items-center justify-content-between">
             <div class="ms-12 me-12">
                 <div class="text-secondary text-break">
                     <span class="fw-bold">Date: </span><span class="text-break ">{identity?.registrationDate}</span>
@@ -57,30 +57,30 @@
                     <span class="fw-bold">Creator: </span><span class="text-break ">{identity?.creator}</span>
                 </div>
             </div>
-        </div>
-        <div class="d-flex flex-column align-items-end">
-            {#if actionButtons}
-                {#each actionButtons as { label, onClick, icon, color, loading, disabled }}
-                    <Button
-                        size="sm"
-                        outline
-                        color={color ?? 'dark'}
-                        on:click={onClick}
-                        {disabled}
-                        class="d-flex align-items-center mt-3"
-                    >
-                        {#if icon}
-                            <div class="me-1">
-                                <Icon type={icon} size={16} />
-                            </div>
-                        {/if}
-                        <span class="ms-1">{label}</span>
-                        {#if loading}
-                            <div class="ms-2 flex align-items-center"><Spinner size="sm" type="border" /></div>
-                        {/if}
-                    </Button>
-                {/each}
-            {/if}
+            <div class="d-flex flex-column align-items-start">
+                {#if actionButtons}
+                    {#each actionButtons as { label, onClick, icon, color, loading, disabled }}
+                        <Button
+                            size="sm"
+                            outline
+                            color={color ?? 'dark'}
+                            on:click={onClick}
+                            {disabled}
+                            class="d-flex align-items-center mt-3"
+                        >
+                            {#if icon}
+                                <div class="me-1">
+                                    <Icon type={icon} size={16} />
+                                </div>
+                            {/if}
+                            <span class="ms-1">{label}</span>
+                            {#if loading}
+                                <div class="ms-2 flex align-items-center"><Spinner size="sm" type="border" /></div>
+                            {/if}
+                        </Button>
+                    {/each}
+                {/if}
+            </div>
         </div>
     </div>
 
