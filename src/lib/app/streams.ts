@@ -324,10 +324,16 @@ export async function writeMessage(
     }
 }
 
-export async function createChannel(topics: { type: string; source: string }[]): Promise<CreateChannelResponse> {
+export async function createChannel(
+    name: string,
+    description: string,
+    topics: { type: string; source: string }[]
+): Promise<CreateChannelResponse> {
     if (get(isAuthenticated)) {
         try {
             const channel: CreateChannelResponse = await channelClient.create({
+                name,
+                description,
                 topics,
             })
             return channel

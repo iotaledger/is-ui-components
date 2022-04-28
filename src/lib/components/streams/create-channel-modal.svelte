@@ -21,8 +21,8 @@
             source: '',
         },
     ]
-    let name: string = 'Channel name...'
-    let description: string = 'Please, describe your channel here...'
+    let name: string = ''
+    let description: string = ''
     let unsubscribe
     let formValidated = false
     let formContainer: HTMLFormElement
@@ -60,13 +60,14 @@
 
     async function handleCreateChannel() {
         loading = true
-        let channel = await createChannel(topics)
+        let channel = await createChannel(name, description, topics)
         if (channel) {
             resetTopics()
             onSuccess(channel.channelAddress)
             formValidated = false
         }
         loading = false
+        onClose()
     }
 
     function handleAddTopic() {
@@ -84,8 +85,8 @@
     }
 
     function resetFields(): void {
-        name = 'Channel name'
-        description = 'Please, describe your channel here...'
+        name = ''
+        description = ''
         topics = [
             {
                 type: '',
@@ -108,7 +109,14 @@
         <ModalBody class="px-4 pb-4">
             <div class="my-4 p-4 bg-light ">
                 <Label>Name</Label>
-                <Input placeholder={name} required type="textarea" minlength={MIN_LENGTH_INPUT} maxlength={MAX_LENGTH_INPUT} />
+                <Input
+                    placeholder={'Channel name...'}
+                    required
+                    type="textarea"
+                    minlength={MIN_LENGTH_INPUT}
+                    maxlength={MAX_LENGTH_INPUT}
+                    bind:value={name}
+                />
                 <div class="invalid-feedback">
                     This field is required and it needs to be more than {MIN_LENGTH_INPUT} characters and less than {MAX_LENGTH_INPUT}
                     characters.
@@ -116,11 +124,12 @@
 
                 <Label class="mt-3">Description</Label>
                 <Input
-                    placeholder={description}
+                    placeholder={'Please, describe your channel here...'}
                     required
                     type="textarea"
                     minlength={MIN_LENGTH_INPUT}
                     maxlength={MAX_LENGTH_TEXTAREA}
+                    bind:value={description}
                 />
                 <div class="invalid-feedback">
                     This field is required and it needs to be more than {MIN_LENGTH_INPUT} characters and less than {MAX_LENGTH_TEXTAREA}
