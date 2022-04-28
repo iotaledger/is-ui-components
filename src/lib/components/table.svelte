@@ -4,11 +4,13 @@
     import { Icon, Paginator } from '$lib/components'
     import { onMount } from 'svelte'
     import { Badge, ListGroup, ListGroupItem, Spinner } from 'sveltestrap'
+    import { DEFAULT_TABLE_PAGE_SIZE } from '$lib/app/constants/base'
 
     export let data: TableData = {
         headings: [],
         rows: [{ onClick: (..._: any[]): void => {}, content: [] }],
     }
+    export let loadMore = (..._: any[]): void => {}
     export let loading = false
     export let pageSize: number = 10
     export let siblingsCount: number = 2
@@ -19,12 +21,25 @@
     let startAt = 0
     let endAt = pageSize
     let visibleResults
+    let showLoadMoreButton = false
 
     $: data?.rows, updateVisibleResults()
 
     onMount(() => {
         updateVisibleResults()
     })
+
+    function pageChanged(page: number): void {
+        currentPage = page
+
+        if (data.rows.length / currentPage <= DEFAULT_TABLE_PAGE_SIZE) {
+            showLoadMoreButton = true
+        } else {
+            showLoadMoreButton = false
+        }
+
+        updateVisibleResults()
+    }
 
     function updateVisibleResults(): void {
         if (isPaginated) {
@@ -75,6 +90,23 @@
                 </div>
             </ListGroupItem>
         {/each}
+        {#if showLoadMoreButton}
+            <ListGroupItem
+                tag="button"
+                action
+                class="border-bottom"
+                on:click={async () => {
+                    await loadMore(data.rows.length)
+                    showLoadMoreButton = false
+                }}
+            >
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="item d-flex align-items-center">
+                        <span class="text-truncate load-more">load more...</span>
+                    </div>
+                </div>
+            </ListGroupItem>
+        {/if}
     </ListGroup>
     {#if loading}
         <div class="spinner">
@@ -84,22 +116,17 @@
     {#if isPaginated}
         {#if data?.rows?.length}
             <div class="d-flex justify-content-center align-items-center">
-                <Paginator
-                    onPageChange={(page) => {
-                        currentPage = page
-                        updateVisibleResults()
-                    }}
-                    totalCount={data.rows.length}
-                    {pageSize}
-                    {currentPage}
-                    {siblingsCount}
-                />
+                <Paginator onPageChange={pageChanged} totalCount={data.rows.length} {pageSize} {currentPage} {siblingsCount} />
             </div>
         {/if}
     {/if}
 </div>
 
 <style lang="scss">
+    .load-more {
+        text-align: center;
+        width: 100%;
+    }
     .item {
         flex: 1 1 0;
         white-space: nowrap;

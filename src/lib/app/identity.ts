@@ -1,21 +1,27 @@
-import type { CredentialTypes, IdentityJson, RevokeVerificationBody, VerifiableCredentialInternal, VerifiableCredentialJson } from '@iota/is-client';
-import { UserType } from '@iota/is-client';
-import type { Writable } from 'svelte/store';
-import { get, writable } from 'svelte/store';
-import { authenticationData, channelClient, identityClient, isAuthenticated } from './base';
-import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base';
-import { showNotification } from './notification';
-import type { ExtendedUser } from './types/identity';
-import { NotificationType } from './types/notification';
+import type {
+    CredentialTypes,
+    IdentityJson,
+    RevokeVerificationBody,
+    VerifiableCredentialInternal,
+    VerifiableCredentialJson,
+} from '@iota/is-client'
+import { UserType } from '@iota/is-client'
+import type { Writable } from 'svelte/store'
+import { get, writable } from 'svelte/store'
+import { authenticationData, channelClient, identityClient, isAuthenticated } from './base'
+import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
+import { showNotification } from './notification'
+import type { ExtendedUser } from './types/identity'
+import { NotificationType } from './types/notification'
 
-export const searchIdentitiesResults: Writable<ExtendedUser[]> = writable([]);
-export const selectedIdentity: Writable<ExtendedUser> = writable(null);
+export const searchIdentitiesResults: Writable<ExtendedUser[]> = writable([])
+export const selectedIdentity: Writable<ExtendedUser> = writable(null)
 // used for the async search that makes N background queries to get the full list of identities
-export const isAsyncLoadingIdentities: Writable<boolean> = writable(false);
+export const isAsyncLoadingIdentities: Writable<boolean> = writable(false)
 
-let haltSearchAll = false;
+let haltSearchAll = false
 // used to keep track of the last search query
-let searchAllHash: string;
+let searchAllHash: string
 
 /**
  * Authenticates the user to the api for requests where authentication is needed
@@ -33,7 +39,7 @@ export async function authenticate(id: string, secret: string): Promise<boolean>
             type: NotificationType.Error,
             message: 'The authentication failed',
         })
-        console.error(Error, e);
+        console.error(Error, e)
     }
 }
 /**
@@ -55,55 +61,53 @@ export async function registerIdentity(username?: string, claimType = UserType.P
             type: NotificationType.Error,
             message: 'The register failed',
         })
-        console.error(Error, e);
+        console.error(Error, e)
     }
     return registeredIdentity
 }
 
 // Note: this is an async function that returns nothing, but fills the searchIdentitiesResults store.
-// This is because the searchAllIdentities function is called in the background, and the results are 
+// This is because the searchAllIdentities function is called in the background, and the results are
 // stored in the searchIdentitiesResults store.
 let index = 0
 export async function searchAllIdentities(query: string, options?: { limit?: number }): Promise<void> {
     const _search = async (_searchAllHash: string, query: string, options?: { limit?: number }): Promise<void> => {
-        const _isDID = (query: string): boolean => query.startsWith('did:iota:');
-        const _isType = (query: string): boolean => Object.values(UserType).some(userType => userType.toLowerCase() === query.toLowerCase());
+        const _isDID = (query: string): boolean => query.startsWith('did:iota:')
+        const _isType = (query: string): boolean =>
+            Object.values(UserType).some((userType) => userType.toLowerCase() === query.toLowerCase())
 
         if (_isDID(query)) {
             const identity = await searchIdentityByDID(query)
             if (identity) {
                 searchIdentitiesResults.set([identity])
             }
-        }
-
-        else {
-
-            const newResults = await searchIdentitiesSingleRequest(
-                query,
-                {
-                    searchByType: _isType(query),
-                    searchByUsername: !_isType(query),
-                    limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-                    index,
-                }
-            );
+        } else {
+            const newResults = await searchIdentitiesSingleRequest(query, {
+                searchByType: _isType(query),
+                searchByUsername: !_isType(query),
+                limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+                index,
+            })
             // filter out old requests
             if (_searchAllHash === searchAllHash) {
                 if (newResults?.length) {
                     searchIdentitiesResults.update((results) => [...results, ...newResults])
                 }
                 // if the search is not finished, start a new search
-                if (!haltSearchAll && ((options?.limit && (get(searchIdentitiesResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_SDK_CLIENT_REQUEST_LIMIT)))) {
+                if (
+                    !haltSearchAll &&
+                    ((options?.limit && get(searchIdentitiesResults)?.length < options?.limit) ||
+                        (!options?.limit && newResults?.length === DEFAULT_SDK_CLIENT_REQUEST_LIMIT))
+                ) {
                     index++
                     await _search(_searchAllHash, query)
-                }
-                else {
+                } else {
                     stopIdentitiesSearch()
                 }
             }
         }
     }
-    stopIdentitiesSearch();
+    stopIdentitiesSearch()
     searchAllHash = `${query}-${Math.floor(Math.random() * query.length)}`
     haltSearchAll = false
     isAsyncLoadingIdentities.set(true)
@@ -114,7 +118,7 @@ export async function searchAllIdentities(query: string, options?: { limit?: num
 export async function searchIdentityByDID(did: string): Promise<ExtendedUser> {
     if (get(isAuthenticated)) {
         try {
-            const identity: ExtendedUser = await identityClient.find(did);
+            const identity: ExtendedUser = await identityClient.find(did)
 
             // SDK library does not return the NUMBER OF CREDENTIALS in the response, so we add it here
             if (identity?.verifiableCredentials) {
@@ -128,7 +132,7 @@ export async function searchIdentityByDID(did: string): Promise<ExtendedUser> {
                 type: NotificationType.Error,
                 message: 'There was an error searching for user',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
     } else {
         showNotification({
@@ -137,7 +141,10 @@ export async function searchIdentityByDID(did: string): Promise<ExtendedUser> {
         })
     }
 }
-export async function searchIdentitiesSingleRequest(query: string, options: { searchByType?: boolean, searchByUsername?: boolean, limit: number, index: number }): Promise<ExtendedUser[]> {
+export async function searchIdentitiesSingleRequest(
+    query: string,
+    options: { searchByType?: boolean; searchByUsername?: boolean; limit: number; index: number }
+): Promise<ExtendedUser[]> {
     let partialResults = []
     if (get(isAuthenticated)) {
         const { searchByType, searchByUsername, limit, index } = options
@@ -154,7 +161,7 @@ export async function searchIdentitiesSingleRequest(query: string, options: { se
                 type: NotificationType.Error,
                 message: 'There was an error searching for user',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
     } else {
         showNotification({
@@ -187,7 +194,7 @@ export async function createVC(
                 type: NotificationType.Error,
                 message: 'There was an error creating the credential',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
     } else {
         showNotification({
@@ -209,7 +216,7 @@ export async function revokeVC(signatureValue: RevokeVerificationBody): Promise<
                 type: NotificationType.Error,
                 message: 'There was an error revoking the credential',
             })
-            console.error(Error, e);
+            console.error(Error, e)
             success = false
         }
     } else {
@@ -236,7 +243,9 @@ export async function addIdentityToSortedSearchResults(id: string): Promise<void
         const identity = await searchIdentityByDID(id)
         if (identity) {
             searchIdentitiesResults?.update((_searchIdentitiesResults) => {
-                return [..._searchIdentitiesResults, identity].sort((a, b) => ((new Date(a?.registrationDate))?.getTime() - (new Date(b?.registrationDate))?.getTime()))
+                return [..._searchIdentitiesResults, identity].sort(
+                    (a, b) => new Date(a?.registrationDate)?.getTime() - new Date(b?.registrationDate)?.getTime()
+                )
             })
         }
     } else {
@@ -258,7 +267,7 @@ export async function verifyVC(json: VerifiableCredentialInternal): Promise<bool
                 type: NotificationType.Error,
                 message: 'There was an error verifying the credential',
             })
-            console.error(Error, e);
+            console.error(Error, e)
             _isVerified = false
         }
     } else {
@@ -281,7 +290,7 @@ export async function getVerifiableCredentials(identityId: string): Promise<Veri
                 type: NotificationType.Error,
                 message: 'There was an error fetching identity verifiable credentials',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
     } else {
         showNotification({
@@ -303,7 +312,7 @@ export async function getIdentityClaim(identityId: string): Promise<unknown> {
                 type: NotificationType.Error,
                 message: 'There was an error fetching identity claims',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
     } else {
         showNotification({

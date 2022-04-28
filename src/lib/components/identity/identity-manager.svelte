@@ -1,7 +1,12 @@
 <script lang="ts">
     import { BoxColor } from '$lib/app'
 
-    import { DEFAULT_TABLE_CONFIGURATION, WELCOME_LIST_RESULTS_NUMBER } from '$lib/app/constants/base'
+    import { UserType } from '@iota/is-client'
+    import {
+        DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+        DEFAULT_TABLE_CONFIGURATION,
+        WELCOME_LIST_RESULTS_NUMBER,
+    } from '$lib/app/constants/base'
     import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import {
         addIdentityToSortedSearchResults,
@@ -9,6 +14,7 @@
         getVerifiableCredentials,
         isAsyncLoadingIdentities,
         searchAllIdentities,
+        searchIdentitiesSingleRequest,
         searchIdentitiesResults,
         searchIdentityByDID,
         selectedIdentity,
@@ -83,7 +89,20 @@
     })
 
     async function onSearch(): Promise<void> {
-        await searchAllIdentities(query)
+        await searchAllIdentities(query, { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+    }
+
+    async function loadMore(entries: number): Promise<void> {
+        const _isType = (q: string): boolean =>
+            Object.values(UserType).some((userType) => userType?.toLowerCase() === q?.toLowerCase())
+
+        const newIdentities = await searchIdentitiesSingleRequest(query, {
+            searchByType: _isType(query),
+            searchByUsername: !_isType(query),
+            limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+            index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+        })
+        searchIdentitiesResults.update((results) => [...results, ...newIdentities])
     }
 
     async function updateState(): Promise<void> {
@@ -164,6 +183,7 @@
         <ListManager
             {showSearch}
             {onSearch}
+            {loadMore}
             {tableData}
             {message}
             {tableConfiguration}

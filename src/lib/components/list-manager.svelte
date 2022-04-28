@@ -13,6 +13,7 @@
     export let showSearch: boolean = false
     export let searchPlaceholder = 'Search'
     export let onSearch = (..._: any[]): void => {}
+    export let loadMore = (..._: any[]): void => {}
     export let searchQuery: string = ''
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
 </script>
@@ -59,7 +60,7 @@
     {/if}
 
     {#if tableData?.rows?.length}
-        <Table data={tableData} {loading} {...tableConfiguration} />
+        <Table data={tableData} {loading} {...tableConfiguration} {loadMore} />
     {:else if message}
         <div class="text-center">
             {message}

@@ -27,7 +27,7 @@
             <Icon type="broadcast" boxed boxColor={BoxColor.Blue} size={64} />
             <div class="ms-4">
                 <div class="fs-4 fw-bold">
-                    <span>{channel?.name ?? 'Lorem Ipsum'}</span>
+                    <span>{channel?.name ?? '-'}</span>
                 </div>
                 {#if isUserOwner}
                     <Badge pill color="info">owner</Badge>
@@ -69,12 +69,7 @@
     <div class="bg-light rounded px-4 pt-3 pb-4">
         <div class="text-secondary">Description</div>
         <div>
-            {channel?.description ??
-                `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam pretium massa in odio
-            pellentesque dapibus. Nunc a augue nunc. Morbi fermentum pellentesque quam, nec vulputate
-            neque viverra ornare. Etiam efficitur purus vel finibus consequat. Nunc tincidunt pretium mi,
-            vel ornare leo vestibulum a. Pellentesque habitant morbi tristique senectus et netus et
-            malesuada fames ac turpis egestas.`}
+            {channel?.description ?? `-`}
         </div>
     </div>
 </div>
