@@ -21,6 +21,7 @@
         searchChannelsSingleRequest,
         searchChannelsResults,
         selectedChannel,
+        selectedPageIndex,
         selectedChannelBusy,
         selectedChannelData,
         selectedChannelSubscriptions,
@@ -68,6 +69,10 @@
     let isWriteMesageModalOpen: boolean = false
 
     let subscriptionTimeout: number
+
+    function onPageChange(page) {
+        selectedPageIndex.update(() => page)
+    }
 
     // used to determine the subscription status of the authenticated user on the current channel
     let subscriptionStatus: SubscriptionState
@@ -271,6 +276,8 @@
             {tableConfiguration}
             title="Channels"
             searchPlaceholder="Search channels"
+            selectedPageIndex={get(selectedPageIndex)}
+            {onPageChange}
             {loadMore}
             loading={loading || $isAsyncLoadingChannels}
             actionButtons={listViewButtons}

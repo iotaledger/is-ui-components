@@ -18,6 +18,7 @@
         searchIdentitiesSingleRequest,
         searchIdentitiesResults,
         searchIdentityByDID,
+        selectedPageIndex,
         selectedIdentity,
         stopIdentitiesSearch,
         updateIdentityInSearchResults,
@@ -94,6 +95,10 @@
 
     async function onSearch(): Promise<void> {
         await searchAllIdentities(query, { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+    }
+
+    function onPageChange(page) {
+        selectedPageIndex.update(() => page)
     }
 
     async function loadMore(entries: number): Promise<void> {
@@ -191,6 +196,8 @@
             {tableData}
             {message}
             {tableConfiguration}
+            selectedPageIndex={get(selectedPageIndex)}
+            {onPageChange}
             title="Identities"
             searchPlaceholder="Search identities"
             loading={loading || $isAsyncLoadingIdentities}

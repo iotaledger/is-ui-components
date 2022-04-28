@@ -11,13 +11,14 @@
         rows: [{ onClick: (..._: any[]): void => {}, content: [] }],
     }
     export let loadMore = (..._: any[]): void => {}
+    export let onPageChange = (..._: any[]): void => {}
     export let loading = false
     export let pageSize: number = 10
     export let siblingsCount: number = 2
     export let isPaginated = false
+    export let selectedPageIndex: number = 1
 
     // Pagination
-    let currentPage = 1
     let startAt = 0
     let endAt = pageSize
     let visibleResults
@@ -30,20 +31,20 @@
     })
 
     function pageChanged(page: number): void {
-        currentPage = page
-
-        if (data.rows.length / currentPage <= DEFAULT_TABLE_PAGE_SIZE) {
+        selectedPageIndex = page
+        if (data.rows.length / selectedPageIndex <= DEFAULT_TABLE_PAGE_SIZE) {
             showLoadMoreButton = true
         } else {
             showLoadMoreButton = false
         }
 
+        onPageChange(page)
         updateVisibleResults()
     }
 
     function updateVisibleResults(): void {
         if (isPaginated) {
-            startAt = (currentPage - 1) * pageSize
+            startAt = (selectedPageIndex - 1) * pageSize
             endAt = startAt + pageSize
             visibleResults = data?.rows?.slice(startAt, endAt)
         } else {
@@ -116,7 +117,13 @@
     {#if isPaginated}
         {#if data?.rows?.length}
             <div class="d-flex justify-content-center align-items-center">
-                <Paginator onPageChange={pageChanged} totalCount={data.rows.length} {pageSize} {currentPage} {siblingsCount} />
+                <Paginator
+                    onPageChange={pageChanged}
+                    totalCount={data.rows.length}
+                    {pageSize}
+                    currentPage={selectedPageIndex}
+                    {siblingsCount}
+                />
             </div>
         {/if}
     {/if}

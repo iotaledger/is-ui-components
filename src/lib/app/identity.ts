@@ -14,6 +14,7 @@ import { showNotification } from './notification'
 import type { ExtendedUser } from './types/identity'
 import { NotificationType } from './types/notification'
 
+export const selectedPageIndex: Writable<number> = writable(1)
 export const searchIdentitiesResults: Writable<ExtendedUser[]> = writable([])
 export const selectedIdentity: Writable<ExtendedUser> = writable(null)
 // used for the async search that makes N background queries to get the full list of identities
