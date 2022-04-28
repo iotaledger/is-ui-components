@@ -8,6 +8,7 @@
         WELCOME_LIST_RESULTS_NUMBER,
     } from '$lib/app/constants/base'
     import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
+    import { get } from 'svelte/store'
     import {
         addIdentityToSortedSearchResults,
         getIdentityClaim,
@@ -81,7 +82,10 @@
     } as TableData
 
     onMount(async () => {
-        searchAllIdentities('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+        const results = get(searchIdentitiesResults)
+        if (!results || results?.length === 0) {
+            searchAllIdentities('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+        }
     })
 
     onDestroy(() => {

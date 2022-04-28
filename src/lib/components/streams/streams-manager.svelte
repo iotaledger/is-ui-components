@@ -28,6 +28,7 @@
         stopChannelsSearch,
         stopReadingChannel,
     } from '$lib/app/streams'
+    import { get } from 'svelte/store'
     import type { ActionButton } from '$lib/app/types/layout'
     import { SubscriptionState } from '$lib/app/types/streams'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
@@ -108,7 +109,10 @@
     $: subscriptionStatus, manageChannelData()
 
     onMount(async () => {
-        searchAllChannels('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+        const results = get(searchChannelsResults)
+        if (!results || results?.length === 0) {
+            searchAllChannels('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+        }
     })
 
     onDestroy(() => {
