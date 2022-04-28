@@ -121,7 +121,7 @@
     }
 
     async function loadMore(entries: number): Promise<void> {
-        const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:')
+        const _isAuthorId = (q: string): boolean => q?.startsWith('did:iota:')
 
         const newChannels = await searchChannelsSingleRequest(query, {
             searchByAuthorId: _isAuthorId(query),

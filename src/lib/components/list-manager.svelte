@@ -60,7 +60,7 @@
     {/if}
 
     {#if tableData?.rows?.length}
-        <Table data={tableData} {loading} {...tableConfiguration} searchQuery={searchQuery} loadMore={loadMore}/>
+        <Table data={tableData} {loading} {...tableConfiguration} {loadMore} />
     {:else if message}
         <div class="text-center">
             {message}

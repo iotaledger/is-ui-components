@@ -93,8 +93,8 @@
     }
 
     async function loadMore(entries: number): Promise<void> {
-        const _isType = (query: string): boolean =>
-            Object.values(UserType).some((userType) => userType.toLowerCase() === query.toLowerCase())
+        const _isType = (q: string): boolean =>
+            Object.values(UserType).some((userType) => userType?.toLowerCase() === q?.toLowerCase())
 
         const newIdentities = await searchIdentitiesSingleRequest(query, {
             searchByType: _isType(query),
