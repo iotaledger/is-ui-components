@@ -10,6 +10,36 @@
 </script>
 
 <div class="w-full">
+    <div class="d-flex justify-content-end mt-4">
+        <div class="box d-flex flex-column align-items-center">
+            {#if actionButtons}
+                {#each actionButtons as { label, onClick, icon, color, loading, disabled }}
+                    <Button
+                        size="sm"
+                        outline
+                        color={color ?? 'dark'}
+                        {disabled}
+                        on:click={onClick}
+                        class="d-flex align-items-center mt-3"
+                    >
+                        {#if icon}
+                            <div class="me-1">
+                                <Icon type={icon} size={16} />
+                            </div>
+                        {/if}
+                        <span>{label}</span>
+                        {#if loading}
+                            <div class="ms-2"><Spinner size="sm" type="border" /></div>
+                        {/if}
+                    </Button>
+                {/each}
+            {/if}
+        </div>
+    </div>
+    <div class="p-4 d-flex align-items-center shadow rounded mt-4">
+        <Spinner class="ms-2 me-4" type="grow" size="sm" color="secondary" />
+        <div class="fw-bold">Waiting for channel data...</div>
+    </div>
     {#each channelData as msg}
         <div class="p-4 bg-light my-4">
             <div class="d-lg-flex justify-content-between mb-lg-4">
@@ -67,34 +97,4 @@
             {/if}
         </div>
     {/each}
-    <div class="d-flex justify-content-end mt-4">
-        <div class="box d-flex flex-column align-items-center">
-            {#if actionButtons}
-                {#each actionButtons as { label, onClick, icon, color, loading, disabled }}
-                    <Button
-                        size="sm"
-                        outline
-                        color={color ?? 'dark'}
-                        {disabled}
-                        on:click={onClick}
-                        class="d-flex align-items-center mt-3"
-                    >
-                        {#if icon}
-                            <div class="me-1">
-                                <Icon type={icon} size={16} />
-                            </div>
-                        {/if}
-                        <span>{label}</span>
-                        {#if loading}
-                            <div class="ms-2"><Spinner size="sm" type="border" /></div>
-                        {/if}
-                    </Button>
-                {/each}
-            {/if}
-        </div>
-    </div>
-    <div class="p-4 d-flex align-items-center shadow rounded mt-4">
-        <Spinner class="ms-2 me-4" type="grow" size="sm" color="secondary" />
-        <div class="fw-bold">Waiting for channel data...</div>
-    </div>
 </div>

@@ -1,1 +1,1 @@
-export const FEED_INTERVAL_MS = 2000
+export const FEED_INTERVAL_MS = 5000
