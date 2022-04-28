@@ -10,6 +10,7 @@
         headings: [],
         rows: [{ onClick: (..._: any[]): void => {}, content: [] }],
     }
+    export let loadMore = (..._: any[]): void => {}
     export let loading = false
     export let pageSize: number = 10
     export let siblingsCount: number = 2
@@ -24,11 +25,21 @@
 
     $: data?.rows, updateVisibleResults()
 
-    export let loadMore = (..._: any[]): void => {}
-
     onMount(() => {
         updateVisibleResults()
     })
+
+    function pageChanged(page: number): void {
+        currentPage = page
+
+        if (data.rows.length / currentPage <= DEFAULT_TABLE_PAGE_SIZE) {
+            showLoadMoreButton = true
+        } else {
+            showLoadMoreButton = false
+        }
+
+        updateVisibleResults()
+    }
 
     function updateVisibleResults(): void {
         if (isPaginated) {
@@ -105,23 +116,7 @@
     {#if isPaginated}
         {#if data?.rows?.length}
             <div class="d-flex justify-content-center align-items-center">
-                <Paginator
-                    onPageChange={(page) => {
-                        currentPage = page
-
-                        if (data.rows.length / currentPage <= DEFAULT_TABLE_PAGE_SIZE) {
-                            showLoadMoreButton = true
-                        } else {
-                            showLoadMoreButton = false
-                        }
-
-                        updateVisibleResults()
-                    }}
-                    totalCount={data.rows.length}
-                    {pageSize}
-                    {currentPage}
-                    {siblingsCount}
-                />
+                <Paginator onPageChange={pageChanged} totalCount={data.rows.length} {pageSize} {currentPage} {siblingsCount} />
             </div>
         {/if}
     {/if}

@@ -89,7 +89,7 @@
     })
 
     async function onSearch(): Promise<void> {
-        await searchAllIdentities(query)
+        await searchAllIdentities(query, { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
     }
 
     async function loadMore(entries: number): Promise<void> {
