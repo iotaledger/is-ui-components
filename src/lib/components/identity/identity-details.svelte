@@ -31,8 +31,8 @@
 </script>
 
 <div class="identity-details w-100">
-    <div class="d-xl-flex align-items-center justify-content-between bg-light rounded p-4">
-        <div class="d-flex align-items-center">
+    <div class="d-xl-flex  flex-column bg-light rounded p-4">
+        <div class="d-flex align-items-center mb-2">
             <Icon
                 size={64}
                 boxed
@@ -45,7 +45,20 @@
                 <div class="text-secondary fw-bolder mt-1 text-break">{identity?.id}</div>
             </div>
         </div>
-        <div class="d-flex flex-column align-items-start">
+        <div class="d-flex align-items-center">
+            <div class="ms-12 me-12">
+                <div class="text-secondary text-break">
+                    <span class="fw-bold">Date: </span><span class="text-break ">{identity?.registrationDate}</span>
+                </div>
+                <div class="text-secondary">
+                    <span class="fw-bold">Public Key: </span><span class="text-break ">{identity?.publicKey}</span>
+                </div>
+                <div class="text-secondary text-break">
+                    <span class="fw-bold">Creator: </span><span class="text-break ">{identity?.creator}</span>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-column align-items-end">
             {#if actionButtons}
                 {#each actionButtons as { label, onClick, icon, color, loading, disabled }}
                     <Button
