@@ -66,7 +66,7 @@
     $: state, loadIdentityDetails()
     $: message = $isAsyncLoadingIdentities || loading || $searchIdentitiesResults?.length ? null : 'No identities found'
     $: tableData = {
-        headings: ['Identity', 'Type', 'Date created', 'Credentials'],
+        headings: ['Identity', 'Type', 'Date Created', 'Credentials'],
         rows: $searchIdentitiesResults.map((identity) => ({
             onClick: () => handleSelectIdentity(identity),
             content: [

@@ -80,7 +80,7 @@
     $: $selectedChannel, updateStateMachine()
     $: message = $isAsyncLoadingChannels || loading || $searchChannelsResults?.length ? null : 'No channels found'
     $: tableData = {
-        headings: ['Channel', 'Address', 'Topic types', 'Topic Sources', ''],
+        headings: ['Channel', 'Address', 'Topic types', 'Topic Sources', 'Date Created', ''],
         rows: $searchChannelsResults.map((channel) => {
             const isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
             const isUserSubscribed = isUserSubscribedToChannel($authenticatedUserDID, channel)
@@ -95,6 +95,7 @@
                     { value: channel.channelAddress },
                     { value: channel.topics.map((topic) => topic?.type) },
                     { value: channel.topics.map((topic) => topic?.source) },
+                    { value: channel.created },
                     {
                         pills:
                             isUserOwner || isUserSubscribed
