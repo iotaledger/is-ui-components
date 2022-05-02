@@ -112,7 +112,7 @@ export function stopChannelsSearch(): void {
 export async function readChannelMessages(channelAddress: string): Promise<void> {
     if (get(isAuthenticated)) {
         if (get(selectedChannelBusy)) {
-            console.log('channel busy...')
+            console.log('channel is busy..')
             return
         }
         try {
@@ -143,7 +143,6 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
 }
 
 export async function startReadingChannel(channelAddress: string): Promise<void> {
-    console.log('start reading from:', channelAddress)
     stopReadingChannel()
     if (!get(selectedChannelBusy)) {
         await readChannelMessages(channelAddress)
@@ -154,7 +153,6 @@ export async function startReadingChannel(channelAddress: string): Promise<void>
 }
 
 export function stopReadingChannel(): void {
-    console.log('clearing interval..', channelFeedInterval)
     clearInterval(channelFeedInterval)
     channelFeedInterval = null
     selectedChannelData.set([])
