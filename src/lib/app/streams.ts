@@ -15,8 +15,8 @@ import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
 import { SubscriptionState } from './types/streams'
 
-export let selectedChannelPageIndex: Writable<number> = writable(1)
-export let channelSearchQuery: Writable<string> = writable('')
+export const selectedChannelPageIndex: Writable<number> = writable(1)
+export const channelSearchQuery: Writable<string> = writable('')
 export const selectedChannel: Writable<ChannelInfo> = writable(null)
 export const searchChannelsResults: Writable<ChannelInfo[]> = writable([])
 export const selectedChannelData: Writable<ChannelData[]> = writable([])

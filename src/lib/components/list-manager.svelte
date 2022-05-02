@@ -3,8 +3,6 @@
     import type { ActionButton } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Icon, SearchInput, Table } from '$lib/components'
-    import type { Writable } from 'svelte/store'
-    import { writable } from 'svelte/store'
     import { Button, Spinner } from 'sveltestrap'
 
     export let title = 'List view'
@@ -18,7 +16,7 @@
     export let loadMore = (..._: any[]): void => {}
     export let onPageChange = (..._: any[]): void => {}
     export let selectedPageIndex: number = 1
-    export let searchQuery: Writable<string> = writable('')
+    export let searchQuery: string = ''
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
 </script>
 
@@ -59,7 +57,7 @@
     </div>
     {#if showSearch}
         <div class="mb-4">
-            <SearchInput placeholder={searchPlaceholder} bind:value={$searchQuery} onSubmit={onSearch} />
+            <SearchInput placeholder={searchPlaceholder} bind:value={searchQuery} onSubmit={onSearch} />
         </div>
     {/if}
 

@@ -268,12 +268,12 @@
             {tableConfiguration}
             title="Channels"
             searchPlaceholder="Search channels"
-            selectedPageIndex={get(selectedChannelPageIndex)}
+            selectedPageIndex={$selectedChannelPageIndex}
             {onPageChange}
             {loadMore}
             loading={loading || $isAsyncLoadingChannels}
             actionButtons={listViewButtons}
-            searchQuery={channelSearchQuery}
+            searchQuery={$channelSearchQuery}
         />
     {:else if state === State.ChannelDetail}
         <div class="mb-4 align-self-start">
