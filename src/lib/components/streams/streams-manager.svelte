@@ -21,13 +21,15 @@
         searchChannelsSingleRequest,
         searchChannelsResults,
         selectedChannel,
+        selectedChannelPageIndex,
         selectedChannelBusy,
         selectedChannelData,
         selectedChannelSubscriptions,
-        startReadingChannel,
         stopChannelsSearch,
         stopReadingChannel,
+        channelSearchQuery,
     } from '$lib/app/streams'
+    import { get } from 'svelte/store'
     import type { ActionButton } from '$lib/app/types/layout'
     import { SubscriptionState } from '$lib/app/types/streams'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
@@ -61,12 +63,15 @@
 
     let state: State = State.ListChannels
     let loading: boolean = false
-    let query: string = ''
 
     let isCreateChannelModalOpen: boolean = false
     let isWriteMesageModalOpen: boolean = false
 
     let subscriptionTimeout: number
+
+    function onPageChange(page) {
+        selectedChannelPageIndex.set(page)
+    }
 
     // used to determine the subscription status of the authenticated user on the current channel
     let subscriptionStatus: SubscriptionState
@@ -74,7 +79,7 @@
     $: $selectedChannel, updateStateMachine()
     $: message = $isAsyncLoadingChannels || loading || $searchChannelsResults?.length ? null : 'No channels found'
     $: tableData = {
-        headings: ['Channel', 'Address', 'Topic types', 'Topic Sources', ''],
+        headings: ['Channel', 'Address', 'Topic types', 'Topic Sources', 'Date Created', ''],
         rows: $searchChannelsResults.map((channel) => {
             const isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
             const isUserSubscribed = isUserSubscribedToChannel($authenticatedUserDID, channel)
@@ -89,6 +94,7 @@
                     { value: channel.channelAddress },
                     { value: channel.topics.map((topic) => topic?.type) },
                     { value: channel.topics.map((topic) => topic?.source) },
+                    { value: channel.created },
                     {
                         pills:
                             isUserOwner || isUserSubscribed
@@ -105,10 +111,13 @@
         }),
     } as TableData
 
-    $: subscriptionStatus, manageChannelData()
+    $: subscriptionStatus
 
     onMount(async () => {
-        searchAllChannels('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+        const results = get(searchChannelsResults)
+        if (!results || results?.length === 0) {
+            searchAllChannels('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+        }
     })
 
     onDestroy(() => {
@@ -117,15 +126,16 @@
     })
 
     async function onSearch(): Promise<void> {
-        await searchAllChannels(query, { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+        selectedChannelPageIndex.set(1) // reset index
+        await searchAllChannels(get(channelSearchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
     }
 
     async function loadMore(entries: number): Promise<void> {
         const _isAuthorId = (q: string): boolean => q?.startsWith('did:iota:')
 
-        const newChannels = await searchChannelsSingleRequest(query, {
-            searchByAuthorId: _isAuthorId(query),
-            searchBySource: !_isAuthorId(query),
+        const newChannels = await searchChannelsSingleRequest(get(channelSearchQuery), {
+            searchByAuthorId: _isAuthorId(get(channelSearchQuery)),
+            searchBySource: !_isAuthorId(get(channelSearchQuery)),
             limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
             index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
         })
@@ -165,7 +175,7 @@
     async function onCreateChannelSuccess(channelAddress: string): Promise<void> {
         loading = true
         // If query is not empty, we need to search again to get the match results
-        if (query?.length) {
+        if (get(channelSearchQuery)?.length) {
             await onSearch()
         } else {
             // Add the channel to the search results directly, no need to search again
@@ -234,15 +244,6 @@
         selectedChannelSubscriptions.set(subscriptions)
     }
 
-    function manageChannelData(): void {
-        const isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, $selectedChannel)
-        if (isUserOwner || subscriptionStatus === SubscriptionState.Authorized) {
-            startReadingChannel($selectedChannel?.channelAddress)
-        } else {
-            stopReadingChannel()
-        }
-    }
-
     function openCreateChannelModal(): void {
         isCreateChannelModalOpen = true
     }
@@ -267,10 +268,12 @@
             {tableConfiguration}
             title="Channels"
             searchPlaceholder="Search channels"
+            selectedPageIndex={$selectedChannelPageIndex}
+            {onPageChange}
             {loadMore}
             loading={loading || $isAsyncLoadingChannels}
             actionButtons={listViewButtons}
-            bind:searchQuery={query}
+            bind:searchQuery={$channelSearchQuery}
         />
     {:else if state === State.ChannelDetail}
         <div class="mb-4 align-self-start">

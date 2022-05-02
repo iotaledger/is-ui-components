@@ -14,6 +14,8 @@
     export let searchPlaceholder = 'Search'
     export let onSearch = (..._: any[]): void => {}
     export let loadMore = (..._: any[]): void => {}
+    export let onPageChange = (..._: any[]): void => {}
+    export let selectedPageIndex: number = 1
     export let searchQuery: string = ''
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
 </script>
@@ -60,7 +62,7 @@
     {/if}
 
     {#if tableData?.rows?.length}
-        <Table data={tableData} {loading} {...tableConfiguration} {loadMore} />
+        <Table data={tableData} {loading} {...tableConfiguration} {selectedPageIndex} {onPageChange} {loadMore} />
     {:else if message}
         <div class="text-center">
             {message}

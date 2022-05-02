@@ -583,7 +583,9 @@ import {
     -   `metadata`: public metadata of a channel can be seen when checking at explorer
     -   `type`: type describing the type of what is logged
     -   `triggerReadChannel`: when `true` it will start reading the channel messages (polling) if there are no errors.
--   `createChannel(topics)`: This function allows the creation of a channel
+-   `createChannel(name, description, topics)`: This function allows the creation of a channel
+    -   `name`: name of a channel.
+    -   `description`: description of a channel.
     -   `topics`: topics of a channel.
 -   `isUserOwnerOfChannel(channelAddress)`: this function returns `true` if the logged in identity is the owner of a given channel
     -   `channelAddress`: address of the channel involved

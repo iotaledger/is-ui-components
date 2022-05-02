@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Icon } from '$lib/components'
 
-    export let currentPage: number = 0
+    export let currentPage: number
     export let pageSize: number = 10
     export let totalCount: number = 0
     export let siblingsCount: number = 1

@@ -1,5 +1,11 @@
-import type { AuthorizeSubscriptionResponse, ChannelData, CreateChannelResponse, RequestSubscriptionResponse, Subscription } from '@iota/is-client'
-import { AccessRights, type ChannelInfo } from '@iota/is-client'
+import type {
+    AuthorizeSubscriptionResponse,
+    ChannelData,
+    CreateChannelResponse,
+    RequestSubscriptionResponse,
+    Subscription,
+} from '@iota/is-client'
+import { AccessRights, ChannelInfo } from '@iota/is-client'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient, isAuthenticated } from './base'
@@ -9,50 +15,50 @@ import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
 import { SubscriptionState } from './types/streams'
 
+export const selectedChannelPageIndex: Writable<number> = writable(1)
+export const channelSearchQuery: Writable<string> = writable('')
 export const selectedChannel: Writable<ChannelInfo> = writable(null)
 export const searchChannelsResults: Writable<ChannelInfo[]> = writable([])
 export const selectedChannelData: Writable<ChannelData[]> = writable([])
 export const selectedChannelBusy = writable(false)
-export const selectedChannelSubscriptions: Writable<Subscription[]> = writable(null);
+export const selectedChannelSubscriptions: Writable<Subscription[]> = writable(null)
 // used for the async search that makes N background queries to get the full list of channels
-export const isAsyncLoadingChannels: Writable<boolean> = writable(false);
+export const isAsyncLoadingChannels: Writable<boolean> = writable(false)
 
-let haltSearchAll = false;
+let haltSearchAll = false
 // used to keep track of the last search query
-let searchAllHash: string;
+let searchAllHash: string
 
 let channelFeedInterval
 
 // Note: this is an async function that returns nothing, but fills the searchChannelsResults store.
-// This is because the searchAllChannels function is called in the background, and the results are 
+// This is because the searchAllChannels function is called in the background, and the results are
 // stored in the searchChannelsResults store.
 // TODO: Improve search algorithm, now it is searching only by author id or topic type
 let index = 0
-export async function searchAllChannels(
-    query: string, options?: { limit?: number }
-): Promise<void> {
+export async function searchAllChannels(query: string, options?: { limit?: number }): Promise<void> {
     const _search = async (_searchAllHash: string, query: string, options?: { limit?: number }): Promise<void> => {
-        const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:');
-        const newResults: ChannelInfo[] = await searchChannelsSingleRequest(
-            query,
-            {
-                searchByAuthorId: _isAuthorId(query),
-                searchBySource: !_isAuthorId(query),
-                limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-                index,
-            }
-        );
+        const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:')
+        const newResults: ChannelInfo[] = await searchChannelsSingleRequest(query, {
+            searchByAuthorId: _isAuthorId(query),
+            searchBySource: !_isAuthorId(query),
+            limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+            index,
+        })
         // filter out old requests
         if (_searchAllHash === searchAllHash) {
             if (newResults?.length) {
                 searchChannelsResults.update((results) => [...results, ...newResults])
             }
             // if the search is not finished, start a new search
-            if (!haltSearchAll && ((options?.limit && (get(searchChannelsResults)?.length < options?.limit)) || (!options?.limit && (newResults?.length === DEFAULT_SDK_CLIENT_REQUEST_LIMIT)))) {
+            if (
+                !haltSearchAll &&
+                ((options?.limit && get(searchChannelsResults)?.length < options?.limit) ||
+                    (!options?.limit && newResults?.length === DEFAULT_SDK_CLIENT_REQUEST_LIMIT))
+            ) {
                 index++
                 await _search(_searchAllHash, query)
-            }
-            else {
+            } else {
                 stopChannelsSearch()
             }
         }
@@ -62,11 +68,14 @@ export async function searchAllChannels(
     searchAllHash = `${query}-${Math.floor(Math.random() * query.length)}`
     haltSearchAll = false
     isAsyncLoadingChannels.set(true)
-    searchChannelsResults.set([]);
+    searchChannelsResults.set([])
     await _search(searchAllHash, query, options)
 }
 
-export async function searchChannelsSingleRequest(query: string, options: { searchByAuthorId?: boolean, searchBySource?: boolean; limit: number, index?: number }): Promise<ChannelInfo[]> {
+export async function searchChannelsSingleRequest(
+    query: string,
+    options: { searchByAuthorId?: boolean; searchBySource?: boolean; limit: number; index?: number }
+): Promise<ChannelInfo[]> {
     let partialResults = []
     if (get(isAuthenticated)) {
         const { searchByAuthorId, searchBySource, limit, index } = options
@@ -75,14 +84,15 @@ export async function searchChannelsSingleRequest(query: string, options: { sear
                 authorId: searchByAuthorId ? query : undefined,
                 topicSource: searchBySource ? query : undefined,
                 limit: limit,
-                index: index
+                index: index,
+                // TODO asc: false,
             })
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
                 message: 'There was an error searching for channel',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
     } else {
         showNotification({
@@ -101,6 +111,10 @@ export function stopChannelsSearch(): void {
 
 export async function readChannelMessages(channelAddress: string): Promise<void> {
     if (get(isAuthenticated)) {
+        if (get(selectedChannelBusy)) {
+            console.log('channel is busy..')
+            return
+        }
         try {
             const lastMessage = get(selectedChannelData)?.[0] ?? null
             const lastMessageDate = lastMessage ? new Date(lastMessage.log.created) : null
@@ -113,13 +127,12 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
             })
             selectedChannelBusy.set(false)
             selectedChannelData.update((_chData) => [...newMessages, ..._chData])
-        }
-        catch (e) {
+        } catch (e) {
             showNotification({
                 type: NotificationType.Error,
                 message: 'There was an error reading channel',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
     } else {
         showNotification({
@@ -132,10 +145,10 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
 export async function startReadingChannel(channelAddress: string): Promise<void> {
     stopReadingChannel()
     if (!get(selectedChannelBusy)) {
-        readChannelMessages(channelAddress)
+        await readChannelMessages(channelAddress)
     }
     channelFeedInterval = setInterval(async () => {
-        readChannelMessages(channelAddress)
+        await readChannelMessages(channelAddress)
     }, FEED_INTERVAL_MS)
 }
 
@@ -148,14 +161,16 @@ export function stopReadingChannel(): void {
 export async function requestSubscription(channelAddress: string): Promise<RequestSubscriptionResponse> {
     if (get(isAuthenticated)) {
         try {
-            const response: RequestSubscriptionResponse = await channelClient.requestSubscription(channelAddress, { accessRights: AccessRights.ReadAndWrite })
+            const response: RequestSubscriptionResponse = await channelClient.requestSubscription(channelAddress, {
+                accessRights: AccessRights.ReadAndWrite,
+            })
             return response
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
                 message: 'There was an error requesting subscription to channel',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
     } else {
         showNotification({
@@ -176,7 +191,7 @@ export async function requestUnsubscription(channelAddress: string): Promise<boo
                 type: NotificationType.Error,
                 message: 'There was an error requesting unsubscription to channel',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
     } else {
         showNotification({
@@ -186,7 +201,11 @@ export async function requestUnsubscription(channelAddress: string): Promise<boo
     }
 }
 
-export async function acceptSubscription(channelAddress: string, id: string, triggerReadChannel = false): Promise<AuthorizeSubscriptionResponse> {
+export async function acceptSubscription(
+    channelAddress: string,
+    id: string,
+    triggerReadChannel = false
+): Promise<AuthorizeSubscriptionResponse> {
     let authorizedResponse: AuthorizeSubscriptionResponse
     stopReadingChannel()
     try {
@@ -199,7 +218,7 @@ export async function acceptSubscription(channelAddress: string, id: string, tri
             type: NotificationType.Error,
             message: 'There was an error getting subscription state',
         })
-        console.error(Error, e);
+        console.error(Error, e)
     }
     if (triggerReadChannel) {
         startReadingChannel(channelAddress)
@@ -221,7 +240,7 @@ export async function rejectSubscription(channelAddress: string, id: string, tri
                 type: NotificationType.Error,
                 message: 'There was an error getting subscription state',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
         if (triggerReadChannel) {
             startReadingChannel(channelAddress)
@@ -244,7 +263,7 @@ export async function getSubscriptions(channelAddress: string): Promise<Subscrip
             type: NotificationType.Error,
             message: 'There was an error getting all subscriptions',
         })
-        console.error(Error, e);
+        console.error(Error, e)
     }
     return subscriptions
 }
@@ -254,15 +273,17 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
         try {
             const allSubscriptions = await channelClient.findAllSubscriptions(channelAddress)
             const ownSuscription = allSubscriptions.find((subscription) => subscription.id === get(authenticationData)?.did)
-            return !ownSuscription ? SubscriptionState.NotSubscribed :
-                ownSuscription.isAuthorized ? SubscriptionState.Authorized :
-                    SubscriptionState.Subscribed
+            return !ownSuscription
+                ? SubscriptionState.NotSubscribed
+                : ownSuscription.isAuthorized
+                ? SubscriptionState.Authorized
+                : SubscriptionState.Subscribed
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
                 message: 'There was an error getting subscription state',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
     } else {
         showNotification({
@@ -283,6 +304,8 @@ export async function writeMessage(
     if (get(isAuthenticated)) {
         let channelDataResponse: ChannelData
         stopReadingChannel()
+        selectedChannelBusy.set(true)
+
         try {
             const response: ChannelData = await channelClient.write(address, {
                 payload,
@@ -296,7 +319,9 @@ export async function writeMessage(
                 type: NotificationType.Error,
                 message: 'There was an error writing message in channel',
             })
-            console.error(Error, e);
+            console.error(Error, e)
+        } finally {
+            selectedChannelBusy.set(false)
         }
         if (triggerReadChannel) {
             startReadingChannel(address)
@@ -310,10 +335,16 @@ export async function writeMessage(
     }
 }
 
-export async function createChannel(topics: { type: string; source: string }[]): Promise<CreateChannelResponse> {
+export async function createChannel(
+    name: string,
+    description: string,
+    topics: { type: string; source: string }[]
+): Promise<CreateChannelResponse> {
     if (get(isAuthenticated)) {
         try {
             const channel: CreateChannelResponse = await channelClient.create({
+                name,
+                description,
                 topics,
             })
             return channel
@@ -322,7 +353,7 @@ export async function createChannel(topics: { type: string; source: string }[]):
                 type: NotificationType.Error,
                 message: 'There was an error creating the channel',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
     } else {
         showNotification({
@@ -346,7 +377,7 @@ export async function addChannelToSearchResults(channelAddress: string): Promise
                 type: NotificationType.Error,
                 message: 'There was an error fetching channel information',
             })
-            console.error(Error, e);
+            console.error(Error, e)
         }
     } else {
         showNotification({
@@ -357,9 +388,9 @@ export async function addChannelToSearchResults(channelAddress: string): Promise
 }
 
 export function isUserOwnerOfChannel(userDID: string, channel: ChannelInfo): boolean {
-    return channel?.authorId === userDID;
+    return channel?.authorId === userDID
 }
 
 export function isUserSubscribedToChannel(userDID: string, channel: ChannelInfo): boolean {
-    return channel?.subscriberIds?.includes(userDID) && channel?.authorId !== userDID;
+    return channel?.subscriberIds?.includes(userDID) && channel?.authorId !== userDID
 }

@@ -8,6 +8,7 @@
         WELCOME_LIST_RESULTS_NUMBER,
     } from '$lib/app/constants/base'
     import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
+    import { get } from 'svelte/store'
     import {
         addIdentityToSortedSearchResults,
         getIdentityClaim,
@@ -17,9 +18,11 @@
         searchIdentitiesSingleRequest,
         searchIdentitiesResults,
         searchIdentityByDID,
+        selectedIdentityPageIndex,
         selectedIdentity,
         stopIdentitiesSearch,
         updateIdentityInSearchResults,
+        identitySearchQuery,
     } from '$lib/app/identity'
     import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
     import type { ActionButton } from '$lib/app/types/layout'
@@ -55,7 +58,6 @@
     }
     let state: State = State.ListIdentities
     let loading: boolean = false
-    let query: string = ''
     let message: string
     let isCreateIdentityModalOpen = false
     let isCreateCredentialModalOpen = false
@@ -64,7 +66,7 @@
     $: state, loadIdentityDetails()
     $: message = $isAsyncLoadingIdentities || loading || $searchIdentitiesResults?.length ? null : 'No identities found'
     $: tableData = {
-        headings: ['Identity', 'Type', 'Date created', 'Credentials'],
+        headings: ['Identity', 'Type', 'Date Created', 'Credentials'],
         rows: $searchIdentitiesResults.map((identity) => ({
             onClick: () => handleSelectIdentity(identity),
             content: [
@@ -81,7 +83,10 @@
     } as TableData
 
     onMount(async () => {
-        searchAllIdentities('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+        const results = get(searchIdentitiesResults)
+        if (!results || results?.length === 0) {
+            searchAllIdentities('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+        }
     })
 
     onDestroy(() => {
@@ -89,16 +94,21 @@
     })
 
     async function onSearch(): Promise<void> {
-        await searchAllIdentities(query, { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+        selectedIdentityPageIndex.set(1) // reset index
+        await searchAllIdentities(get(identitySearchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+    }
+
+    function onPageChange(page) {
+        selectedIdentityPageIndex.set(page)
     }
 
     async function loadMore(entries: number): Promise<void> {
         const _isType = (q: string): boolean =>
             Object.values(UserType).some((userType) => userType?.toLowerCase() === q?.toLowerCase())
 
-        const newIdentities = await searchIdentitiesSingleRequest(query, {
-            searchByType: _isType(query),
-            searchByUsername: !_isType(query),
+        const newIdentities = await searchIdentitiesSingleRequest(get(identitySearchQuery), {
+            searchByType: _isType(get(identitySearchQuery)),
+            searchByUsername: !_isType(get(identitySearchQuery)),
             limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
             index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
         })
@@ -139,7 +149,7 @@
     async function onCreateIdentitySuccess(identity: IdentityJson): Promise<void> {
         loading = true
         // If query is not empty, we need to search again to get the match results
-        if (query?.length) {
+        if (get(identitySearchQuery)?.length) {
             await onSearch()
         } else {
             // Add the identity to the search results directly, no need to search again
@@ -187,11 +197,13 @@
             {tableData}
             {message}
             {tableConfiguration}
+            selectedPageIndex={$selectedIdentityPageIndex}
+            {onPageChange}
             title="Identities"
             searchPlaceholder="Search identities"
             loading={loading || $isAsyncLoadingIdentities}
             actionButtons={listViewButtons}
-            bind:searchQuery={query}
+            bind:searchQuery={$identitySearchQuery}
         />
     {:else if state === State.IdentityDetail}
         <div class="mb-4 align-self-start">
