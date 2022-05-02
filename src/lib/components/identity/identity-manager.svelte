@@ -95,6 +95,7 @@
 
     async function onSearch(): Promise<void> {
         await searchAllIdentities(get(searchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+        selectedPageIndex.update(() => 1) // reset index
     }
 
     function onPageChange(page) {
