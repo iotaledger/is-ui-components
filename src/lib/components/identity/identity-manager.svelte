@@ -203,7 +203,7 @@
             searchPlaceholder="Search identities"
             loading={loading || $isAsyncLoadingIdentities}
             actionButtons={listViewButtons}
-            searchQuery={$identitySearchQuery}
+            searchQuery={identitySearchQuery}
         />
     {:else if state === State.IdentityDetail}
         <div class="mb-4 align-self-start">
