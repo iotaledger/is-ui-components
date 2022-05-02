@@ -110,6 +110,10 @@ export function stopChannelsSearch(): void {
 
 export async function readChannelMessages(channelAddress: string): Promise<void> {
     if (get(isAuthenticated)) {
+        if (get(selectedChannelBusy)) {
+            console.log('channel busy...')
+            return
+        }
         try {
             const lastMessage = get(selectedChannelData)?.[0] ?? null
             const lastMessageDate = lastMessage ? new Date(lastMessage.log.created) : null
@@ -138,6 +142,7 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
 }
 
 export async function startReadingChannel(channelAddress: string): Promise<void> {
+    console.log('start reading from:', channelAddress)
     stopReadingChannel()
     if (!get(selectedChannelBusy)) {
         await readChannelMessages(channelAddress)
@@ -148,6 +153,7 @@ export async function startReadingChannel(channelAddress: string): Promise<void>
 }
 
 export function stopReadingChannel(): void {
+    console.log('clearing interval..', channelFeedInterval)
     clearInterval(channelFeedInterval)
     channelFeedInterval = null
     selectedChannelData.set([])
@@ -299,6 +305,8 @@ export async function writeMessage(
     if (get(isAuthenticated)) {
         let channelDataResponse: ChannelData
         stopReadingChannel()
+        selectedChannelBusy.set(true)
+
         try {
             const response: ChannelData = await channelClient.write(address, {
                 payload,
@@ -313,6 +321,8 @@ export async function writeMessage(
                 message: 'There was an error writing message in channel',
             })
             console.error(Error, e)
+        } finally {
+            selectedChannelBusy.set(false)
         }
         if (triggerReadChannel) {
             startReadingChannel(address)
