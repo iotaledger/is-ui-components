@@ -1,6 +1,7 @@
 <script lang="ts">
+    import { onMount } from 'svelte'
     import { authenticatedUserDID } from '$lib/app/base'
-    import { isUserOwnerOfChannel } from '$lib/app/streams'
+    import { isUserOwnerOfChannel, startReadingChannel, stopReadingChannel } from '$lib/app/streams'
     import type { ActionButton } from '$lib/app/types/layout'
     import { SubscriptionState } from '$lib/app/types/streams'
     import { ChannelInfo, ChannelMessages, ChannelSubscriptions } from '$lib/components'
@@ -17,6 +18,19 @@
     export let handleRejectSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
 
     $: isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
+
+    async function manageChannelData(): Promise<void> {
+        const isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
+        if (isUserOwner || subscriptionStatus === SubscriptionState.Authorized) {
+            await startReadingChannel(channel?.channelAddress)
+        } else {
+            await stopReadingChannel()
+        }
+    }
+
+    onMount(async () => {
+        await manageChannelData()
+    })
 </script>
 
 <div class="w-full">

@@ -54,7 +54,7 @@
                     <span class="fw-bold">Public Key: </span><span class="text-break ">{identity?.publicKey}</span>
                 </div>
                 <div class="text-secondary text-break">
-                    <span class="fw-bold">Creator: </span><span class="text-break ">{identity?.creator}</span>
+                    <span class="fw-bold">Creator: </span><span class="text-break ">{identity?.creator || 'unknown'}</span>
                 </div>
             </div>
             <div class="d-flex flex-column align-items-start">

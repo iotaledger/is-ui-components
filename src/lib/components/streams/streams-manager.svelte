@@ -25,7 +25,6 @@
         selectedChannelBusy,
         selectedChannelData,
         selectedChannelSubscriptions,
-        startReadingChannel,
         stopChannelsSearch,
         stopReadingChannel,
     } from '$lib/app/streams'
@@ -112,7 +111,7 @@
         }),
     } as TableData
 
-    $: subscriptionStatus, manageChannelData()
+    $: subscriptionStatus
 
     onMount(async () => {
         const results = get(searchChannelsResults)
@@ -242,15 +241,6 @@
     async function updateSubscriptions(): Promise<void> {
         const subscriptions = await getSubscriptions($selectedChannel?.channelAddress)
         selectedChannelSubscriptions.set(subscriptions)
-    }
-
-    function manageChannelData(): void {
-        const isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, $selectedChannel)
-        if (isUserOwner || subscriptionStatus === SubscriptionState.Authorized) {
-            startReadingChannel($selectedChannel?.channelAddress)
-        } else {
-            stopReadingChannel()
-        }
     }
 
     function openCreateChannelModal(): void {
