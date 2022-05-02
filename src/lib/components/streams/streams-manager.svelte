@@ -21,13 +21,13 @@
         searchChannelsSingleRequest,
         searchChannelsResults,
         selectedChannel,
-        selectedPageIndex,
+        selectedChannelPageIndex,
         selectedChannelBusy,
         selectedChannelData,
         selectedChannelSubscriptions,
         stopChannelsSearch,
         stopReadingChannel,
-        searchQuery,
+        channelSearchQuery,
     } from '$lib/app/streams'
     import { get } from 'svelte/store'
     import type { ActionButton } from '$lib/app/types/layout'
@@ -70,7 +70,7 @@
     let subscriptionTimeout: number
 
     function onPageChange(page) {
-        selectedPageIndex.update(() => page)
+        selectedChannelPageIndex.set(page)
     }
 
     // used to determine the subscription status of the authenticated user on the current channel
@@ -126,16 +126,16 @@
     })
 
     async function onSearch(): Promise<void> {
-        await searchAllChannels(get(searchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
-        selectedPageIndex.update(() => 1) // reset index
+        await searchAllChannels(get(channelSearchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+        selectedChannelPageIndex.set(1) // reset index
     }
 
     async function loadMore(entries: number): Promise<void> {
         const _isAuthorId = (q: string): boolean => q?.startsWith('did:iota:')
 
-        const newChannels = await searchChannelsSingleRequest(get(searchQuery), {
-            searchByAuthorId: _isAuthorId(get(searchQuery)),
-            searchBySource: !_isAuthorId(get(searchQuery)),
+        const newChannels = await searchChannelsSingleRequest(get(channelSearchQuery), {
+            searchByAuthorId: _isAuthorId(get(channelSearchQuery)),
+            searchBySource: !_isAuthorId(get(channelSearchQuery)),
             limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
             index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
         })
@@ -175,7 +175,7 @@
     async function onCreateChannelSuccess(channelAddress: string): Promise<void> {
         loading = true
         // If query is not empty, we need to search again to get the match results
-        if (get(searchQuery)?.length) {
+        if (get(channelSearchQuery)?.length) {
             await onSearch()
         } else {
             // Add the channel to the search results directly, no need to search again
@@ -268,12 +268,12 @@
             {tableConfiguration}
             title="Channels"
             searchPlaceholder="Search channels"
-            selectedPageIndex={get(selectedPageIndex)}
+            selectedPageIndex={get(selectedChannelPageIndex)}
             {onPageChange}
             {loadMore}
             loading={loading || $isAsyncLoadingChannels}
             actionButtons={listViewButtons}
-            {searchQuery}
+            searchQuery={channelSearchQuery}
         />
     {:else if state === State.ChannelDetail}
         <div class="mb-4 align-self-start">

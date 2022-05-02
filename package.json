@@ -4,7 +4,7 @@
     "version": "0.0.41",
     "description": "Svelte UI components for IOTA Integration Services",
     "scripts": {
-        "dev": "svelte-kit dev --port 3000",
+        "dev": "svelte-kit dev --port 3044",
         "build": "svelte-kit build",
         "package": "svelte-kit package",
         "build-css": "sass src/lib/scss/index.scss:src/lib/css/index.css",

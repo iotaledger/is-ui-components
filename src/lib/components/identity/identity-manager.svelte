@@ -18,11 +18,11 @@
         searchIdentitiesSingleRequest,
         searchIdentitiesResults,
         searchIdentityByDID,
-        selectedPageIndex,
+        selectedIdentityPageIndex,
         selectedIdentity,
         stopIdentitiesSearch,
         updateIdentityInSearchResults,
-        searchQuery,
+        identitySearchQuery,
     } from '$lib/app/identity'
     import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
     import type { ActionButton } from '$lib/app/types/layout'
@@ -94,21 +94,21 @@
     })
 
     async function onSearch(): Promise<void> {
-        await searchAllIdentities(get(searchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
-        selectedPageIndex.update(() => 1) // reset index
+        await searchAllIdentities(get(identitySearchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+        selectedIdentityPageIndex.set(1) // reset index
     }
 
     function onPageChange(page) {
-        selectedPageIndex.update(() => page)
+        selectedIdentityPageIndex.set(page)
     }
 
     async function loadMore(entries: number): Promise<void> {
         const _isType = (q: string): boolean =>
             Object.values(UserType).some((userType) => userType?.toLowerCase() === q?.toLowerCase())
 
-        const newIdentities = await searchIdentitiesSingleRequest(get(searchQuery), {
-            searchByType: _isType(get(searchQuery)),
-            searchByUsername: !_isType(get(searchQuery)),
+        const newIdentities = await searchIdentitiesSingleRequest(get(identitySearchQuery), {
+            searchByType: _isType(get(identitySearchQuery)),
+            searchByUsername: !_isType(get(identitySearchQuery)),
             limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
             index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
         })
@@ -149,7 +149,7 @@
     async function onCreateIdentitySuccess(identity: IdentityJson): Promise<void> {
         loading = true
         // If query is not empty, we need to search again to get the match results
-        if (get(searchQuery)?.length) {
+        if (get(identitySearchQuery)?.length) {
             await onSearch()
         } else {
             // Add the identity to the search results directly, no need to search again
@@ -197,13 +197,13 @@
             {tableData}
             {message}
             {tableConfiguration}
-            selectedPageIndex={get(selectedPageIndex)}
+            selectedPageIndex={get(selectedIdentityPageIndex)}
             {onPageChange}
             title="Identities"
             searchPlaceholder="Search identities"
             loading={loading || $isAsyncLoadingIdentities}
             actionButtons={listViewButtons}
-            {searchQuery}
+            searchQuery={identitySearchQuery}
         />
     {:else if state === State.IdentityDetail}
         <div class="mb-4 align-self-start">
