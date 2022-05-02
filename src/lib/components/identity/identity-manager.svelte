@@ -22,6 +22,7 @@
         selectedIdentity,
         stopIdentitiesSearch,
         updateIdentityInSearchResults,
+        searchQuery,
     } from '$lib/app/identity'
     import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
     import type { ActionButton } from '$lib/app/types/layout'
@@ -57,7 +58,6 @@
     }
     let state: State = State.ListIdentities
     let loading: boolean = false
-    let query: string = ''
     let message: string
     let isCreateIdentityModalOpen = false
     let isCreateCredentialModalOpen = false
@@ -94,7 +94,7 @@
     })
 
     async function onSearch(): Promise<void> {
-        await searchAllIdentities(query, { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+        await searchAllIdentities(get(searchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
     }
 
     function onPageChange(page) {
@@ -105,9 +105,9 @@
         const _isType = (q: string): boolean =>
             Object.values(UserType).some((userType) => userType?.toLowerCase() === q?.toLowerCase())
 
-        const newIdentities = await searchIdentitiesSingleRequest(query, {
-            searchByType: _isType(query),
-            searchByUsername: !_isType(query),
+        const newIdentities = await searchIdentitiesSingleRequest(get(searchQuery), {
+            searchByType: _isType(get(searchQuery)),
+            searchByUsername: !_isType(get(searchQuery)),
             limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
             index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
         })
@@ -148,7 +148,7 @@
     async function onCreateIdentitySuccess(identity: IdentityJson): Promise<void> {
         loading = true
         // If query is not empty, we need to search again to get the match results
-        if (query?.length) {
+        if (get(searchQuery)?.length) {
             await onSearch()
         } else {
             // Add the identity to the search results directly, no need to search again
@@ -202,7 +202,7 @@
             searchPlaceholder="Search identities"
             loading={loading || $isAsyncLoadingIdentities}
             actionButtons={listViewButtons}
-            bind:searchQuery={query}
+            {searchQuery}
         />
     {:else if state === State.IdentityDetail}
         <div class="mb-4 align-self-start">

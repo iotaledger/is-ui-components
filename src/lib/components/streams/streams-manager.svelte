@@ -27,6 +27,7 @@
         selectedChannelSubscriptions,
         stopChannelsSearch,
         stopReadingChannel,
+        searchQuery,
     } from '$lib/app/streams'
     import { get } from 'svelte/store'
     import type { ActionButton } from '$lib/app/types/layout'
@@ -62,7 +63,6 @@
 
     let state: State = State.ListChannels
     let loading: boolean = false
-    let query: string = ''
 
     let isCreateChannelModalOpen: boolean = false
     let isWriteMesageModalOpen: boolean = false
@@ -126,15 +126,15 @@
     })
 
     async function onSearch(): Promise<void> {
-        await searchAllChannels(query, { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+        await searchAllChannels(get(searchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
     }
 
     async function loadMore(entries: number): Promise<void> {
         const _isAuthorId = (q: string): boolean => q?.startsWith('did:iota:')
 
-        const newChannels = await searchChannelsSingleRequest(query, {
-            searchByAuthorId: _isAuthorId(query),
-            searchBySource: !_isAuthorId(query),
+        const newChannels = await searchChannelsSingleRequest(get(searchQuery), {
+            searchByAuthorId: _isAuthorId(get(searchQuery)),
+            searchBySource: !_isAuthorId(get(searchQuery)),
             limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
             index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
         })
@@ -174,7 +174,7 @@
     async function onCreateChannelSuccess(channelAddress: string): Promise<void> {
         loading = true
         // If query is not empty, we need to search again to get the match results
-        if (query?.length) {
+        if (get(searchQuery)?.length) {
             await onSearch()
         } else {
             // Add the channel to the search results directly, no need to search again
@@ -272,7 +272,7 @@
             {loadMore}
             loading={loading || $isAsyncLoadingChannels}
             actionButtons={listViewButtons}
-            bind:searchQuery={query}
+            {searchQuery}
         />
     {:else if state === State.ChannelDetail}
         <div class="mb-4 align-self-start">
