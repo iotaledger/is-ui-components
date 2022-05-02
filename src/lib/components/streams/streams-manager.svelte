@@ -126,8 +126,8 @@
     })
 
     async function onSearch(): Promise<void> {
-        await searchAllChannels(get(channelSearchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
         selectedChannelPageIndex.set(1) // reset index
+        await searchAllChannels(get(channelSearchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
     }
 
     async function loadMore(entries: number): Promise<void> {
