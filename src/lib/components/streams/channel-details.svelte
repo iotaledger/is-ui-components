@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from 'svelte'
+    import { onMount, onDestroy } from 'svelte'
     import { authenticatedUserDID } from '$lib/app/base'
     import { isUserOwnerOfChannel, startReadingChannel, stopReadingChannel } from '$lib/app/streams'
     import type { ActionButton } from '$lib/app/types/layout'
@@ -16,12 +16,12 @@
     export let onSubscriptionAction: (channel: ChannelInfoType) => void
     export let handleAcceptSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
     export let handleRejectSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
-
+    $: subscriptionStatus, manageChannelData()
     $: isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
 
     async function manageChannelData(): Promise<void> {
-        const isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
-        if (isUserOwner || subscriptionStatus === SubscriptionState.Authorized) {
+        if (subscriptionStatus === SubscriptionState.Authorized) {
+            await stopReadingChannel()
             await startReadingChannel(channel?.channelAddress)
         } else {
             await stopReadingChannel()
@@ -30,6 +30,9 @@
 
     onMount(async () => {
         await manageChannelData()
+    })
+    onDestroy(() => {
+        stopReadingChannel()
     })
 </script>
 

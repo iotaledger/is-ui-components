@@ -125,14 +125,23 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
                 startDate,
                 endDate: get(selectedChannelData)?.length ? new Date() : null,
             })
-            selectedChannelBusy.set(false)
             selectedChannelData.update((_chData) => [...newMessages, ..._chData])
-        } catch (e) {
-            showNotification({
-                type: NotificationType.Error,
-                message: 'There was an error reading channel',
-            })
+        } catch (e: any) {
+            if (e?.message?.includes('Request failed with status code 423')) {
+                showNotification({
+                    type: NotificationType.Error,
+                    message: 'Resource is blocked by other operation.',
+                })
+            } else {
+                showNotification({
+                    type: NotificationType.Error,
+                    message: 'There was an error reading channel',
+                })
+            }
+
             console.error(Error, e)
+        } finally {
+            selectedChannelBusy.set(false)
         }
     } else {
         showNotification({
