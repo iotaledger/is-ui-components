@@ -29,7 +29,7 @@
         stopReadingChannel,
         channelSearchQuery,
     } from '$lib/app/streams'
-    import { get } from 'svelte/store'
+    import { get, writable, type Writable } from 'svelte/store'
     import type { ActionButton } from '$lib/app/types/layout'
     import { SubscriptionState } from '$lib/app/types/streams'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
@@ -74,7 +74,7 @@
     }
 
     // used to determine the subscription status of the authenticated user on the current channel
-    let subscriptionStatus: SubscriptionState
+    let subscriptionStatus: Writable<SubscriptionState> = writable(undefined)
 
     $: $selectedChannel, updateStateMachine()
     $: message = $isAsyncLoadingChannels || loading || $searchChannelsResults?.length ? null : 'No channels found'
@@ -111,8 +111,6 @@
         }),
     } as TableData
 
-    $: subscriptionStatus
-
     onMount(async () => {
         const results = get(searchChannelsResults)
         if (!results || results?.length === 0) {
@@ -143,7 +141,7 @@
     }
 
     async function updateStateMachine(): Promise<void> {
-        subscriptionStatus = undefined
+        subscriptionStatus.set(undefined)
         selectedChannelSubscriptions.set(null)
         if ($selectedChannel) {
             state = State.ChannelDetail
@@ -152,13 +150,15 @@
             // ----------------------------------------------------------------------------
 
             // TODO: add a button to refresh subscription status as we dont subscribe to it
-            subscriptionStatus = await getSubscriptionStatus($selectedChannel?.channelAddress)
+            const status = await getSubscriptionStatus($selectedChannel?.channelAddress)
+            subscriptionStatus.set(status)
+
             const subscriptions = await getSubscriptions($selectedChannel?.channelAddress)
             selectedChannelSubscriptions.set(subscriptions)
 
             // ----------------------------------------------------------------------------
         } else {
-            subscriptionStatus = null
+            subscriptionStatus.set(undefined)
             state = State.ListChannels
         }
     }
@@ -185,7 +185,7 @@
     }
 
     async function onSubscriptionAction(): Promise<void> {
-        subscriptionStatus === SubscriptionState.NotSubscribed ? subscribe() : unsubscribe()
+        get(subscriptionStatus) === SubscriptionState.NotSubscribed ? subscribe() : unsubscribe()
     }
 
     async function subscribe(): Promise<void> {
@@ -195,7 +195,7 @@
         loading = true
         const response = await requestSubscription($selectedChannel?.channelAddress)
         if (response) {
-            subscriptionStatus = SubscriptionState.Subscribed
+            subscriptionStatus.set(SubscriptionState.Subscribed)
         }
         loading = false
     }
@@ -204,7 +204,7 @@
         loading = true
         const response = await requestUnsubscription($selectedChannel?.channelAddress)
         if (response) {
-            subscriptionStatus = SubscriptionState.NotSubscribed
+            subscriptionStatus.set(SubscriptionState.NotSubscribed)
         }
         loading = false
     }
@@ -287,7 +287,7 @@
             {handleAcceptSubscription}
             {onSubscriptionAction}
             {loading}
-            {subscriptionStatus}
+            subscriptionStatus={$subscriptionStatus}
             subscriptions={$selectedChannelSubscriptions}
             channel={$selectedChannel}
             channelData={$selectedChannelData}

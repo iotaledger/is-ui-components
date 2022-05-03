@@ -1,10 +1,10 @@
 {
     "name": "@iota/is-ui-components",
     "type": "module",
-    "version": "0.0.41",
+    "version": "0.0.42",
     "description": "Svelte UI components for IOTA Integration Services",
     "scripts": {
-        "dev": "svelte-kit dev --port 3000",
+        "dev": "svelte-kit dev --port ${PORT:-3000}",
         "build": "svelte-kit build",
         "package": "svelte-kit package",
         "build-css": "sass src/lib/scss/index.scss:src/lib/css/index.css",
