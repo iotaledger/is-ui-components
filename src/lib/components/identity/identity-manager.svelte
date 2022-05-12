@@ -25,7 +25,7 @@
         identitySearchQuery,
     } from '$lib/app/identity'
     import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
-    import type { ActionButton } from '$lib/app/types/layout'
+    import type { ActionButton, Filter } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, ListManager } from '$lib/components'
     import type { IdentityJson } from '@iota/is-client'
@@ -48,6 +48,14 @@
             label: 'Add credential',
             onClick: openCreateCredentialModal,
             icon: 'plus',
+            color: 'dark',
+        },
+    ]
+    export let identityFiler: Filter[] = [
+        {
+            label: 'Show only own identities',
+            onClick: showOnlyOwnIdentities,
+            type: 'checkbox',
             color: 'dark',
         },
     ]
@@ -186,6 +194,10 @@
     function closeCreateCredentialModal(): void {
         isCreateCredentialModalOpen = false
     }
+
+    function showOnlyOwnIdentities(): void {
+        console.log('showOnlyOwnIdentities called')
+    }
 </script>
 
 <Box>
@@ -203,6 +215,7 @@
             searchPlaceholder="Search identities"
             loading={loading || $isAsyncLoadingIdentities}
             actionButtons={listViewButtons}
+            filters={identityFiler}
             bind:searchQuery={$identitySearchQuery}
         />
     {:else if state === State.IdentityDetail}

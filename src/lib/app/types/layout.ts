@@ -16,3 +16,12 @@ export type ActionButton = {
     loading?: boolean,
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export type Filter = {
+    label: string,
+    onClick: (..._: any[]) => void,
+    type: string,
+    icon?: string,
+    color?: Color,
+}
+

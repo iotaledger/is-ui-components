@@ -1,14 +1,15 @@
 <script lang="ts">
     import { DEFAULT_TABLE_CONFIGURATION } from '$lib/app/constants/base'
-    import type { ActionButton } from '$lib/app/types/layout'
+    import type { ActionButton, Filter } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Icon, SearchInput, Table } from '$lib/components'
-    import { Button, Spinner } from 'sveltestrap'
+    import { Button, Spinner, Input } from 'sveltestrap'
 
     export let title = 'List view'
     export let tableData: TableData
     export let loading: boolean = false
     export let actionButtons: ActionButton[] = []
+    export let filters: Filter[] = []
     export let message: string
     export let showSearch: boolean = false
     export let searchPlaceholder = 'Search'
@@ -56,10 +57,23 @@
         </div>
     </div>
     {#if showSearch}
-        <div class="mb-4">
+        <div class="mb-2">
             <SearchInput placeholder={searchPlaceholder} bind:value={searchQuery} onSubmit={onSearch} />
         </div>
     {/if}
+    <div class="box d-flex flex-column align-items-start mb-4">
+        {#if filters}
+            {#each filters as { label, onClick, color, type }}
+                <Input
+                    type={type}
+                    color={color ?? 'dark'}
+                    on:click={onClick}
+                    label={label}
+                    
+                />
+            {/each}
+        {/if}
+    </div>
 
     {#if tableData?.rows?.length}
         <Table data={tableData} {loading} {...tableConfiguration} {selectedPageIndex} {onPageChange} {loadMore} />
