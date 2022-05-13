@@ -57,8 +57,6 @@
         {
             label: 'Only own identities',
             onChange: showOnlyOwnIdentities,
-            defaultState: true,
-            color: 'dark',
         },
     ]
 
