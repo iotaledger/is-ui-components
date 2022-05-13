@@ -30,6 +30,8 @@
     import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, ListManager } from '$lib/components'
     import type { IdentityJson } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
+import { authenticatedUserDID } from '../../app/base';
+import { identityFilterOptions } from '../../app/identity';
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
     export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
@@ -53,10 +55,10 @@
     ]
     export let identityFiler: Filter[] = [
         {
-            label: 'Show only own identities',
-            onClick: showOnlyOwnIdentities,
-            type: 'checkbox',
-            color: 'dark',
+            label: 'Only own identities',
+            onChange: showOnlyOwnIdentities,
+            defaultState: true,
+            color: 'dark'
         },
     ]
 
@@ -103,7 +105,7 @@
 
     async function onSearch(): Promise<void> {
         selectedIdentityPageIndex.set(1) // reset index
-        await searchAllIdentities(get(identitySearchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+        await searchAllIdentities(get(identitySearchQuery), get(identityFilterOptions))
     }
 
     function onPageChange(page) {
@@ -195,8 +197,12 @@
         isCreateCredentialModalOpen = false
     }
 
-    function showOnlyOwnIdentities(): void {
-        console.log('showOnlyOwnIdentities called')
+    function showOnlyOwnIdentities(e: any): void {
+        const checked = (e.target as HTMLInputElement).checked
+        // Set creator to current user if checkbox is checked and user is authenticated
+        const creator = checked && get(authenticatedUserDID) ? get(authenticatedUserDID) : undefined
+        identityFilterOptions.set({...get(identityFilterOptions), creator})
+        onSearch()
     }
 </script>
 

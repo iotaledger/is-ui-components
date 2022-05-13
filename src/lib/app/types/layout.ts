@@ -1,4 +1,4 @@
-import type { Color } from "sveltestrap/src/shared";
+import type { Color } from 'sveltestrap/src/shared'
 
 export enum Size {
     Small = 'small',
@@ -8,20 +8,16 @@ export enum Size {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type ActionButton = {
-    label: string,
-    onClick: (..._: any[]) => void,
-    icon?: string,
-    color?: Color,
-    disabled?: boolean,
-    loading?: boolean,
+    label: string
+    onClick: (..._: any[]) => void
+    icon?: string
+    color?: Color
+    disabled?: boolean
+    loading?: boolean
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Filter = {
-    label: string,
-    onClick: (..._: any[]) => void,
-    type: string,
-    icon?: string,
-    color?: Color,
+    label: string
+    onChange: (..._: any[]) => void
 }
-

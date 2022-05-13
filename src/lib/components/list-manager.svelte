@@ -4,6 +4,7 @@
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Icon, SearchInput, Table } from '$lib/components'
     import { Button, Spinner, Input } from 'sveltestrap'
+    import { identityFilterOptions } from '$lib/app/identity'
 
     export let title = 'List view'
     export let tableData: TableData
@@ -63,14 +64,8 @@
     {/if}
     <div class="box d-flex flex-column align-items-start mb-4">
         {#if filters}
-            {#each filters as { label, onClick, color, type }}
-                <Input
-                    type={type}
-                    color={color ?? 'dark'}
-                    on:click={onClick}
-                    label={label}
-                    
-                />
+            {#each filters as { label, onChange }}
+                <Input type="checkbox" on:change={onChange} {label} checked={$identityFilterOptions.creator} />
             {/each}
         {/if}
     </div>

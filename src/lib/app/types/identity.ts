@@ -98,3 +98,9 @@ export type VerifiableCredentialTemplate = {
     credentialType: CredentialTypes;
     userType: UserType;
 }
+
+export type IdentityFilter = {
+    limit?: number;
+    creator?: string;
+}
+
