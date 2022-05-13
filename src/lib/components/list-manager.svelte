@@ -1,6 +1,6 @@
 <script lang="ts">
     import { DEFAULT_TABLE_CONFIGURATION } from '$lib/app/constants/base'
-    import type { ActionButton, Filter } from '$lib/app/types/layout'
+    import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Icon, SearchInput, Table } from '$lib/components'
     import { Button, Spinner, Input } from 'sveltestrap'
@@ -10,7 +10,7 @@
     export let tableData: TableData
     export let loading: boolean = false
     export let actionButtons: ActionButton[] = []
-    export let filters: Filter[] = []
+    export let filters: FilterCheckbox[] = []
     export let message: string
     export let showSearch: boolean = false
     export let searchPlaceholder = 'Search'
@@ -65,7 +65,7 @@
     <div class="box d-flex flex-column align-items-start mb-4">
         {#if filters}
             {#each filters as { label, onChange }}
-                <Input type="checkbox" on:change={onChange} {label} checked={$identityFilterOptions.creator} />
+                <Input type="checkbox" on:change={onChange} {label} checked={!!$identityFilterOptions.creator} />
             {/each}
         {/if}
     </div>

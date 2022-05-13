@@ -1,27 +1,26 @@
-
-import type { FieldType } from '$lib/app/types/identity';
+import type { FieldType } from '$lib/app/types/identity'
 
 export interface SubmitButton {
-    onSubmit: (..._any) => void,
-    loading?: boolean,
-    label: string,
-    labelWhileLoading?: string,
+    onSubmit: (..._any) => void
+    loading?: boolean
+    label: string
+    labelWhileLoading?: string
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Input = {
-    disabled?: boolean,
-    id: string,
-    maxLength?: number,
-    minLength?: number,
-    name?: string,
+    disabled?: boolean
+    id: string
+    maxLength?: number
+    minLength?: number
+    name?: string
     options?: {
-        label: string,
+        label: string
         value: any
-    }[],
-    placeholder?: string,
-    required?: boolean,
-    type: FieldType,
+    }[]
+    placeholder?: string
+    required?: boolean
+    type: FieldType
     onKeyDown?: (..._: any[]) => void
     onChange?: (..._: any[]) => void
 }

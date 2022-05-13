@@ -17,7 +17,7 @@ export type ActionButton = {
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type Filter = {
+export type FilterCheckbox = {
     label: string
     onChange: (..._: any[]) => void
 }

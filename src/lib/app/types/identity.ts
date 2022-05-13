@@ -1,5 +1,5 @@
-import type { Input } from '$lib/app/types/form';
-import type { CredentialTypes, User, UserType, VerifiableCredentialInternal } from '@iota/is-client';
+import type { Input } from '$lib/app/types/form'
+import type { CredentialTypes, User, UserType, VerifiableCredentialInternal } from '@iota/is-client'
 
 export enum FieldType {
     Date = 'date',
@@ -9,7 +9,7 @@ export enum FieldType {
     Selector = 'selector',
     StringArray = 'stringArray',
     Text = 'text',
-    TextArea = "textarea",
+    TextArea = 'textarea',
 }
 
 export enum ProductEnum {
@@ -92,15 +92,14 @@ export type IdentityTemplate = {
 }
 
 export type VerifiableCredentialTemplate = {
-    id: string;
-    name: string;
-    fields: Input[];
-    credentialType: CredentialTypes;
-    userType: UserType;
+    id: string
+    name: string
+    fields: Input[]
+    credentialType: CredentialTypes
+    userType: UserType
 }
 
 export type IdentityFilter = {
-    limit?: number;
-    creator?: string;
+    limit?: number
+    creator?: string
 }
-

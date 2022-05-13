@@ -25,13 +25,13 @@
         identitySearchQuery,
     } from '$lib/app/identity'
     import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
-    import type { ActionButton, Filter } from '$lib/app/types/layout'
+    import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, ListManager } from '$lib/components'
     import type { IdentityJson } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
-import { authenticatedUserDID } from '../../app/base';
-import { identityFilterOptions } from '../../app/identity';
+    import { authenticatedUserDID } from '../../app/base'
+    import { identityFilterOptions } from '../../app/identity'
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
     export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
@@ -53,12 +53,12 @@ import { identityFilterOptions } from '../../app/identity';
             color: 'dark',
         },
     ]
-    export let identityFiler: Filter[] = [
+    export let identityFiler: FilterCheckbox[] = [
         {
             label: 'Only own identities',
             onChange: showOnlyOwnIdentities,
             defaultState: true,
-            color: 'dark'
+            color: 'dark',
         },
     ]
 
@@ -201,7 +201,7 @@ import { identityFilterOptions } from '../../app/identity';
         const checked = (e.target as HTMLInputElement).checked
         // Set creator to current user if checkbox is checked and user is authenticated
         const creator = checked && get(authenticatedUserDID) ? get(authenticatedUserDID) : undefined
-        identityFilterOptions.set({...get(identityFilterOptions), creator})
+        identityFilterOptions.set({ ...get(identityFilterOptions), creator })
         onSearch()
     }
 </script>

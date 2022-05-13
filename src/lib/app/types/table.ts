@@ -1,24 +1,24 @@
-import type { BoxColor } from "$lib/app/constants/colors";
-import type { Color } from "sveltestrap/src/shared";
+import type { BoxColor } from '$lib/app/constants/colors'
+import type { Color } from 'sveltestrap/src/shared'
 
 export interface TableData {
-    headings: string[];
+    headings: string[]
     rows: {
-        onClick: () => void;
+        onClick: () => void
         content: {
-            icon?: string;
-            boxColor?: BoxColor;
-            value?: string[] | string;
+            icon?: string
+            boxColor?: BoxColor
+            value?: string[] | string
             pills?: {
-                color: Color,
-                text: string,
+                color: Color
+                text: string
             }[]
         }[]
     }[]
 }
 
 export interface TableConfiguration {
-    isPaginated?: boolean;
-    siblingsCount?: number;
-    pageSize?: number;
+    isPaginated?: boolean
+    siblingsCount?: number
+    pageSize?: number
 }
