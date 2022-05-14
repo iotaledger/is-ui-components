@@ -20,4 +20,5 @@ export type ActionButton = {
 export type FilterCheckbox = {
     label: string
     onChange: (..._: any[]) => void
+    state: string
 }

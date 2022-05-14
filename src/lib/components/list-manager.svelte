@@ -64,8 +64,8 @@
     {/if}
     <div class="box d-flex flex-column align-items-start mb-4">
         {#if filters}
-            {#each filters as { label, onChange }}
-                <Input type="checkbox" on:change={onChange} {label} checked={!!$identityFilterOptions.creator} />
+            {#each filters as { label, onChange, state }}
+                <Input type="checkbox" on:change={onChange} {label} checked={!!state} />
             {/each}
         {/if}
     </div>

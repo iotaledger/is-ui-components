@@ -57,6 +57,7 @@
         {
             label: 'Only own identities',
             onChange: showOnlyOwnIdentities,
+            state: $identityFilterOptions.creator,
         },
     ]
 
