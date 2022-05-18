@@ -1,4 +1,4 @@
-[
+;[
     {
         type: UserType.Person,
         fields: [
