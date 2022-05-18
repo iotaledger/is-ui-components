@@ -1,10 +1,11 @@
 <script lang="ts">
     import { BoxColor } from '$lib/app/constants/colors'
     import { createChannel } from '$lib/app/streams'
-    import { Icon } from '$lib/components'
+    import { Icon, Multiselect } from '$lib/components'
     import { Button, FormGroup, Input, Label, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
+    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 
     export let isOpen: boolean = false
     export let onModalClose = (..._: any[]): void => {}
@@ -21,6 +22,7 @@
             source: '',
         },
     ]
+    let channelType = ChannelType.private
     let name: string = ''
     let description: string = ''
     let unsubscribe
@@ -60,7 +62,7 @@
 
     async function handleCreateChannel() {
         loading = true
-        let channel = await createChannel(name, description, topics)
+        let channel = await createChannel(name, description, channelType, topics)
         if (channel) {
             resetTopics()
             onSuccess(channel.channelAddress)
@@ -87,6 +89,7 @@
     function resetFields(): void {
         name = ''
         description = ''
+        channelType = ChannelType.private
         topics = [
             {
                 type: '',
@@ -108,6 +111,11 @@
     <form class:was-validated={formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
         <ModalBody class="px-4 pb-4">
             <div class="my-4 p-4 bg-light ">
+                <Label class="mt-3">Channel Type</Label>
+                <Input required type="select" name="select" class="mb-4" bind:value={channelType}>
+                    <option value={ChannelType.private}>Private Channel</option>
+                    <option value={ChannelType.public}>Public Channel</option>
+                </Input>
                 <Label>Name</Label>
                 <Input
                     placeholder={'Channel name...'}
@@ -125,7 +133,6 @@
                 <Label class="mt-3">Description</Label>
                 <Input
                     placeholder={'Please, describe your channel here...'}
-                    required
                     type="textarea"
                     minlength={MIN_LENGTH_INPUT}
                     maxlength={MAX_LENGTH_TEXTAREA}

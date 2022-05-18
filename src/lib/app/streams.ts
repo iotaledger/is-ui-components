@@ -14,6 +14,7 @@ import { FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
 import { SubscriptionState } from './types/streams'
+import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 
 export const selectedChannelPageIndex: Writable<number> = writable(1)
 export const channelSearchQuery: Writable<string> = writable('')
@@ -347,6 +348,7 @@ export async function writeMessage(
 export async function createChannel(
     name: string,
     description: string,
+    type: ChannelType,
     topics: { type: string; source: string }[]
 ): Promise<CreateChannelResponse> {
     if (get(isAuthenticated)) {
@@ -355,6 +357,7 @@ export async function createChannel(
                 name,
                 description,
                 topics,
+                type,
             })
             return channel
         } catch (e) {
