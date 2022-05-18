@@ -1,4 +1,6 @@
+import type { Writable } from 'svelte/store'
 import type { Color } from 'sveltestrap/src/shared'
+import type { IdentityFilter, StreamsFilter } from '.'
 
 export enum Size {
     Small = 'small',
@@ -20,5 +22,5 @@ export type ActionButton = {
 export type FilterCheckbox = {
     label: string
     onChange: (..._: any[]) => void
-    state: string
+    name: string 
 }

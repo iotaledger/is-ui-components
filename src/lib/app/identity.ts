@@ -9,14 +9,23 @@ import { UserType } from '@iota/is-client'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient, identityClient, isAuthenticated } from './base'
-import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
+import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
+import { DEFAULT_CREATOR_FILTER_STATE } from './constants/identity'
 import { showNotification } from './notification'
 import type { ExtendedUser, IdentityFilter } from './types/identity'
 import { NotificationType } from './types/notification'
 
 export const selectedIdentityPageIndex: Writable<number> = writable(1)
 export const identitySearchQuery: Writable<string> = writable('')
-export const identityFilterOptions: Writable<IdentityFilter> = writable({ limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+export const identityFilterOptions: Writable<IdentityFilter> = writable({
+    limitFilter: {
+        state: true,
+        value: WELCOME_LIST_RESULTS_NUMBER
+    },
+    creatorFilter: {
+        state: DEFAULT_CREATOR_FILTER_STATE,
+    },
+})
 export const searchIdentitiesResults: Writable<ExtendedUser[]> = writable([])
 export const selectedIdentity: Writable<ExtendedUser> = writable(null)
 // used for the async search that makes N background queries to get the full list of identities
@@ -79,6 +88,7 @@ export async function searchAllIdentities(query: string, options?: { limit?: num
         query: string,
         options?: { limit?: number; creator?: string }
     ): Promise<void> => {
+        console.log('options', options)
         const _isDID = (query: string): boolean => query.startsWith('did:iota:')
         const _isType = (query: string): boolean =>
             Object.values(UserType).some((userType) => userType.toLowerCase() === query.toLowerCase())

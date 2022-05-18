@@ -28,9 +28,10 @@
         stopChannelsSearch,
         stopReadingChannel,
         channelSearchQuery,
+        channelFilterOptions,
     } from '$lib/app/streams'
     import { get, writable, type Writable } from 'svelte/store'
-    import type { ActionButton } from '$lib/app/types/layout'
+    import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
     import { SubscriptionState } from '$lib/app/types/streams'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, ChannelDetails, CreateChannelModal, Icon, ListManager, WriteMessageModal } from '$lib/components'
@@ -52,6 +53,13 @@
             onClick: openWriteMessageModal,
             icon: 'chat-square-dots',
             color: 'dark',
+        },
+    ]
+    export let streamsFilter: FilterCheckbox[] = [
+        {
+            label: 'Only own channel',
+            onChange: showOnlyOwnChannels,
+            name: 'authorFilter',
         },
     ]
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
@@ -112,9 +120,13 @@
     } as TableData
 
     onMount(async () => {
+        const currentOptions = get(channelFilterOptions)
+        currentOptions.authorFilter.value = get(authenticatedUserDID)
+        currentOptions.limitFilter.value = WELCOME_LIST_RESULTS_NUMBER
+        channelFilterOptions.set(currentOptions)
         const results = get(searchChannelsResults)
         if (!results || results?.length === 0) {
-            searchAllChannels('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+            searchAllChannels('', getSearchOptions())
         }
     })
 
@@ -125,7 +137,12 @@
 
     async function onSearch(): Promise<void> {
         selectedChannelPageIndex.set(1) // reset index
-        await searchAllChannels(get(channelSearchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+        await searchAllChannels(get(channelSearchQuery), getSearchOptions())
+    }
+
+    function getSearchOptions(): { limit: number; authorId: string } {
+        const { limitFilter, authorFilter } = get(channelFilterOptions)
+        return { limit: <number>limitFilter.value, authorId: <string>authorFilter.value }
     }
 
     async function loadMore(entries: number): Promise<void> {
@@ -244,6 +261,15 @@
         selectedChannelSubscriptions.set(subscriptions)
     }
 
+    function showOnlyOwnChannels(): void {
+        // Toggle between current user and undefined
+        const checked = !get(channelFilterOptions).authorFilter.state
+        const userDID = get(authenticatedUserDID)
+        const authorId = checked && userDID ? userDID : undefined
+        channelFilterOptions.set({ ...get(channelFilterOptions), authorFilter: { state: checked, value: authorId } })
+        onSearch()
+    }
+
     function openCreateChannelModal(): void {
         isCreateChannelModalOpen = true
     }
@@ -273,6 +299,8 @@
             {loadMore}
             loading={loading || $isAsyncLoadingChannels}
             actionButtons={listViewButtons}
+            filters={streamsFilter}
+            filterState={$channelFilterOptions}
             bind:searchQuery={$channelSearchQuery}
         />
     {:else if state === State.ChannelDetail}

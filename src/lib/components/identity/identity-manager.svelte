@@ -56,8 +56,8 @@
     export let identityFiler: FilterCheckbox[] = [
         {
             label: 'Only own identities',
-            onChange: showOnlyOwnIdentities,
-            state: $identityFilterOptions.creator,
+            onChange: onOnlyOwnIdentities,
+            name: 'creatorFilter',
         },
     ]
 
@@ -93,8 +93,12 @@
 
     onMount(async () => {
         const results = get(searchIdentitiesResults)
-        if (!results || results?.length === 0) {
-            searchAllIdentities('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+
+        if (!results || results?.length === 0 || userChanged()) {
+            searchAllIdentities('', getSearchOptions())
+            const currentOptions = get(identityFilterOptions)
+            currentOptions.limitFilter.value = DEFAULT_SDK_CLIENT_REQUEST_LIMIT
+            identityFilterOptions.set(currentOptions)
         }
     })
 
@@ -104,11 +108,20 @@
 
     async function onSearch(): Promise<void> {
         selectedIdentityPageIndex.set(1) // reset index
-        await searchAllIdentities(get(identitySearchQuery), get(identityFilterOptions))
+        await searchAllIdentities(get(identitySearchQuery), getSearchOptions())     
+    }
+
+    function getSearchOptions(): { limit: number; creator: string } {
+        const { limitFilter } = get(identityFilterOptions)
+        return { limit: <number>limitFilter.value, creator: get(authenticatedUserDID) }
     }
 
     function onPageChange(page) {
         selectedIdentityPageIndex.set(page)
+    }
+
+    function userChanged(): boolean {
+        return get(identityFilterOptions).creatorFilter.value !== get(authenticatedUserDID)
     }
 
     async function loadMore(entries: number): Promise<void> {
@@ -180,6 +193,15 @@
         loading = false
     }
 
+    function onOnlyOwnIdentities(): void {
+        // Toggle between current user and undefined
+        const checked = !get(identityFilterOptions).creatorFilter.state
+        const userDID = get(authenticatedUserDID)
+        const creator = checked && userDID ? userDID : undefined
+        identityFilterOptions.set({ ...get(identityFilterOptions), creatorFilter: { state: checked, value: creator } })
+        onSearch()
+    }
+
     function openCreateIdentityModal(): void {
         isCreateIdentityModalOpen = true
     }
@@ -196,13 +218,6 @@
         isCreateCredentialModalOpen = false
     }
 
-    function showOnlyOwnIdentities(e: any): void {
-        const checked = (e.target as HTMLInputElement).checked
-        // Set creator to current user if checkbox is checked and user is authenticated
-        const creator = checked && get(authenticatedUserDID) ? get(authenticatedUserDID) : undefined
-        identityFilterOptions.set({ ...get(identityFilterOptions), creator })
-        onSearch()
-    }
 </script>
 
 <Box>
@@ -221,6 +236,7 @@
             loading={loading || $isAsyncLoadingIdentities}
             actionButtons={listViewButtons}
             filters={identityFiler}
+            filterState={$identityFilterOptions}
             bind:searchQuery={$identitySearchQuery}
         />
     {:else if state === State.IdentityDetail}

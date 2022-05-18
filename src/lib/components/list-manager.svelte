@@ -5,12 +5,15 @@
     import { Icon, SearchInput, Table } from '$lib/components'
     import { Button, Spinner, Input } from 'sveltestrap'
     import { identityFilterOptions } from '$lib/app/identity'
+import { channelFilterOptions } from '$lib/app/streams';
+import type { IdentityFilter, StreamsFilter } from '$lib/app';
 
     export let title = 'List view'
     export let tableData: TableData
     export let loading: boolean = false
     export let actionButtons: ActionButton[] = []
     export let filters: FilterCheckbox[] = []
+    export let filterState: StreamsFilter | IdentityFilter
     export let message: string
     export let showSearch: boolean = false
     export let searchPlaceholder = 'Search'
@@ -20,6 +23,7 @@
     export let selectedPageIndex: number = 1
     export let searchQuery: string = ''
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
+
 </script>
 
 <div class="identity-manager w-100 h-100 d-flex flex-column">
@@ -64,8 +68,8 @@
     {/if}
     <div class="box d-flex flex-column align-items-start mb-4">
         {#if filters}
-            {#each filters as { label, onChange, state }}
-                <Input type="checkbox" on:change={onChange} {label} checked={!!state} />
+            {#each filters as { label, onChange, name }}
+                <Input type="checkbox" on:change={onChange} {label} checked={filterState[name].state} />
             {/each}
         {/if}
     </div>
