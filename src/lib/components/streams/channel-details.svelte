@@ -1,11 +1,12 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte'
     import { authenticatedUserDID } from '$lib/app/base'
-    import { isUserOwnerOfChannel, startReadingChannel, stopReadingChannel } from '$lib/app/streams'
+    import { isUserOwnerOfChannel, startReadingChannel, stopReadingChannel, readChannelMessages } from '$lib/app/streams'
     import type { ActionButton } from '$lib/app/types/layout'
     import { SubscriptionState } from '$lib/app/types/streams'
     import { ChannelInfo, ChannelMessages, ChannelSubscriptions } from '$lib/components'
     import type { ChannelData, ChannelInfo as ChannelInfoType, Subscription } from '@iota/is-client'
+    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 
     export let channel: ChannelInfoType
     export let channelData: ChannelData[] = []
@@ -21,6 +22,12 @@
 
     async function manageChannelData(): Promise<void> {
         if (subscriptionStatus === SubscriptionState.Authorized) {
+            if (channel.type === ChannelType.public) {
+                // we only request data once for public channel since we request it directly from the tangle
+                await readChannelMessages(channel.channelAddress)
+                return
+            }
+
             await stopReadingChannel()
             await startReadingChannel(channel?.channelAddress)
         } else {

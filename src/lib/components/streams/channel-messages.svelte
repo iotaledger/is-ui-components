@@ -45,7 +45,7 @@
             <div class="d-lg-flex justify-content-between mb-lg-4">
                 <div class="info-box mb-4 mb-lg-0 me-lg-4">
                     <div class="text-secondary">Timestamp</div>
-                    <div class="text-break">{msg?.imported}</div>
+                    <div class="text-break">{msg?.imported || '-'}</div>
                 </div>
                 {#if msg?.log?.type}
                     <div class="info-box mb-4 mb-lg-0 me-lg-4">
