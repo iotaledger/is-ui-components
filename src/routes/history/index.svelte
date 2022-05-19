@@ -4,7 +4,7 @@
 
 <script lang="ts">
     import { Col, Container, Row } from 'sveltestrap'
-    import HistoryInput from '$lib/components/streams/history-input.svelte'
+    import { HistoryForm } from '$lib/components'
 </script>
 
 <svelte:head>
@@ -13,7 +13,7 @@
 <Container class="my-5">
     <Row>
         <Col sm="12" md={{ size: 6, offset: 3 }}>
-            <HistoryInput />
+            <HistoryForm />
         </Col>
     </Row>
 </Container>
