@@ -5,7 +5,7 @@
     import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
     import type { ChannelInfo as ChannelInfoType } from '@iota/is-shared-modules/lib/models/types/channel-info'
 
-    import { showNotification } from '../../app/notification'
+    import { showNotification } from '$lib/app/notification'
     import { NotificationType } from '$lib/app'
     import ChannelInfo from '$lib/components/streams/channel-info.svelte'
 

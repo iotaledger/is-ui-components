@@ -7,7 +7,6 @@
     import { Col, Container, Row } from 'sveltestrap'
     import { onMount } from 'svelte'
     import { page } from '$app/stores'
-    import type { Writable } from 'stream'
     import { writable } from 'svelte/store'
 
     let channelType = writable('')
