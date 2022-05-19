@@ -34,6 +34,7 @@ export { default as StreamsManager } from './streams/streams-manager.svelte'
 // Streams Manager - Components
 export { default as ChannelDetails } from './streams/channel-details.svelte'
 export { default as History } from './streams/history.svelte'
+export { default as HistoryInput } from './streams/history-input.svelte'
 export { default as ChannelInfo } from './streams/channel-info.svelte'
 export { default as ChannelSubscriptions } from './streams/channel-subscriptions.svelte'
 export { default as ChannelMessages } from './streams/channel-messages.svelte'
