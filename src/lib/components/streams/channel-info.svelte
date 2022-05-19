@@ -34,13 +34,13 @@
                 {:else if !isUserOwner && subscriptionStatus === SubscriptionState.Subscribed}
                     <Badge pill color="success">subscriber</Badge>
                 {/if}
-                {#if channel?.topics}
+                {#if channel?.topics && channel.topics.length > 0}
                     {#each channel?.topics as { type, source }}
                         <Badge color="primary" class="me-1">{type}</Badge>
                         <Badge color="secondary" class="me-2">{source}</Badge>
                     {/each}
                 {/if}
-                <div class="text-secondary fw-bolder mt-1 text-break">{channel?.channelAddress}</div>
+                <div class="text-secondary fw-bolder mt-1 text-break">{channel?.channelAddress || '-'}</div>
             </div>
         </div>
         {#if !isUserOwner && subscriptionStatus}

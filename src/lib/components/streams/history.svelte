@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount, onDestroy } from 'svelte'
     import { readChannelHistory } from '$lib/app/streams'
     import { ChannelMessages } from '$lib/components'
     import type { ChannelData } from '@iota/is-client'
@@ -10,41 +9,45 @@
     import { NotificationType } from '$lib/app'
     import ChannelInfo from '$lib/components/streams/channel-info.svelte'
 
+    export let channelAddress
+    export let channelType: string
+    export let presharedKey: string
+
     let isSpinnerVisible = true
-    const channel: ChannelInfoType = {
+    let channelData: ChannelData[] = []
+    let channel: ChannelInfoType = {
         name: '-',
         authorId: '-',
-        channelAddress:
-            '88feb27647d9a4428745550bd1a7e36e37c0f93eab6b1c861b399246b1c88a080000000000000000:570884bbbf0bde27d1c47d9d',
+        channelAddress,
         topics: [],
         created: '-',
         description: '-',
     }
-    let channelAddress: string =
-        '88feb27647d9a4428745550bd1a7e36e37c0f93eab6b1c861b399246b1c88a080000000000000000:570884bbbf0bde27d1c47d9d'
-    let channelData: ChannelData[] = []
 
-    onMount(async () => {
-        const urlParams = new URLSearchParams(window.location.search)
-        const channelType = urlParams.get('type')
-        const presharedKey = urlParams.get('preshared-key')
-
-        console.log('channelType)', channelType)
-        console.log('presharedKey)', presharedKey)
+    const readHistory = async () => {
+        if (!channelAddress) {
+            return
+        }
+        channel = {
+            ...channel,
+            channelAddress,
+        }
         if (channelType) {
             if (channelType !== ChannelType.public && channelType !== ChannelType.private) {
                 showNotification({
                     type: NotificationType.Error,
                     message: 'Channel Type must be public or private!',
                 })
+                isSpinnerVisible = false
                 return
             }
         }
 
         channelData = await readChannelHistory(channelAddress, presharedKey, channelType as ChannelType)
         isSpinnerVisible = false
-    })
-    onDestroy(() => {})
+    }
+
+    $: channelAddress, readHistory()
 </script>
 
 <div class="w-full">

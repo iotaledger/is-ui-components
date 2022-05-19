@@ -3,7 +3,6 @@
 </script>
 
 <script lang="ts">
-    import { History } from '$lib/components'
     import { Col, Container, Row } from 'sveltestrap'
 </script>
 
@@ -13,6 +12,6 @@
 
 <Container class="my-5">
     <Row>
-        <Col sm="12" md={{ size: 10, offset: 1 }}><History /></Col>
+        <Col sm="12" md={{ size: 10, offset: 1 }}>add inputs here</Col>
     </Row>
 </Container>
