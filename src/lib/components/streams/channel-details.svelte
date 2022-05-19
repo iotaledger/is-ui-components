@@ -54,6 +54,7 @@
         <div class="mb-4">
             <ChannelMessages
                 actionButtons={!isUserOwner && channel.type !== ChannelType.public ? messageFeedButtons : []}
+                isSpinnerVisible={channel.type !== ChannelType.public}
                 {channelData}
             />
         </div>

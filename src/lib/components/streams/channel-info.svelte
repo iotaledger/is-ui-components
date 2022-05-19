@@ -34,6 +34,9 @@
                 {:else if !isUserOwner && subscriptionStatus === SubscriptionState.Subscribed}
                     <Badge pill color="success">subscriber</Badge>
                 {/if}
+                {#if channel?.type}
+                    <Badge color="dark" class="me-1">{channel?.type}</Badge>
+                {/if}
                 {#if channel?.topics && channel.topics.length > 0}
                     {#each channel?.topics as { type, source }}
                         <Badge color="primary" class="me-1">{type}</Badge>
@@ -69,7 +72,7 @@
     <div class="bg-light rounded px-4 pt-3 pb-4">
         <div class="text-secondary">Description</div>
         <div>
-            {channel?.description ?? `-`}
+            {channel?.description || '-'}
         </div>
     </div>
 </div>
