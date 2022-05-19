@@ -10,6 +10,7 @@
     import { NotificationType } from '$lib/app'
     import ChannelInfo from '$lib/components/streams/channel-info.svelte'
 
+    let isSpinnerVisible = true
     const channel: ChannelInfoType = {
         name: '-',
         authorId: '-',
@@ -41,15 +42,16 @@
         }
 
         channelData = await readChannelHistory(channelAddress, presharedKey, channelType as ChannelType)
+        isSpinnerVisible = false
     })
     onDestroy(() => {})
 </script>
 
 <div class="w-full">
     <div class="mb-4">
-        <ChannelInfo {channel} loading={false} />
+        <ChannelInfo {channel} />
     </div>
     <div class="mb-4">
-        <ChannelMessages {channelData} />
+        <ChannelMessages {channelData} {isSpinnerVisible} />
     </div>
 </div>
