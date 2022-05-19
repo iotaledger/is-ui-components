@@ -23,7 +23,7 @@
     async function manageChannelData(): Promise<void> {
         if (subscriptionStatus === SubscriptionState.Authorized) {
             if (channel.type === ChannelType.public) {
-                // we only request data once for public channel since we request it directly from the tangle
+                // only request data once for public channel since it will be requested directly from the tangle
                 await readChannelMessages(channel.channelAddress)
                 return
             }

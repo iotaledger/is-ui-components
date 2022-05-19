@@ -164,12 +164,11 @@ export async function readChannelHistory(channelAddress: string, presharedKey: s
         } else {
             showNotification({
                 type: NotificationType.Error,
-                message: 'There was an error reading channel',
+                message: 'There was an error reading the history',
             })
         }
 
         console.error(Error, e)
-    } finally {
     }
 }
 
