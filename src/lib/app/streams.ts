@@ -152,6 +152,27 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
     }
 }
 
+export async function readChannelHistory(channelAddress: string, presharedKey: string, type: ChannelType) {
+    try {
+        return await channelClient.readHistory(channelAddress, presharedKey, type)
+    } catch (e: any) {
+        if (e?.message?.includes('Request failed with status code 423')) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'Resource is blocked by other operation.',
+            })
+        } else {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error reading channel',
+            })
+        }
+
+        console.error(Error, e)
+    } finally {
+    }
+}
+
 export async function startReadingChannel(channelAddress: string): Promise<void> {
     stopReadingChannel()
     if (!get(selectedChannelBusy)) {
