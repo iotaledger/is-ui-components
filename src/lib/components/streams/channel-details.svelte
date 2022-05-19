@@ -50,9 +50,12 @@
     <div class="mb-4">
         <ChannelSubscriptions {handleAcceptSubscription} {handleRejectSubscription} {channel} {subscriptions} />
     </div>
-    {#if isUserOwner || (!isUserOwner && subscriptionStatus === SubscriptionState.Authorized && channel.type !== ChannelType.public)}
+    {#if isUserOwner || (!isUserOwner && subscriptionStatus === SubscriptionState.Authorized)}
         <div class="mb-4">
-            <ChannelMessages actionButtons={messageFeedButtons} {channelData} />
+            <ChannelMessages
+                actionButtons={!isUserOwner && channel.type !== ChannelType.public ? messageFeedButtons : []}
+                {channelData}
+            />
         </div>
     {/if}
 </div>
