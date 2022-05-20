@@ -136,7 +136,7 @@
 
 <style lang="scss">
     .overflow-content{
-        max-height: 35vh;
+        max-height: 31vh;
         overflow-y: scroll;
     }
 </style>
