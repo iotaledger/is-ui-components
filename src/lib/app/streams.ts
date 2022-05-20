@@ -14,7 +14,7 @@ import { FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
 import { SubscriptionState } from './types/streams'
-import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
+import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info.js'
 
 export const selectedChannelPageIndex: Writable<number> = writable(1)
 export const channelSearchQuery: Writable<string> = writable('')
