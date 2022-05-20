@@ -1,7 +1,7 @@
 {
     "name": "@iota/is-ui-components",
     "type": "module",
-    "version": "0.0.45",
+    "version": "0.0.46",
     "description": "Svelte UI components for IOTA Integration Services",
     "scripts": {
         "dev": "svelte-kit dev --port ${PORT:-3044}",
