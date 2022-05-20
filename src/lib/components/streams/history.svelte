@@ -31,6 +31,7 @@
         channel = {
             ...channel,
             channelAddress,
+            name: channelType === ChannelType.public ? 'Public Channel' : 'Private Channel',
         }
         if (channelType) {
             if (channelType !== ChannelType.public && channelType !== ChannelType.private) {
