@@ -33,14 +33,14 @@
 </script>
 
 <Box>
-    <Col sm="12">
+    <Col class="w-100">
         <form class:was-validated={formValidated} on:submit|preventDefault novalidate>
             <Label class="mt-3">Channel Type</Label>
             <Input required type="select" name="select" class="mb-4" bind:value={channelType}>
                 <option value={ChannelType.private}>Private Channel</option>
                 <option value={ChannelType.public}>Public Channel</option>
             </Input>
-            <Label>Preshared Key</Label>
+            <Label>Channel Address</Label>
             <Input
                 placeholder={'Channel address...'}
                 required
