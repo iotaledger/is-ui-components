@@ -5,7 +5,7 @@
     import { Button, FormGroup, Input, Label, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
-    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info.js'
+    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 
     export let isOpen: boolean = false
     export let onModalClose = (..._: any[]): void => {}

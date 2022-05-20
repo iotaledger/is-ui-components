@@ -6,7 +6,7 @@
     import { SubscriptionState } from '$lib/app/types/streams'
     import { ChannelInfo, ChannelMessages, ChannelSubscriptions } from '$lib/components'
     import type { ChannelData, ChannelInfo as ChannelInfoType, Subscription } from '@iota/is-client'
-    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info.js'
+    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 
     export let channel: ChannelInfoType
     export let channelData: ChannelData[] = []

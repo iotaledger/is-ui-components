@@ -5,7 +5,7 @@
     import { showNotification } from '$lib/app/notification'
     import { NotificationType } from '$lib/app'
     import { Button, Input, Label } from 'sveltestrap'
-    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info.js'
+    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
     import { goto } from '$app/navigation'
 
     const MIN_LENGTH_INPUT = 12

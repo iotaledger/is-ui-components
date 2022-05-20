@@ -2,7 +2,7 @@
     import { readChannelHistory } from '$lib/app/streams'
     import { ChannelMessages } from '$lib/components'
     import type { ChannelData } from '@iota/is-client'
-    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info.js'
+    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
     import type { ChannelInfo as ChannelInfoType } from '@iota/is-shared-modules/lib/models/types/channel-info'
 
     import { showNotification } from '$lib/app/notification'
