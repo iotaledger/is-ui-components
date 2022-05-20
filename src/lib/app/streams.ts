@@ -14,6 +14,7 @@ import { FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
 import { SubscriptionState } from './types/streams'
+import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 
 export const selectedChannelPageIndex: Writable<number> = writable(1)
 export const channelSearchQuery: Writable<string> = writable('')
@@ -148,6 +149,26 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
             type: NotificationType.Error,
             message: 'Cant perform action, user not authenticated',
         })
+    }
+}
+
+export async function readChannelHistory(channelAddress: string, presharedKey: string, type: ChannelType) {
+    try {
+        return await channelClient.readHistory(channelAddress, presharedKey, type)
+    } catch (e: any) {
+        if (e?.message?.includes('Request failed with status code 423')) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'Resource is blocked by other operation.',
+            })
+        } else {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error reading the history',
+            })
+        }
+
+        console.error(Error, e)
     }
 }
 
@@ -347,6 +368,7 @@ export async function writeMessage(
 export async function createChannel(
     name: string,
     description: string,
+    type: ChannelType,
     topics: { type: string; source: string }[]
 ): Promise<CreateChannelResponse> {
     if (get(isAuthenticated)) {
@@ -355,6 +377,7 @@ export async function createChannel(
                 name,
                 description,
                 topics,
+                type,
             })
             return channel
         } catch (e) {
