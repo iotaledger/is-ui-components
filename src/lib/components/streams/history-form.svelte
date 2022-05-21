@@ -33,6 +33,7 @@
 
 <Box>
     <Col class="w-100">
+        <h1 class="">Channel History</h1>
         <form class:was-validated={formValidated} on:submit|preventDefault novalidate>
             <Label class="mt-3">Channel Type</Label>
             <Input required type="select" name="select" class="mb-4" bind:value={channelType}>
