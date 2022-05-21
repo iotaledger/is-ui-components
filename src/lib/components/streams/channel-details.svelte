@@ -3,10 +3,9 @@
     import { authenticatedUserDID } from '$lib/app/base'
     import { isUserOwnerOfChannel, startReadingChannel, stopReadingChannel, readChannelMessages } from '$lib/app/streams'
     import type { ActionButton } from '$lib/app/types/layout'
-    import { SubscriptionState } from '$lib/app/types/streams'
+    import { ChannelType, SubscriptionState } from '$lib/app/types/streams'
     import { ChannelInfo, ChannelMessages, ChannelSubscriptions } from '$lib/components'
     import type { ChannelData, ChannelInfo as ChannelInfoType, Subscription } from '@iota/is-client'
-    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 
     export let channel: ChannelInfoType
     export let channelData: ChannelData[] = []

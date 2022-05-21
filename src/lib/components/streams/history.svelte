@@ -1,13 +1,10 @@
 <script lang="ts">
     import { readChannelHistory } from '$lib/app/streams'
     import { ChannelMessages } from '$lib/components'
-    import type { ChannelData } from '@iota/is-client'
-    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
-    import type { ChannelInfo as ChannelInfoType } from '@iota/is-shared-modules/lib/models/types/channel-info'
-
     import { showNotification } from '$lib/app/notification'
-    import { NotificationType } from '$lib/app'
+    import { ChannelType, NotificationType } from '$lib/app'
     import ChannelInfo from '$lib/components/streams/channel-info.svelte'
+    import type { ChannelData, ChannelInfo as ChannelInfoType } from '@iota/is-client'
 
     export let channelAddress
     export let channelType: string

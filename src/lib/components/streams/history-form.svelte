@@ -1,11 +1,10 @@
 <script lang="ts">
-    import { Col, Container, Row } from 'sveltestrap'
+    import { Col } from 'sveltestrap'
     import { Box } from '$lib/components'
 
     import { showNotification } from '$lib/app/notification'
-    import { NotificationType } from '$lib/app'
+    import { ChannelType, NotificationType } from '$lib/app'
     import { Button, Input, Label } from 'sveltestrap'
-    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
     import { goto } from '$app/navigation'
 
     const MIN_LENGTH_INPUT = 12

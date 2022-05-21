@@ -5,7 +5,8 @@ import type {
     RequestSubscriptionResponse,
     Subscription,
 } from '@iota/is-client'
-import { AccessRights, ChannelInfo } from '@iota/is-client'
+import { AccessRights } from '@iota/is-client'
+import type { ChannelInfo } from '@iota/is-client'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient, isAuthenticated } from './base'
