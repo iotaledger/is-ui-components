@@ -36,8 +36,6 @@
 
     onMount(async () => {
         await manageChannelData()
-        console.log(!isUserOwner && channel.type !== ChannelType.public)
-        console.log(isUserOwner)
     })
     onDestroy(() => {
         stopReadingChannel()
