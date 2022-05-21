@@ -36,6 +36,8 @@
 
     onMount(async () => {
         await manageChannelData()
+        console.log(!isUserOwner && channel.type !== ChannelType.public)
+        console.log(isUserOwner)
     })
     onDestroy(() => {
         stopReadingChannel()
@@ -52,7 +54,7 @@
     {#if isUserOwner || (!isUserOwner && subscriptionStatus === SubscriptionState.Authorized)}
         <div class="mb-4">
             <ChannelMessages
-                actionButtons={!isUserOwner && channel.type !== ChannelType.public ? messageFeedButtons : []}
+                actionButtons={!isUserOwner && channel.type === ChannelType.public ? [] : messageFeedButtons}
                 isSpinnerVisible={channel.type !== ChannelType.public}
                 {channelData}
             />
