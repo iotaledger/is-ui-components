@@ -3,3 +3,8 @@ export enum SubscriptionState {
     Subscribed = 'Subscribed',
     NotSubscribed = 'NotSubscribed',
 }
+
+export enum ChannelType {
+    public = 'public',
+    private = 'private',
+}

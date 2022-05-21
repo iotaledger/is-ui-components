@@ -1,11 +1,12 @@
 <script lang="ts">
+    import { ChannelType } from '$lib/app'
+
     import { BoxColor } from '$lib/app/constants/colors'
     import { createChannel } from '$lib/app/streams'
-    import { Icon, Multiselect } from '$lib/components'
+    import { Icon } from '$lib/components'
     import { Button, FormGroup, Input, Label, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
-    import { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 
     export let isOpen: boolean = false
     export let onModalClose = (..._: any[]): void => {}
