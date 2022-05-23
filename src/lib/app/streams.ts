@@ -382,7 +382,7 @@ export async function createChannel(
             })
             return channel
         } catch (e) {
-            if(e.message.includes('409')){
+            if(e?.message?.includes('409')){
                 showNotification({
                     type: NotificationType.Error,
                     message: 'The channel already exists.',
