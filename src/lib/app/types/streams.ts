@@ -1,4 +1,4 @@
-import type { Filter } from "./shared";
+import type { Filter } from './shared'
 
 export enum SubscriptionState {
     Authorized = 'Authorized',
@@ -9,4 +9,9 @@ export enum SubscriptionState {
 export type StreamsFilter = {
     limitFilter?: Filter
     authorFilter?: Filter
+}
+
+export enum ChannelType {
+    public = 'public',
+    private = 'private',
 }

@@ -7,6 +7,7 @@
 
     export let channelData: ChannelData[] = []
     export let actionButtons: ActionButton[] = []
+    export let isSpinnerVisible: boolean = true
 </script>
 
 <div class="w-full">
@@ -36,16 +37,18 @@
             {/if}
         </div>
     </div>
-    <div class="p-4 d-flex align-items-center shadow rounded mt-4">
-        <Spinner class="ms-2 me-4" type="grow" size="sm" color="secondary" />
-        <div class="fw-bold">Waiting for channel data...</div>
-    </div>
+    {#if isSpinnerVisible}
+        <div class="p-4 d-flex align-items-center shadow rounded mt-4">
+            <Spinner class="ms-2 me-4" type="grow" size="sm" color="secondary" />
+            <div class="fw-bold">Waiting for channel data...</div>
+        </div>
+    {/if}
     {#each channelData as msg}
         <div class="p-4 bg-light my-4">
             <div class="d-lg-flex justify-content-between mb-lg-4">
                 <div class="info-box mb-4 mb-lg-0 me-lg-4">
                     <div class="text-secondary">Timestamp</div>
-                    <div class="text-break">{msg?.imported}</div>
+                    <div class="text-break">{msg?.imported || '-'}</div>
                 </div>
                 {#if msg?.log?.type}
                     <div class="info-box mb-4 mb-lg-0 me-lg-4">
