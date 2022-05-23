@@ -18,6 +18,7 @@ import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/cha
 
 export const selectedChannelPageIndex: Writable<number> = writable(1)
 export const channelSearchQuery: Writable<string> = writable('')
+// Default filter values (optional) and default filter states (mandatory)
 export const channelFilterOptions: Writable<StreamsFilter> = writable({
     limitFilter: {
         state: true,
@@ -94,11 +95,10 @@ export async function searchChannelsSingleRequest(
     let partialResults = []
     if (get(isAuthenticated)) {
         const { searchByAuthorId, searchBySource, authorId, limit, index } = options
-        // If set authorId overrides searchByAuthorId
         const authorIdQuery = searchByAuthorId ? query : undefined
         try {
             partialResults = await channelClient.search({
-                authorId: authorId ? authorId : authorIdQuery,
+                authorId: authorId ? authorId : authorIdQuery, // If set, authorId overrides searchByAuthorId
                 topicSource: searchBySource ? query : undefined,
                 limit: limit,
                 index: index,

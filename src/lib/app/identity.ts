@@ -17,6 +17,7 @@ import { NotificationType } from './types/notification'
 
 export const selectedIdentityPageIndex: Writable<number> = writable(1)
 export const identitySearchQuery: Writable<string> = writable('')
+// Default filter values (optional) and default filter states (mandatory)
 export const identityFilterOptions: Writable<IdentityFilter> = writable({
     limitFilter: {
         state: true,

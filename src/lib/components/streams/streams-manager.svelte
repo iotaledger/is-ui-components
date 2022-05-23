@@ -55,7 +55,7 @@
         {
             label: 'Only own channels',
             onChange: onOnlyOwnChannels,
-            name: 'authorFilter',
+            name: 'authorFilter',   // name has to match filter value in svelte store
         },
     ]
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION

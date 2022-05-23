@@ -53,7 +53,7 @@
         {
             label: 'Only own identities',
             onChange: onOnlyOwnIdentities,
-            name: 'creatorFilter',
+            name: 'creatorFilter', // name has to match filter value in svelte store
         },
     ]
 
@@ -107,8 +107,7 @@
 
     async function onSearch(): Promise<void> {
         selectedIdentityPageIndex.set(1) // reset index
-        const filterOptions = getSearchOptions()
-        await searchAllIdentities(get(identitySearchQuery), filterOptions)
+        await searchAllIdentities(get(identitySearchQuery), getSearchOptions())
     }
 
     function getSearchOptions(): { limit: number; creator: string } {
@@ -118,7 +117,7 @@
     }
 
     /**
-     * Check if the cached authorId (set in onMount()) is the same as the current user
+     * Check if the cached creator (set in onMount()) is the same as the current user
      */
     function userChanged(): boolean {
         return get(identityFilterOptions).creatorFilter.value !== get(authenticatedUserDID)
