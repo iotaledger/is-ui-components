@@ -2,11 +2,7 @@
     import { BoxColor } from '$lib/app'
 
     import { UserType } from '@iota/is-client'
-    import {
-        DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-        DEFAULT_TABLE_CONFIGURATION,
-        WELCOME_LIST_RESULTS_NUMBER,
-    } from '$lib/app/constants/base'
+    import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, DEFAULT_TABLE_CONFIGURATION } from '$lib/app/constants/base'
     import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import { get } from 'svelte/store'
     import {
@@ -93,10 +89,13 @@
 
     onMount(async () => {
         const results = get(searchIdentitiesResults)
-
+        // Fetch data if cached data is empty or user has changed
         if (!results || results?.length === 0 || userChanged()) {
-            searchAllIdentities('', getSearchOptions())
             const currentOptions = get(identityFilterOptions)
+            currentOptions.creatorFilter.value = get(authenticatedUserDID)
+            identityFilterOptions.set(currentOptions)
+            searchAllIdentities('', getSearchOptions())
+            // Set query limit after first search from WELCOME to DEFAULT limit
             currentOptions.limitFilter.value = DEFAULT_SDK_CLIENT_REQUEST_LIMIT
             identityFilterOptions.set(currentOptions)
         }
@@ -108,20 +107,25 @@
 
     async function onSearch(): Promise<void> {
         selectedIdentityPageIndex.set(1) // reset index
-        await searchAllIdentities(get(identitySearchQuery), getSearchOptions())     
+        const filterOptions = getSearchOptions()
+        await searchAllIdentities(get(identitySearchQuery), filterOptions)
     }
 
     function getSearchOptions(): { limit: number; creator: string } {
-        const { limitFilter } = get(identityFilterOptions)
-        return { limit: <number>limitFilter.value, creator: get(authenticatedUserDID) }
+        const { limitFilter, creatorFilter } = get(identityFilterOptions)
+        const creator = creatorFilter.state ? <string>creatorFilter.value : undefined
+        return { limit: <number>limitFilter.value, creator }
+    }
+
+    /**
+     * Check if the cached authorId (set in onMount()) is the same as the current user
+     */
+    function userChanged(): boolean {
+        return get(identityFilterOptions).creatorFilter.value !== get(authenticatedUserDID)
     }
 
     function onPageChange(page) {
         selectedIdentityPageIndex.set(page)
-    }
-
-    function userChanged(): boolean {
-        return get(identityFilterOptions).creatorFilter.value !== get(authenticatedUserDID)
     }
 
     async function loadMore(entries: number): Promise<void> {
@@ -193,12 +197,13 @@
         loading = false
     }
 
+    /**
+     * Toggle if identities should be filtered by current user
+     */
     function onOnlyOwnIdentities(): void {
-        // Toggle between current user and undefined
-        const checked = !get(identityFilterOptions).creatorFilter.state
-        const userDID = get(authenticatedUserDID)
-        const creator = checked && userDID ? userDID : undefined
-        identityFilterOptions.set({ ...get(identityFilterOptions), creatorFilter: { state: checked, value: creator } })
+        const currentFilter = get(identityFilterOptions)
+        currentFilter.creatorFilter.state = !currentFilter.creatorFilter.state
+        identityFilterOptions.set(currentFilter)
         onSearch()
     }
 
@@ -217,7 +222,6 @@
     function closeCreateCredentialModal(): void {
         isCreateCredentialModalOpen = false
     }
-
 </script>
 
 <Box>

@@ -9,7 +9,7 @@ import { AccessRights, type ChannelInfo } from '@iota/is-client'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient, isAuthenticated } from './base'
-import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
+import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
 import { DEFAULT_AUTHOR_FILTER_STATE, FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
@@ -20,7 +20,7 @@ export const channelSearchQuery: Writable<string> = writable('')
 export const channelFilterOptions: Writable<StreamsFilter> = writable({
     limitFilter: {
         state: true,
-        value: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+        value: WELCOME_LIST_RESULTS_NUMBER,
     },
     authorFilter: {
         state: DEFAULT_AUTHOR_FILTER_STATE
@@ -52,7 +52,6 @@ export async function searchAllChannels(query: string, options?: { limit?: numbe
         options?: { limit?: number; authorId?: string }
     ): Promise<void> => {
         const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:')
-        // console.log('options', options)
         const newResults: ChannelInfo[] = await searchChannelsSingleRequest(query, {
             searchByAuthorId: _isAuthorId(query),
             searchBySource: !_isAuthorId(query),
@@ -95,10 +94,10 @@ export async function searchChannelsSingleRequest(
     if (get(isAuthenticated)) {
         const { searchByAuthorId, searchBySource, authorId, limit, index } = options
         // If set authorId overrides searchByAuthorId
-        query = searchByAuthorId ? query : undefined
+        const authorIdQuery = searchByAuthorId ? query : undefined
         try {
             partialResults = await channelClient.search({
-                authorId: authorId ? authorId : query,
+                authorId: authorId ? authorId : authorIdQuery,
                 topicSource: searchBySource ? query : undefined,
                 limit: limit,
                 index: index,

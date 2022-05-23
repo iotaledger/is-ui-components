@@ -20,7 +20,7 @@ export const identitySearchQuery: Writable<string> = writable('')
 export const identityFilterOptions: Writable<IdentityFilter> = writable({
     limitFilter: {
         state: true,
-        value: WELCOME_LIST_RESULTS_NUMBER
+        value: WELCOME_LIST_RESULTS_NUMBER,
     },
     creatorFilter: {
         state: DEFAULT_CREATOR_FILTER_STATE,
@@ -88,7 +88,6 @@ export async function searchAllIdentities(query: string, options?: { limit?: num
         query: string,
         options?: { limit?: number; creator?: string }
     ): Promise<void> => {
-        console.log('options', options)
         const _isDID = (query: string): boolean => query.startsWith('did:iota:')
         const _isType = (query: string): boolean =>
             Object.values(UserType).some((userType) => userType.toLowerCase() === query.toLowerCase())

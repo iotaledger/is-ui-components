@@ -1,10 +1,6 @@
 <script lang="ts">
     import { authenticatedUserDID } from '$lib/app/base'
-    import {
-        DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-        DEFAULT_TABLE_CONFIGURATION,
-        WELCOME_LIST_RESULTS_NUMBER,
-    } from '$lib/app/constants/base'
+    import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, DEFAULT_TABLE_CONFIGURATION } from '$lib/app/constants/base'
     import { BoxColor } from '$lib/app/constants/colors'
     import {
         acceptSubscription,
@@ -57,8 +53,8 @@
     ]
     export let streamsFilter: FilterCheckbox[] = [
         {
-            label: 'Only own channel',
-            onChange: showOnlyOwnChannels,
+            label: 'Only own channels',
+            onChange: onOnlyOwnChannels,
             name: 'authorFilter',
         },
     ]
@@ -120,13 +116,16 @@
     } as TableData
 
     onMount(async () => {
-        const currentOptions = get(channelFilterOptions)
-        currentOptions.authorFilter.value = get(authenticatedUserDID)
-        currentOptions.limitFilter.value = WELCOME_LIST_RESULTS_NUMBER
-        channelFilterOptions.set(currentOptions)
         const results = get(searchChannelsResults)
-        if (!results || results?.length === 0) {
+        // Fetch data if cached data is empty or user has changed
+        if (!results || results?.length === 0 || userChanged()) {
+            const currentOptions = get(channelFilterOptions)
+            currentOptions.authorFilter.value = get(authenticatedUserDID)
+            channelFilterOptions.set(currentOptions)
             searchAllChannels('', getSearchOptions())
+            // Set query limit after first search from WELCOME to DEFAULT limit
+            currentOptions.limitFilter.value = DEFAULT_SDK_CLIENT_REQUEST_LIMIT
+            channelFilterOptions.set(currentOptions)
         }
     })
 
@@ -142,7 +141,15 @@
 
     function getSearchOptions(): { limit: number; authorId: string } {
         const { limitFilter, authorFilter } = get(channelFilterOptions)
-        return { limit: <number>limitFilter.value, authorId: <string>authorFilter.value }
+        const authorId = authorFilter.state ? <string>authorFilter.value : undefined
+        return { limit: <number>limitFilter.value, authorId }
+    }
+
+    /**
+     * Check if the cached authorId (set in onMount()) is the same as the current user
+     */
+    function userChanged(): boolean {
+        return get(channelFilterOptions).authorFilter.value !== get(authenticatedUserDID)
     }
 
     async function loadMore(entries: number): Promise<void> {
@@ -261,12 +268,13 @@
         selectedChannelSubscriptions.set(subscriptions)
     }
 
-    function showOnlyOwnChannels(): void {
-        // Toggle between current user and undefined
-        const checked = !get(channelFilterOptions).authorFilter.state
-        const userDID = get(authenticatedUserDID)
-        const authorId = checked && userDID ? userDID : undefined
-        channelFilterOptions.set({ ...get(channelFilterOptions), authorFilter: { state: checked, value: authorId } })
+    /**
+     * Toggle if channels should be filtered by current user
+     */
+    function onOnlyOwnChannels(): void {
+        const currentFilter = get(channelFilterOptions)
+        currentFilter.authorFilter.state = !currentFilter.authorFilter.state
+        channelFilterOptions.set(currentFilter)
         onSearch()
     }
 
