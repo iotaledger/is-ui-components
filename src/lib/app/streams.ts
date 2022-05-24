@@ -382,10 +382,17 @@ export async function createChannel(
             })
             return channel
         } catch (e) {
-            showNotification({
-                type: NotificationType.Error,
-                message: 'There was an error creating the channel',
-            })
+            if(e?.message?.includes('409')){
+                showNotification({
+                    type: NotificationType.Error,
+                    message: 'The channel already exists.',
+                })
+            }else{
+                showNotification({
+                    type: NotificationType.Error,
+                    message: 'There was an error creating the channel',
+                })
+            }
             console.error(Error, e)
         }
     } else {

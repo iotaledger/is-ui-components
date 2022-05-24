@@ -59,10 +59,17 @@ export async function registerIdentity(username?: string, claimType = UserType.P
     try {
         registeredIdentity = await identityClient.create(username, claimType, claim)
     } catch (e) {
-        showNotification({
-            type: NotificationType.Error,
-            message: 'The register failed',
-        })
+        if (e?.message?.includes(409)){
+            showNotification({
+                type: NotificationType.Error,
+                message: 'The user already exists.',
+            })
+        }else{
+            showNotification({
+                type: NotificationType.Error,
+                message: 'The register failed',
+            })
+        }
         console.error(Error, e)
     }
     return registeredIdentity
