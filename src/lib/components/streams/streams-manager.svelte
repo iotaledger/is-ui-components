@@ -84,7 +84,7 @@
             const isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
             const isUserSubscribed = isUserSubscribedToChannel($authenticatedUserDID, channel)
             return {
-                onClick: () => handleSelectChannel(channel),
+                onClick: () => (handleSelectChannel(channel), console.log('Channel created date: ', channel.created)),
                 content: [
                     {
                         icon: 'broadcast',
@@ -94,7 +94,11 @@
                     { value: channel.channelAddress },
                     { value: channel.topics.map((topic) => topic?.type) },
                     { value: channel.topics.map((topic) => topic?.source) },
-                    { value: channel.created },
+                    // TODO: contactenate strings:
+                    {
+                        value:
+                            channel.created.slice(0, 10).split('-').reverse().join('-') + ` at ` + channel.created.slice(11, 20),
+                    },
                     {
                         pills:
                             isUserOwner || isUserSubscribed
