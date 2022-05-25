@@ -76,7 +76,7 @@
                     value: identity?.username,
                 },
                 { value: identity?.claim?.type },
-                { value: identity?.registrationDate },
+                { value: identity?.registrationDate.slice(0, 10).split('-').reverse().join('-') },
                 { value: identity?.numberOfCredentials ?? 0 },
             ],
         })),
