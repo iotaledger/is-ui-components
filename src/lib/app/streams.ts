@@ -18,7 +18,6 @@ import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/cha
 
 export const selectedChannelPageIndex: Writable<number> = writable(1)
 export const channelSearchQuery: Writable<string> = writable('')
-// Default filter values (optional) and default filter states (mandatory)
 export const channelFilterOptions: Writable<StreamsFilter> = writable({
     authorFilterState: DEFAULT_AUTHOR_FILTER_STATE,
 })

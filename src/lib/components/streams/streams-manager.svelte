@@ -151,7 +151,7 @@
     }
 
     /**
-     * Check if the cached authorId (set in onMount()) is the same as the current user
+     * Check if the cached userDID (set in onMount()) is the same as the current userDID
      */
     function userChanged(): boolean {
         return get(previousAuthenticatedStreamsUserDID) !== get(authenticatedUserDID)

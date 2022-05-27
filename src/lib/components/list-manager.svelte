@@ -63,7 +63,7 @@
     {/if}
     <div class="box d-flex flex-column align-items-start mt-1 mb-2 ms-3">
         {#if filters}
-            {#each filters as { label, onChange, value }}
+            {#each filters as { onChange, label, value }}
                 <Input type="checkbox" on:change={onChange} {label} checked={!!value} />
             {/each}
         {/if}

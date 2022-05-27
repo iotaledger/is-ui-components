@@ -122,7 +122,7 @@
     }
 
     /**
-     * Check if the cached creator (set in onMount()) is the same as the current user
+     * Check if the cached userDID (set in onMount()) is the same as the current userDID
      */
     function userChanged(): boolean {
         return get(previousAuthenticatedIdentityUserDID) !== get(authenticatedUserDID)
