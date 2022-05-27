@@ -9,7 +9,7 @@ import { AccessRights, type ChannelInfo } from '@iota/is-client'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient, isAuthenticated } from './base'
-import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
+import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
 import { DEFAULT_AUTHOR_FILTER_STATE, FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
@@ -20,10 +20,6 @@ export const selectedChannelPageIndex: Writable<number> = writable(1)
 export const channelSearchQuery: Writable<string> = writable('')
 // Default filter values (optional) and default filter states (mandatory)
 export const channelFilterOptions: Writable<StreamsFilter> = writable({
-    limitFilter: {
-        state: true,
-        value: WELCOME_LIST_RESULTS_NUMBER,
-    },
     authorFilter: {
         state: DEFAULT_AUTHOR_FILTER_STATE
     },

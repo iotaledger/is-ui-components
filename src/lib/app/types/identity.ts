@@ -101,6 +101,5 @@ export type VerifiableCredentialTemplate = {
 }
 
 export type IdentityFilter = {
-    limitFilter: Filter
     creatorFilter: Filter
 }

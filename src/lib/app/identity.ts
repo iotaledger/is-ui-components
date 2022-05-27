@@ -9,7 +9,7 @@ import { UserType } from '@iota/is-client'
 import type { Writable } from 'svelte/store'
 import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient, identityClient, isAuthenticated } from './base'
-import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
+import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
 import { DEFAULT_CREATOR_FILTER_STATE } from './constants/identity'
 import { showNotification } from './notification'
 import type { ExtendedUser, IdentityFilter } from './types/identity'
@@ -19,10 +19,6 @@ export const selectedIdentityPageIndex: Writable<number> = writable(1)
 export const identitySearchQuery: Writable<string> = writable('')
 // Default filter values (optional) and default filter states (mandatory)
 export const identityFilterOptions: Writable<IdentityFilter> = writable({
-    limitFilter: {
-        state: true,
-        value: WELCOME_LIST_RESULTS_NUMBER,
-    },
     creatorFilter: {
         state: DEFAULT_CREATOR_FILTER_STATE,
     },

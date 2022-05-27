@@ -7,7 +7,6 @@ export enum SubscriptionState {
 }
 
 export type StreamsFilter = {
-    limitFilter?: Filter
     authorFilter?: Filter
 }
 

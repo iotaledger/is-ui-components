@@ -2,7 +2,7 @@
     import { BoxColor } from '$lib/app'
 
     import { UserType } from '@iota/is-client'
-    import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, DEFAULT_TABLE_CONFIGURATION } from '$lib/app/constants/base'
+    import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, DEFAULT_TABLE_CONFIGURATION, WELCOME_LIST_RESULTS_NUMBER } from '$lib/app/constants/base'
     import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import { get } from 'svelte/store'
     import {
@@ -94,9 +94,7 @@
             const currentOptions = get(identityFilterOptions)
             currentOptions.creatorFilter.value = get(authenticatedUserDID)
             identityFilterOptions.set(currentOptions)
-            searchAllIdentities('', getSearchOptions())
-            // Set query limit after first search from WELCOME to DEFAULT limit
-            currentOptions.limitFilter.value = DEFAULT_SDK_CLIENT_REQUEST_LIMIT
+            searchAllIdentities('', getSearchOptions(true))
             identityFilterOptions.set(currentOptions)
         }
     })
@@ -110,10 +108,11 @@
         await searchAllIdentities(get(identitySearchQuery), getSearchOptions())
     }
 
-    function getSearchOptions(): { limit: number; creator: string } {
-        const { limitFilter, creatorFilter } = get(identityFilterOptions)
+    function getSearchOptions(firstLoad = false): { limit: number; creator: string } {
+        const { creatorFilter } = get(identityFilterOptions)
         const creator = creatorFilter.state ? <string>creatorFilter.value : undefined
-        return { limit: <number>limitFilter.value, creator }
+        const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
+        return { limit, creator }
     }
 
     /**

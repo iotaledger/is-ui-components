@@ -1,6 +1,6 @@
 <script lang="ts">
     import { authenticatedUserDID } from '$lib/app/base'
-    import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, DEFAULT_TABLE_CONFIGURATION } from '$lib/app/constants/base'
+    import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, DEFAULT_TABLE_CONFIGURATION, WELCOME_LIST_RESULTS_NUMBER } from '$lib/app/constants/base'
     import { BoxColor } from '$lib/app/constants/colors'
     import {
         acceptSubscription,
@@ -122,9 +122,7 @@
             const currentOptions = get(channelFilterOptions)
             currentOptions.authorFilter.value = get(authenticatedUserDID)
             channelFilterOptions.set(currentOptions)
-            searchAllChannels('', getSearchOptions())
-            // Set query limit after first search from WELCOME to DEFAULT limit
-            currentOptions.limitFilter.value = DEFAULT_SDK_CLIENT_REQUEST_LIMIT
+            searchAllChannels('', getSearchOptions(true))
             channelFilterOptions.set(currentOptions)
         }
     })
@@ -139,10 +137,11 @@
         await searchAllChannels(get(channelSearchQuery), getSearchOptions())
     }
 
-    function getSearchOptions(): { limit: number; authorId: string } {
-        const { limitFilter, authorFilter } = get(channelFilterOptions)
+    function getSearchOptions(firstLoad = false): { limit: number; authorId: string } {
+        const { authorFilter } = get(channelFilterOptions)
         const authorId = authorFilter.state ? <string>authorFilter.value : undefined
-        return { limit: <number>limitFilter.value, authorId }
+        const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
+        return { limit, authorId }
     }
 
     /**
