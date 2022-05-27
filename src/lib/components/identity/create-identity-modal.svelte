@@ -19,7 +19,6 @@
     function onCreateIdentitySuccess(identity: IdentityJson): void {
         registeredIdentity = identity
         onSuccess(identity)
-        onModalClose()
     }
 </script>
 
