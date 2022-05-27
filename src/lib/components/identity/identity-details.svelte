@@ -48,7 +48,9 @@
         <div class="d-xl-flex align-items-center justify-content-between">
             <div class="ms-12 me-12">
                 <div class="text-secondary text-break">
-                    <span class="fw-bold">Date: </span><span class="text-break ">{identity?.registrationDate}</span>
+                    <span class="fw-bold">Date: </span><span class="text-break "
+                        >{identity?.registrationDate.slice(0, 10).split('-').reverse().join('-')}</span
+                    >
                 </div>
                 <div class="text-secondary">
                     <span class="fw-bold">Public Key: </span><span class="text-break ">{identity?.publicKey}</span>
