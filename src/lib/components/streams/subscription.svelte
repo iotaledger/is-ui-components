@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Subscription } from '@iota/is-client'
-    import { Button, Spinner, ModalBody, ModalFooter, ModalHeader, } from 'sveltestrap'
+    import { Button, Spinner, ModalBody, ModalFooter, ModalHeader } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
 
@@ -11,9 +11,10 @@
     export let handleAcceptSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
     export let handleRejectSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
 
-    let isOpen = false;   
-
-    let onModalClose = () => {return};
+    let isOpen = false
+    let onModalClose = () => {
+        isOpen = false
+    }
 
     let isAccepting: boolean = false
     let isRejecting: boolean = false
@@ -64,13 +65,13 @@
                         outline
                         color="danger"
                         disabled={isAccepting || isRejecting}
-                        on:click={() => isOpen = true}
+                        on:click={() => (isOpen = true)}
                     >
                         <div class="d-flex justify-content-center align-items-center">
                             {isRejecting ? 'Revoking...' : 'Revoke'}
                             {#if isRejecting}
                                 <div class="ms-2">
-                                    <Spinner size="sm" type="border" color="success" />
+                                    <Spinner size="sm" type="border" color="danger" />
                                 </div>
                             {/if}
                         </div>
@@ -86,17 +87,16 @@
                             <ModalFooter>
                                 <Button
                                     color="danger"
-                                    on:click={() => handleReject()}
+                                    on:click={() => {
+                                        handleReject()
+                                        onModalClose()
+                                    }}
                                 >
-                                    {#if isRejecting}
-                                        <div class="ms-2">
-                                            <Spinner size="sm" type="border" color="success" />
-                                        </div>
-                                    {:else}
-                                        Yes, revoke
-                                    {/if}
+                                    Yes, revoke
                                 </Button>
-                                <Button color="secondary" on:click={onModalClose}>Cancel</Button>
+                                <Button color="secondary" disabled={isAccepting || isRejecting} on:click={onModalClose}
+                                    >Cancel</Button
+                                >
                             </ModalFooter>
                         </div>
                     </Modal>
