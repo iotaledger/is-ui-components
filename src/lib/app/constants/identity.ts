@@ -339,4 +339,4 @@ export const CREDENTIAL_ICON = {
     boxColor: BoxColor.Purple,
 }
 
-export const DEFAULT_CREATOR_FILTER_STATE = true;
+export const DEFAULT_CREATOR_FILTER_STATE = true

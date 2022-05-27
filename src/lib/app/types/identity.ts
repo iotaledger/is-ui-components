@@ -1,6 +1,5 @@
 import type { Input } from '$lib/app/types/form'
 import type { CredentialTypes, User, UserType, VerifiableCredentialInternal } from '@iota/is-client'
-import type { Filter } from './shared'
 
 export enum FieldType {
     Date = 'date',
@@ -101,5 +100,5 @@ export type VerifiableCredentialTemplate = {
 }
 
 export type IdentityFilter = {
-    creatorFilter: Filter
+    creatorFilterState: boolean
 }

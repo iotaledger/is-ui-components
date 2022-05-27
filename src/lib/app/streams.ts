@@ -20,10 +20,9 @@ export const selectedChannelPageIndex: Writable<number> = writable(1)
 export const channelSearchQuery: Writable<string> = writable('')
 // Default filter values (optional) and default filter states (mandatory)
 export const channelFilterOptions: Writable<StreamsFilter> = writable({
-    authorFilter: {
-        state: DEFAULT_AUTHOR_FILTER_STATE
-    },
+    authorFilterState: DEFAULT_AUTHOR_FILTER_STATE,
 })
+export const previousAuthenticatedUserDID: Writable<string> = writable(undefined)
 export const selectedChannel: Writable<ChannelInfo> = writable(null)
 export const searchChannelsResults: Writable<ChannelInfo[]> = writable([])
 export const selectedChannelData: Writable<ChannelData[]> = writable([])

@@ -1,6 +1,10 @@
 <script lang="ts">
     import { authenticatedUserDID } from '$lib/app/base'
-    import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, DEFAULT_TABLE_CONFIGURATION, WELCOME_LIST_RESULTS_NUMBER } from '$lib/app/constants/base'
+    import {
+        DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+        DEFAULT_TABLE_CONFIGURATION,
+        WELCOME_LIST_RESULTS_NUMBER,
+    } from '$lib/app/constants/base'
     import { BoxColor } from '$lib/app/constants/colors'
     import {
         acceptSubscription,
@@ -25,6 +29,7 @@
         stopReadingChannel,
         channelSearchQuery,
         channelFilterOptions,
+        previousAuthenticatedUserDID,
     } from '$lib/app/streams'
     import { get, writable, type Writable } from 'svelte/store'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
@@ -55,7 +60,6 @@
         {
             label: 'Only own channels',
             onChange: onOnlyOwnChannels,
-            name: 'authorFilter',   // name has to match filter value in svelte store
         },
     ]
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
@@ -116,14 +120,16 @@
     } as TableData
 
     onMount(async () => {
+        // Get the current filter state from store and set value accordingly
+        const { authorFilterState } = get(channelFilterOptions)
+        streamsFilter[0].value = authorFilterState ? get(authenticatedUserDID) : undefined
+
         const results = get(searchChannelsResults)
         // Fetch data if cached data is empty or user has changed
         if (!results || results?.length === 0 || userChanged()) {
-            const currentOptions = get(channelFilterOptions)
-            currentOptions.authorFilter.value = get(authenticatedUserDID)
-            channelFilterOptions.set(currentOptions)
             searchAllChannels('', getSearchOptions(true))
-            channelFilterOptions.set(currentOptions)
+            // Used for determining if user has changed from previous onMount() call
+            previousAuthenticatedUserDID.set(get(authenticatedUserDID))
         }
     })
 
@@ -138,8 +144,8 @@
     }
 
     function getSearchOptions(firstLoad = false): { limit: number; authorId: string } {
-        const { authorFilter } = get(channelFilterOptions)
-        const authorId = authorFilter.state ? <string>authorFilter.value : undefined
+        const { authorFilterState } = get(channelFilterOptions)
+        const authorId = authorFilterState ? streamsFilter[0].value : undefined
         const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
         return { limit, authorId }
     }
@@ -148,7 +154,7 @@
      * Check if the cached authorId (set in onMount()) is the same as the current user
      */
     function userChanged(): boolean {
-        return get(channelFilterOptions).authorFilter.value !== get(authenticatedUserDID)
+        return get(previousAuthenticatedUserDID) !== get(authenticatedUserDID)
     }
 
     async function loadMore(entries: number): Promise<void> {
@@ -272,8 +278,10 @@
      */
     function onOnlyOwnChannels(): void {
         const currentFilter = get(channelFilterOptions)
-        currentFilter.authorFilter.state = !currentFilter.authorFilter.state
-        channelFilterOptions.set(currentFilter)
+        const authorFilterState = !currentFilter.authorFilterState
+        // Set local filter value depending on state in store
+        streamsFilter[0].value = authorFilterState ? get(authenticatedUserDID) : undefined
+        channelFilterOptions.set({ ...currentFilter, authorFilterState })
         onSearch()
     }
 
@@ -307,7 +315,6 @@
             loading={loading || $isAsyncLoadingChannels}
             actionButtons={listViewButtons}
             filters={streamsFilter}
-            filterState={$channelFilterOptions}
             bind:searchQuery={$channelSearchQuery}
         />
     {:else if state === State.ChannelDetail}

@@ -2,7 +2,11 @@
     import { BoxColor } from '$lib/app'
 
     import { UserType } from '@iota/is-client'
-    import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, DEFAULT_TABLE_CONFIGURATION, WELCOME_LIST_RESULTS_NUMBER } from '$lib/app/constants/base'
+    import {
+        DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+        DEFAULT_TABLE_CONFIGURATION,
+        WELCOME_LIST_RESULTS_NUMBER,
+    } from '$lib/app/constants/base'
     import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import { get } from 'svelte/store'
     import {
@@ -19,6 +23,7 @@
         stopIdentitiesSearch,
         updateIdentityInSearchResults,
         identitySearchQuery,
+        previousAuthenticatedUserDID,
     } from '$lib/app/identity'
     import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
@@ -49,11 +54,10 @@
             color: 'dark',
         },
     ]
-    export let identityFiler: FilterCheckbox[] = [
+    export let identityFilter: FilterCheckbox[] = [
         {
             label: 'Only own identities',
             onChange: onOnlyOwnIdentities,
-            name: 'creatorFilter', // name has to match filter value in svelte store
         },
     ]
 
@@ -88,14 +92,16 @@
     } as TableData
 
     onMount(async () => {
+        // Get the current filter state from store and set value accordingly
+        const { creatorFilterState } = get(identityFilterOptions)
+        identityFilter[0].value = creatorFilterState ? get(authenticatedUserDID) : undefined
+
         const results = get(searchIdentitiesResults)
         // Fetch data if cached data is empty or user has changed
         if (!results || results?.length === 0 || userChanged()) {
-            const currentOptions = get(identityFilterOptions)
-            currentOptions.creatorFilter.value = get(authenticatedUserDID)
-            identityFilterOptions.set(currentOptions)
             searchAllIdentities('', getSearchOptions(true))
-            identityFilterOptions.set(currentOptions)
+            // Used for determining if user has changed from previous onMount() call
+            previousAuthenticatedUserDID.set(get(authenticatedUserDID))
         }
     })
 
@@ -109,8 +115,8 @@
     }
 
     function getSearchOptions(firstLoad = false): { limit: number; creator: string } {
-        const { creatorFilter } = get(identityFilterOptions)
-        const creator = creatorFilter.state ? <string>creatorFilter.value : undefined
+        const { creatorFilterState } = get(identityFilterOptions)
+        const creator = creatorFilterState ? identityFilter[0].value : undefined
         const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
         return { limit, creator }
     }
@@ -119,7 +125,7 @@
      * Check if the cached creator (set in onMount()) is the same as the current user
      */
     function userChanged(): boolean {
-        return get(identityFilterOptions).creatorFilter.value !== get(authenticatedUserDID)
+        return get(previousAuthenticatedUserDID) !== get(authenticatedUserDID)
     }
 
     function onPageChange(page) {
@@ -200,8 +206,10 @@
      */
     function onOnlyOwnIdentities(): void {
         const currentFilter = get(identityFilterOptions)
-        currentFilter.creatorFilter.state = !currentFilter.creatorFilter.state
-        identityFilterOptions.set(currentFilter)
+        const creatorFilterState = !currentFilter.creatorFilterState
+        // Set local filter value depending on state in store
+        identityFilter[0].value = creatorFilterState ? get(authenticatedUserDID) : undefined
+        identityFilterOptions.set({ ...currentFilter, creatorFilterState })
         onSearch()
     }
 
@@ -237,8 +245,7 @@
             searchPlaceholder="Search identities"
             loading={loading || $isAsyncLoadingIdentities}
             actionButtons={listViewButtons}
-            filters={identityFiler}
-            filterState={$identityFilterOptions}
+            filters={identityFilter}
             bind:searchQuery={$identitySearchQuery}
         />
     {:else if state === State.IdentityDetail}

@@ -1,5 +1,3 @@
-import type { Filter } from './shared'
-
 export enum SubscriptionState {
     Authorized = 'Authorized',
     Subscribed = 'Subscribed',
@@ -7,7 +5,7 @@ export enum SubscriptionState {
 }
 
 export type StreamsFilter = {
-    authorFilter?: Filter
+    authorFilterState: boolean
 }
 
 export enum ChannelType {

@@ -19,10 +19,9 @@ export const selectedIdentityPageIndex: Writable<number> = writable(1)
 export const identitySearchQuery: Writable<string> = writable('')
 // Default filter values (optional) and default filter states (mandatory)
 export const identityFilterOptions: Writable<IdentityFilter> = writable({
-    creatorFilter: {
-        state: DEFAULT_CREATOR_FILTER_STATE,
-    },
+    creatorFilterState: DEFAULT_CREATOR_FILTER_STATE,
 })
+export const previousAuthenticatedUserDID: Writable<string> = writable(undefined)
 export const searchIdentitiesResults: Writable<ExtendedUser[]> = writable([])
 export const selectedIdentity: Writable<ExtendedUser> = writable(null)
 // used for the async search that makes N background queries to get the full list of identities
