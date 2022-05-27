@@ -22,7 +22,7 @@ export const channelSearchQuery: Writable<string> = writable('')
 export const channelFilterOptions: Writable<StreamsFilter> = writable({
     authorFilterState: DEFAULT_AUTHOR_FILTER_STATE,
 })
-export const previousAuthenticatedUserDID: Writable<string> = writable(undefined)
+export const previousAuthenticatedStreamsUserDID: Writable<string> = writable(undefined)
 export const selectedChannel: Writable<ChannelInfo> = writable(null)
 export const searchChannelsResults: Writable<ChannelInfo[]> = writable([])
 export const selectedChannelData: Writable<ChannelData[]> = writable([])

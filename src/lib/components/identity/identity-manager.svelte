@@ -23,7 +23,7 @@
         stopIdentitiesSearch,
         updateIdentityInSearchResults,
         identitySearchQuery,
-        previousAuthenticatedUserDID,
+        previousAuthenticatedIdentityUserDID,
     } from '$lib/app/identity'
     import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
@@ -101,7 +101,7 @@
         if (!results || results?.length === 0 || userChanged()) {
             searchAllIdentities('', getSearchOptions(true))
             // Used for determining if user has changed from previous onMount() call
-            previousAuthenticatedUserDID.set(get(authenticatedUserDID))
+            previousAuthenticatedIdentityUserDID.set(get(authenticatedUserDID))
         }
     })
 
@@ -125,7 +125,7 @@
      * Check if the cached creator (set in onMount()) is the same as the current user
      */
     function userChanged(): boolean {
-        return get(previousAuthenticatedUserDID) !== get(authenticatedUserDID)
+        return get(previousAuthenticatedIdentityUserDID) !== get(authenticatedUserDID)
     }
 
     function onPageChange(page) {

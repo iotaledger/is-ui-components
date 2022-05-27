@@ -29,7 +29,7 @@
         stopReadingChannel,
         channelSearchQuery,
         channelFilterOptions,
-        previousAuthenticatedUserDID,
+        previousAuthenticatedStreamsUserDID,
     } from '$lib/app/streams'
     import { get, writable, type Writable } from 'svelte/store'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
@@ -129,7 +129,7 @@
         if (!results || results?.length === 0 || userChanged()) {
             searchAllChannels('', getSearchOptions(true))
             // Used for determining if user has changed from previous onMount() call
-            previousAuthenticatedUserDID.set(get(authenticatedUserDID))
+            previousAuthenticatedStreamsUserDID.set(get(authenticatedUserDID))
         }
     })
 
@@ -154,7 +154,7 @@
      * Check if the cached authorId (set in onMount()) is the same as the current user
      */
     function userChanged(): boolean {
-        return get(previousAuthenticatedUserDID) !== get(authenticatedUserDID)
+        return get(previousAuthenticatedStreamsUserDID) !== get(authenticatedUserDID)
     }
 
     async function loadMore(entries: number): Promise<void> {
