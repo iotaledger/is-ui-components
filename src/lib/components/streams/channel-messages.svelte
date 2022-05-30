@@ -48,14 +48,16 @@
             <div class="d-lg-flex justify-content-between mb-lg-4">
                 <div class="info-box mb-4 mb-lg-0 me-lg-4">
                     <div class="text-secondary">Timestamp</div>
-                    <div class="text-break">{msg?.imported || '-'}</div>
+                    <div class="text-break">{msg?.log?.created || '-'}</div>
                 </div>
-                {#if msg?.log?.type}
-                    <div class="info-box mb-4 mb-lg-0 me-lg-4">
-                        <div class="text-secondary">Type</div>
-                        <div>{msg?.log?.type}</div>
-                    </div>
-                {/if}
+                <div class="info-box mb-4 mb-lg-0 me-lg-4">
+                    <div class="text-secondary">Cached</div>
+                    <div class="text-break">{msg?.log?.created || '-'}</div>
+                </div>
+                <div class="info-box mb-4 mb-lg-0 me-lg-4">
+                    <div class="text-secondary">Type</div>
+                    <div>{msg?.log?.type || '-'}</div>
+                </div>
             </div>
             <div class="mb-4">
                 <div class="text-secondary">Message id</div>
