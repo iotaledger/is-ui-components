@@ -12,14 +12,12 @@ import { authenticationData, channelClient, identityClient, isAuthenticated } fr
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
 import { DEFAULT_CREATOR_FILTER_STATE } from './constants/identity'
 import { showNotification } from './notification'
-import type { ExtendedUser, IdentityFilter } from './types/identity'
+import type { ExtendedUser } from './types/identity'
 import { NotificationType } from './types/notification'
 
 export const selectedIdentityPageIndex: Writable<number> = writable(1)
 export const identitySearchQuery: Writable<string> = writable('')
-export const identityFilterOptions: Writable<IdentityFilter> = writable({
-    creatorFilterState: DEFAULT_CREATOR_FILTER_STATE,
-})
+export const creatorFilterState: Writable<boolean> = writable(DEFAULT_CREATOR_FILTER_STATE)
 export const previousAuthenticatedIdentityUserDID: Writable<string> = writable(undefined)
 export const searchIdentitiesResults: Writable<ExtendedUser[]> = writable([])
 export const selectedIdentity: Writable<ExtendedUser> = writable(null)

@@ -24,6 +24,7 @@
         updateIdentityInSearchResults,
         identitySearchQuery,
         previousAuthenticatedIdentityUserDID,
+        creatorFilterState,
     } from '$lib/app/identity'
     import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
@@ -32,7 +33,6 @@
     import type { IdentityJson } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
     import { authenticatedUserDID } from '../../app/base'
-    import { identityFilterOptions } from '../../app/identity'
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
     export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
@@ -54,14 +54,14 @@
             color: 'dark',
         },
     ]
-    const identityFilter: FilterCheckbox[] = [
+    $: identityFilter = [
         {
             label: 'Only own identities',
             onChange: onOnlyOwnIdentities,
-            // Get the current filter state from store and set value accordingly
-            value: get(identityFilterOptions).creatorFilterState ? get(authenticatedUserDID) : undefined,
+            // Get the current filter state from store
+            state: $creatorFilterState,
         },
-    ]
+    ] as FilterCheckbox[]
 
     enum State {
         ListIdentities = 'listIdentities',
@@ -113,8 +113,7 @@
     }
 
     function getSearchOptions(firstLoad = false): { limit: number; creator: string } {
-        const { creatorFilterState } = get(identityFilterOptions)
-        const creator = creatorFilterState ? identityFilter[0].value : undefined
+        const creator = get(creatorFilterState) ? get(authenticatedUserDID) : undefined
         const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
         return { limit, creator }
     }
@@ -199,15 +198,9 @@
         loading = false
     }
 
-    /**
-     * Toggle if identities should be filtered by current user
-     */
     function onOnlyOwnIdentities(): void {
-        const currentFilter = get(identityFilterOptions)
-        const creatorFilterState = !currentFilter.creatorFilterState
-        // Set local filter value depending on state in store
-        identityFilter[0].value = creatorFilterState ? get(authenticatedUserDID) : undefined
-        identityFilterOptions.set({ ...currentFilter, creatorFilterState })
+        // Toggle authorFilterState
+        creatorFilterState.set(!get(creatorFilterState))
         onSearch()
     }
 

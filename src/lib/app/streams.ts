@@ -13,14 +13,12 @@ import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
 import { DEFAULT_AUTHOR_FILTER_STATE, FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
-import { SubscriptionState, type StreamsFilter } from './types/streams'
+import { SubscriptionState } from './types/streams'
 import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 
 export const selectedChannelPageIndex: Writable<number> = writable(1)
 export const channelSearchQuery: Writable<string> = writable('')
-export const channelFilterOptions: Writable<StreamsFilter> = writable({
-    authorFilterState: DEFAULT_AUTHOR_FILTER_STATE,
-})
+export const authorFilterState: Writable<boolean> = writable(DEFAULT_AUTHOR_FILTER_STATE)
 export const previousAuthenticatedStreamsUserDID: Writable<string> = writable(undefined)
 export const selectedChannel: Writable<ChannelInfo> = writable(null)
 export const searchChannelsResults: Writable<ChannelInfo[]> = writable([])

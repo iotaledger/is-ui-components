@@ -28,8 +28,8 @@
         stopChannelsSearch,
         stopReadingChannel,
         channelSearchQuery,
-        channelFilterOptions,
         previousAuthenticatedStreamsUserDID,
+        authorFilterState,
     } from '$lib/app/streams'
     import { get, writable, type Writable } from 'svelte/store'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
@@ -56,14 +56,14 @@
             color: 'dark',
         },
     ]
-    const streamsFilter: FilterCheckbox[] = [
+    $: streamsFilter = [
         {
             label: 'Only own channels',
             onChange: onOnlyOwnChannels,
-            // Get the current filter state from store and set value accordingly
-            value: get(channelFilterOptions).authorFilterState ? get(authenticatedUserDID) : undefined,
+            // Get the current filter state from store
+            state: $authorFilterState,
         },
-    ]
+    ] as FilterCheckbox[]
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
 
     enum State {
@@ -142,8 +142,7 @@
     }
 
     function getSearchOptions(firstLoad = false): { limit: number; authorId: string } {
-        const { authorFilterState } = get(channelFilterOptions)
-        const authorId = authorFilterState ? streamsFilter[0].value : undefined
+        const authorId = get(authorFilterState) ? get(authenticatedUserDID) : undefined
         const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
         return { limit, authorId }
     }
@@ -271,15 +270,9 @@
         selectedChannelSubscriptions.set(subscriptions)
     }
 
-    /**
-     * Toggle if channels should be filtered by current user
-     */
     function onOnlyOwnChannels(): void {
-        const currentFilter = get(channelFilterOptions)
-        const authorFilterState = !currentFilter.authorFilterState
-        // Set local filter value depending on state in store
-        streamsFilter[0].value = authorFilterState ? get(authenticatedUserDID) : undefined
-        channelFilterOptions.set({ ...currentFilter, authorFilterState })
+        // Toggle authorFilterState
+        authorFilterState.set(!get(authorFilterState))
         onSearch()
     }
 

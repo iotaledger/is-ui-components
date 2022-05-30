@@ -98,7 +98,3 @@ export type VerifiableCredentialTemplate = {
     credentialType: CredentialTypes
     userType: UserType
 }
-
-export type IdentityFilter = {
-    creatorFilterState: boolean
-}

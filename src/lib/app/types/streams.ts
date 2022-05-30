@@ -4,10 +4,6 @@ export enum SubscriptionState {
     NotSubscribed = 'NotSubscribed',
 }
 
-export type StreamsFilter = {
-    authorFilterState: boolean
-}
-
 export enum ChannelType {
     public = 'public',
     private = 'private',
