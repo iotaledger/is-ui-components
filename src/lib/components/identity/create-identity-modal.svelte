@@ -6,15 +6,21 @@
     import { ModalBody, ModalFooter, ModalHeader } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
+    import { Icon } from '$lib/components'
+    import { createJsonDataUrl } from '$lib/app/utils'
 
     export let title = 'Create identity'
     export let isOpen: boolean = false
+    export let isCreated: boolean = false
     export let onModalClose = (..._: any[]): void => {}
     export let onSuccess = (..._: any[]): void => {}
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
+    export const identity: IdentityJson = undefined
 
     function onCreateIdentitySuccess(identity: IdentityJson): void {
+        console.log('onSuccess Identity:', identity)
         onSuccess(identity)
+        isCreated = true
     }
 </script>
 
@@ -23,4 +29,17 @@
     <ModalBody class="px-4 pb-3" style="overflow-y: hidden">
         <CreateIdentityForm onSuccess={onCreateIdentitySuccess} {identitiesTemplate} />
     </ModalBody>
+    {#if isCreated}
+        <ModalFooter>
+            <a
+                class="d-flex align-items-center justify-content-center mt-4 btn btn-primary btn-block w-100 btn-lg"
+                href={createJsonDataUrl(identity)}
+                role="button"
+                download="identity.json"
+            >
+                <Icon type="download" />
+                <span class="ms-2">Save identity</span>
+            </a>
+        </ModalFooter>
+    {/if}
 </Modal>
