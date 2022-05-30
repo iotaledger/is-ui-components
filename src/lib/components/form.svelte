@@ -69,60 +69,61 @@
 </script>
 
 <form class:was-validated={enableValidation && formValidated} on:submit|preventDefault bind:this={formContainer} novalidate>
-    {#each inputs as input}
-        <FormGroup class="mb-4">
-            <Label class="mb-2">{input?.name}</Label>
-            {#if input?.type === FieldType.MultipleSelector}
-                <Multiselect bind:value={inputFields[input?.id]}>
-                    {#each input?.options as { label, value }}
-                        <option {value}>{label}</option>
-                    {/each}
-                </Multiselect>
-            {:else}
-                <Input
-                    id={`input-${input?.id}`}
-                    class="py-3 ps-3"
-                    placeholder={`${input?.name} ${input?.required ? '*' : ''}`}
-                    type={getHTMLInputType(input?.type)}
-                    bind:value={inputFields[input?.id]}
-                    required={input?.required}
-                    minlength={input?.minLength}
-                    maxlength={input?.maxLength}
-                    on:keydown={input?.onKeyDown}
-                    on:input={(event) => {
-                        if (input?.type === FieldType.StringArray) {
-                            onStringArrayInput(event, input?.id)
-                        }
-                    }}
-                >
-                    {#if input?.type === FieldType.Selector}
-                        {#each input?.options as { value, label }}
+    <div class="overflow-content">
+        {#each inputs as input}
+            <FormGroup class="mb-4">
+                <Label class="mb-2">{input?.name}</Label>
+                {#if input?.type === FieldType.MultipleSelector}
+                    <Multiselect bind:value={inputFields[input?.id]}>
+                        {#each input?.options as { label, value }}
                             <option {value}>{label}</option>
                         {/each}
+                    </Multiselect>
+                {:else}
+                    <Input
+                        id={`input-${input?.id}`}
+                        class="py-3 ps-3"
+                        placeholder={`${input?.name} ${input?.required ? '*' : ''}`}
+                        type={getHTMLInputType(input?.type)}
+                        bind:value={inputFields[input?.id]}
+                        required={input?.required}
+                        minlength={input?.minLength}
+                        maxlength={input?.maxLength}
+                        on:keydown={input?.onKeyDown}
+                        on:input={(event) => {
+                            if (input?.type === FieldType.StringArray) {
+                                onStringArrayInput(event, input?.id)
+                            }
+                        }}
+                    >
+                        {#if input?.type === FieldType.Selector}
+                            {#each input?.options as { value, label }}
+                                <option {value}>{label}</option>
+                            {/each}
+                        {/if}
+                    </Input>
+                    <div class="invalid-feedback">
+                        {#if !inputFields[input?.id]?.length}
+                            This field is required
+                        {:else if input?.maxLength && inputFields[input?.id]?.length > input?.maxLength}
+                            This field must be at most {input?.maxLength} characters long
+                        {:else if input?.minLength && inputFields[input?.id]?.length < input?.minLength}
+                            This field must be at least {input?.minLength} characters long
+                        {:else}
+                            This field is invalid
+                        {/if}
+                    </div>
+                    {#if input?.type === FieldType.StringArray && inputFields[input?.id]?.length > 0}
+                        <Label class="fst-italic text-secondary">
+                            Multiple values ​​can be chosen when separated by <span class="fst-italic fw-bold"
+                                >"{STRING_ARRAY_SEPARATOR}"</span
+                            >
+                        </Label>
                     {/if}
-                </Input>
-                <div class="invalid-feedback">
-                    {#if !inputFields[input?.id]?.length}
-                        This field is required
-                    {:else if input?.maxLength && inputFields[input?.id]?.length > input?.maxLength}
-                        This field must be at most {input?.maxLength} characters long
-                    {:else if input?.minLength && inputFields[input?.id]?.length < input?.minLength}
-                        This field must be at least {input?.minLength} characters long
-                    {:else}
-                        This field is invalid
-                    {/if}
-                </div>
-                {#if input?.type === FieldType.StringArray && inputFields[input?.id]?.length > 0}
-                    <Label class="fst-italic text-secondary">
-                        Multiple values ​​can be chosen when separated by <span class="fst-italic fw-bold"
-                            >"{STRING_ARRAY_SEPARATOR}"</span
-                        >
-                    </Label>
                 {/if}
-            {/if}
-        </FormGroup>
-    {/each}
-
+            </FormGroup>
+        {/each}
+    </div>
     <Button size="lg" color="primary" block class="mt-4" disabled={onSubmitButton?.loading} type="submit"
         ><div class="d-flex justify-content-center align-items-center">
             {onSubmitButton?.loading ? onSubmitButton?.labelWhileLoading : onSubmitButton?.label}
@@ -132,3 +133,10 @@
         </div>
     </Button>
 </form>
+
+<style lang="scss">
+    .overflow-content{
+        max-height: 31vh;
+        overflow-y: scroll;
+    }
+</style>

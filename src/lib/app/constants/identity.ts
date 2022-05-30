@@ -9,7 +9,7 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         fields: [
             {
                 id: 'username',
-                name: 'username',
+                name: 'Username',
                 required: true,
                 type: FieldType.Text,
             },
