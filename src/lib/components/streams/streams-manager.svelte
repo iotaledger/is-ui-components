@@ -36,6 +36,7 @@
     import { Box, ChannelDetails, CreateChannelModal, Icon, ListManager, WriteMessageModal } from '$lib/components'
     import type { ChannelInfo } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
+    import { formatDateAndTime } from '$lib/app/utils'
 
     export let showSearch: boolean = true
     export let listViewButtons: ActionButton[] = [
@@ -95,8 +96,7 @@
                     { value: channel.topics.map((topic) => topic?.type) },
                     { value: channel.topics.map((topic) => topic?.source) },
                     {
-                        value:
-                            channel.created.slice(0, 10).split('-').reverse().join('-') + ` at ` + channel.created.slice(11, 19),
+                        value: formatDateAndTime(channel.created),
                     },
                     {
                         pills:
