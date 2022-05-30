@@ -56,10 +56,12 @@
             color: 'dark',
         },
     ]
-    export let streamsFilter: FilterCheckbox[] = [
+    const streamsFilter: FilterCheckbox[] = [
         {
             label: 'Only own channels',
             onChange: onOnlyOwnChannels,
+            // Get the current filter state from store and set value accordingly
+            value: get(channelFilterOptions).authorFilterState ? get(authenticatedUserDID) : undefined,
         },
     ]
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
@@ -119,11 +121,7 @@
         }),
     } as TableData
 
-    onMount(async () => {
-        // Get the current filter state from store and set value accordingly
-        const { authorFilterState } = get(channelFilterOptions)
-        streamsFilter[0].value = authorFilterState ? get(authenticatedUserDID) : undefined
-
+    onMount(() => {
         const results = get(searchChannelsResults)
         // Fetch data if cached data is empty or user has changed
         if (!results || results?.length === 0 || userChanged()) {

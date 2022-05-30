@@ -54,10 +54,12 @@
             color: 'dark',
         },
     ]
-    export let identityFilter: FilterCheckbox[] = [
+    const identityFilter: FilterCheckbox[] = [
         {
             label: 'Only own identities',
             onChange: onOnlyOwnIdentities,
+            // Get the current filter state from store and set value accordingly
+            value: get(identityFilterOptions).creatorFilterState ? get(authenticatedUserDID) : undefined,
         },
     ]
 
@@ -91,11 +93,7 @@
         })),
     } as TableData
 
-    onMount(async () => {
-        // Get the current filter state from store and set value accordingly
-        const { creatorFilterState } = get(identityFilterOptions)
-        identityFilter[0].value = creatorFilterState ? get(authenticatedUserDID) : undefined
-
+    onMount(() => {
         const results = get(searchIdentitiesResults)
         // Fetch data if cached data is empty or user has changed
         if (!results || results?.length === 0 || userChanged()) {
