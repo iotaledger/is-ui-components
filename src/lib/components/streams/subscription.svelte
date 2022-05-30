@@ -12,7 +12,7 @@
     export let handleRejectSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
 
     let isOpen = false
-    let onModalClose = () => {
+    const onModalClose = () => {
         isOpen = false
     }
 
