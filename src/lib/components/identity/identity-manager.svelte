@@ -23,13 +23,16 @@
         stopIdentitiesSearch,
         updateIdentityInSearchResults,
         identitySearchQuery,
+        previousAuthenticatedIdentityUserDID,
+        creatorFilterState,
     } from '$lib/app/identity'
     import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
-    import type { ActionButton } from '$lib/app/types/layout'
+    import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, ListManager } from '$lib/components'
     import type { IdentityJson } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
+    import { authenticatedUserDID } from '../../app/base'
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
     export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
@@ -51,6 +54,14 @@
             color: 'dark',
         },
     ]
+    $: identityFilter = [
+        {
+            label: 'Only own identities',
+            onChange: onOnlyOwnIdentities,
+            // Get the current filter state from store
+            state: $creatorFilterState,
+        },
+    ] as FilterCheckbox[]
 
     enum State {
         ListIdentities = 'listIdentities',
@@ -82,10 +93,13 @@
         })),
     } as TableData
 
-    onMount(async () => {
+    onMount(() => {
         const results = get(searchIdentitiesResults)
-        if (!results || results?.length === 0) {
-            searchAllIdentities('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+        // Fetch data if cached data is empty or user has changed
+        if (!results || results?.length === 0 || userChanged()) {
+            searchAllIdentities('', getSearchOptions(true))
+            // Used for determining if user has changed from previous onMount() call
+            previousAuthenticatedIdentityUserDID.set(get(authenticatedUserDID))
         }
     })
 
@@ -95,7 +109,20 @@
 
     async function onSearch(): Promise<void> {
         selectedIdentityPageIndex.set(1) // reset index
-        await searchAllIdentities(get(identitySearchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+        await searchAllIdentities(get(identitySearchQuery), getSearchOptions())
+    }
+
+    function getSearchOptions(firstLoad = false): { limit: number; creator: string } {
+        const creator = get(creatorFilterState) ? get(authenticatedUserDID) : undefined
+        const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
+        return { limit, creator }
+    }
+
+    /**
+     * Check if the cached userDID (set in onMount()) is the same as the current userDID
+     */
+    function userChanged(): boolean {
+        return get(previousAuthenticatedIdentityUserDID) !== get(authenticatedUserDID)
     }
 
     function onPageChange(page) {
@@ -171,6 +198,12 @@
         loading = false
     }
 
+    function onOnlyOwnIdentities(): void {
+        // Toggle authorFilterState
+        creatorFilterState.set(!get(creatorFilterState))
+        onSearch()
+    }
+
     function openCreateIdentityModal(): void {
         isCreateIdentityModalOpen = true
     }
@@ -203,6 +236,7 @@
             searchPlaceholder="Search identities"
             loading={loading || $isAsyncLoadingIdentities}
             actionButtons={listViewButtons}
+            filters={identityFilter}
             bind:searchQuery={$identitySearchQuery}
         />
     {:else if state === State.IdentityDetail}

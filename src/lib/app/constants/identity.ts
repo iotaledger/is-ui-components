@@ -338,3 +338,5 @@ export const CREDENTIAL_ICON = {
     icon: 'credential',
     boxColor: BoxColor.Purple,
 }
+
+export const DEFAULT_CREATOR_FILTER_STATE = true

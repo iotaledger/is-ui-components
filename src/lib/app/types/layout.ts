@@ -15,3 +15,10 @@ export type ActionButton = {
     disabled?: boolean
     loading?: boolean
 }
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export type FilterCheckbox = {
+    label: string
+    onChange: (..._: any[]) => void
+    state: boolean
+}
