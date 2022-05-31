@@ -180,9 +180,8 @@ $ npm i @iota/is-ui-components
 2. Create a `.env` in the root of the projects and add the corresponding necessary configuration:
 
 ```bash
-VITE_IOTA_IS_SDK_API_KEY="XXXXXXXXXX"
-# Use VITE_IOTA_IS_SDK_GATEWAY_URL for a single gateway url
-VITE_IOTA_IS_SDK_GATEWAY_URL="XXXXXXXXXX"
+IOTA_IS_SDK_API_KEY=7D1BF111-D7E0-452F-895D-05DD5ADB37C6
+IOTA_IS_SDK_GATEWAY_URL=http://0.0.0.0:3000
 ```
 
 If you dont add this file the IOTA IS SDK will use the default values
