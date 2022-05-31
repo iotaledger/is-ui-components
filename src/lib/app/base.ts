@@ -1,15 +1,20 @@
-import type { ClientConfig } from '@iota/is-client'
-import { ApiVersion, ChannelClient, IdentityClient } from '@iota/is-client'
+import { ChannelClient, IdentityClient } from '@iota/is-client'
 import { derived, get } from 'svelte/store'
 import { logout } from './identity'
 import { showNotification } from './notification'
 import { NotificationType } from './types'
 import { persistent } from './utils'
+import { ApiVersion } from '@iota/is-client'
+import type { ClientConfig } from '@iota/is-client'
 
 const config: ClientConfig = {
-    apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
-    isGatewayUrl: import.meta.env.VITE_IOTA_IS_SDK_GATEWAY_URL as string,
+    apiKey: process.env.IOTA_IS_SDK_API_KEY as string,
+    isGatewayUrl: process.env.IOTA_IS_SDK_GATEWAY_URL as string,
     apiVersion: ApiVersion.v01,
+}
+
+if (!config.apiKey || !config.isGatewayUrl) {
+    throw Error('No integration service urls are configured. Please define a IOTA_IS_SDK_API_KEY and IOTA_IS_SDK_GATEWAY_URL.')
 }
 
 export const identityClient = new IdentityClient(config)
