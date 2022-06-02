@@ -5,6 +5,7 @@ import { logout } from './identity'
 import { showNotification } from './notification'
 import { NotificationType } from './types'
 import { persistent } from './utils'
+import type { UserRoles } from '@iota/is-shared-modules/lib/models/types/user'
 
 const config: ClientConfig = {
     apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
@@ -21,10 +22,22 @@ export const authenticatedUserDID = derived(authenticationData, ($authData) => $
 
 export const isAuthenticated = derived(authenticationData, ($authenticationData) => !!$authenticationData?.jwt)
 
+export const authenticatedUserRole = derived(authenticationData, ($authenticationData) => getUserRole($authenticationData?.jwt))
+
 authenticationData?.subscribe(($authenticationData) => {
     identityClient.jwtToken = $authenticationData?.jwt
     channelClient.jwtToken = $authenticationData?.jwt
 })
+
+function getUserRole(jwtToken: string): UserRoles {
+    const payload = JSON.parse(window?.atob(jwtToken?.split('.')?.[1])).user as {
+        id: string
+        publicKey: string
+        role: UserRoles
+        username: string
+    }
+    return payload.role
+}
 
 export const isJwtExpired = (token: string): boolean => {
     try {
