@@ -30,13 +30,15 @@ authenticationData?.subscribe(($authenticationData) => {
 })
 
 function getUserRole(jwtToken: string): UserRoles {
-    const payload = JSON.parse(window?.atob(jwtToken?.split('.')?.[1])).user as {
-        id: string
-        publicKey: string
-        role: UserRoles
-        username: string
+    if (typeof window !== 'undefined') {
+        const payload = JSON.parse(window?.atob(jwtToken?.split('.')?.[1])).user as {
+            id: string
+            publicKey: string
+            role: UserRoles
+            username: string
+        }
+        return payload.role
     }
-    return payload.role
 }
 
 export const isJwtExpired = (token: string): boolean => {
