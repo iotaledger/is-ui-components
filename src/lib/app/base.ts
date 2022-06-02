@@ -5,7 +5,7 @@ import { logout } from './identity'
 import { showNotification } from './notification'
 import { NotificationType } from './types'
 import { persistent } from './utils'
-import type { UserRoles } from '@iota/is-shared-modules/lib/models/types/user'
+import type { UserRoles } from '@iota/is-shared-modules/lib/models/types/user.js'
 
 const config: ClientConfig = {
     apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,

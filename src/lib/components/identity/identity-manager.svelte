@@ -33,7 +33,7 @@
     import type { IdentityJson } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
     import { authenticatedUserDID, authenticatedUserRole } from '../../app/base'
-    import { UserRoles } from '@iota/is-shared-modules/lib/models/types/user'
+    import { UserRoles } from '@iota/is-shared-modules/lib/models/types/user.js'
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
     export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
