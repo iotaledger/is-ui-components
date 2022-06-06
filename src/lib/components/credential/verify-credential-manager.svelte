@@ -110,7 +110,7 @@
         <h1 class="mt-3 mb-4">Verify a credential</h1>
     </div>
     <div class="w-100 mb-2">
-        <Dropzone on:drop={handleFilesSelect}><p>Upload JSON files or drag and drop</p></Dropzone>
+        <Dropzone on:drop={handleFilesSelect} accept="application/json"><p>Upload JSON files or drag and drop</p></Dropzone>
         {#if errorMessage}
             <p class="text-danger">{errorMessage}</p>
         {/if}
