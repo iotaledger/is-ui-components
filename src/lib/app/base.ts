@@ -4,7 +4,7 @@ import { derived, get } from 'svelte/store'
 import { logout } from './identity'
 import { showNotification } from './notification'
 import { NotificationType } from './types'
-import { persistent } from './utils'
+import { persistent } from './stores'
 
 const config: ClientConfig = {
     apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,

@@ -1,7 +1,3 @@
-import { browser } from '$app/env'
-import type { Writable } from 'svelte/store'
-import { writable } from 'svelte/store'
-
 function toUTF8Array(str) {
     const utf8 = []
     for (let i = 0; i < str.length; i++) {
@@ -66,36 +62,6 @@ export const syntaxHighlight = (json: string): string => {
                 return `<span class="${cls}">${match}</span>`
             }
         )
-}
-
-/**
- * Persist a writable Svelte store to local storage
- */
-export const persistent = <T>(key: string, initialValue: T): Writable<T> => {
-    if (browser) {
-        let value = initialValue
-
-        try {
-            const json = localStorage.getItem(key)
-            if (json) {
-                value = JSON.parse(json)
-            }
-        } catch (err) {
-            console.error(err)
-        }
-
-        const state = writable(value)
-
-        state.subscribe(($value): void => {
-            if ($value === undefined || $value === null) {
-                localStorage.removeItem(key)
-            } else {
-                localStorage.setItem(key, JSON.stringify($value))
-            }
-        })
-
-        return state
-    }
 }
 
 export function isJson(str: string): boolean {

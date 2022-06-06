@@ -6,8 +6,7 @@ import type {
     Subscription,
 } from '@iota/is-client'
 import { AccessRights, type ChannelInfo } from '@iota/is-client'
-import type { Writable } from 'svelte/store'
-import { get, writable } from 'svelte/store'
+import { get } from 'svelte/store'
 import { authenticationData, channelClient, isAuthenticated } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
 import { DEFAULT_AUTHOR_FILTER_STATE, FEED_INTERVAL_MS } from './constants/streams'
@@ -15,24 +14,40 @@ import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
 import { SubscriptionState } from './types/streams'
 import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
+import type { Reset } from './types/stores'
+import { reset } from './stores'
 
-export const selectedChannelPageIndex: Writable<number> = writable(1)
-export const channelSearchQuery: Writable<string> = writable('')
-export const authorFilterState: Writable<boolean> = writable(DEFAULT_AUTHOR_FILTER_STATE)
-export const previousAuthenticatedStreamsUserDID: Writable<string> = writable(undefined)
-export const selectedChannel: Writable<ChannelInfo> = writable(null)
-export const searchChannelsResults: Writable<ChannelInfo[]> = writable([])
-export const selectedChannelData: Writable<ChannelData[]> = writable([])
-export const selectedChannelBusy = writable(false)
-export const selectedChannelSubscriptions: Writable<Subscription[]> = writable(null)
+export const selectedChannelPageIndex: Reset<number> = reset(1)
+export const channelSearchQuery: Reset<string> = reset('')
+export const authorFilterState: Reset<boolean> = reset(DEFAULT_AUTHOR_FILTER_STATE)
+export const selectedChannel: Reset<ChannelInfo> = reset(null)
+export const searchChannelsResults: Reset<ChannelInfo[]> = reset([])
+export const selectedChannelData: Reset<ChannelData[]> = reset([])
+export const selectedChannelBusy: Reset<boolean> = reset(false)
+export const selectedChannelSubscriptions: Reset<Subscription[]> = reset(null)
 // used for the async search that makes N background queries to get the full list of channels
-export const isAsyncLoadingChannels: Writable<boolean> = writable(false)
+export const isAsyncLoadingChannels: Reset<boolean> = reset(false)
 
 let haltSearchAll = false
 // used to keep track of the last search query
 let searchAllHash: string
 
 let channelFeedInterval
+
+/**
+ * Resets the state in stores to their default values
+ */
+ export function resetStreamsState(): void {
+    selectedChannelPageIndex.reset()
+    channelSearchQuery.reset()
+    authorFilterState.reset()
+    selectedChannel.reset()
+    searchChannelsResults.reset()
+    selectedChannelData.reset()
+    selectedChannelBusy.reset()
+    selectedChannelSubscriptions.reset()
+    isAsyncLoadingChannels.reset()
+}
 
 // Note: this is an async function that returns nothing, but fills the searchChannelsResults store.
 // This is because the searchAllChannels function is called in the background, and the results are
