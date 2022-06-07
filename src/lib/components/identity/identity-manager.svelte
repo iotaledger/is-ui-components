@@ -137,7 +137,7 @@
             searchByType: _isType(get(identitySearchQuery)),
             searchByUsername: !_isType(get(identitySearchQuery)),
             limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-            index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+            index: Math.ceil(entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT),
         })
         searchIdentitiesResults.update((results) => [...results, ...newIdentities])
     }
