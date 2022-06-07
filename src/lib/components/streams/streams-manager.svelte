@@ -38,6 +38,7 @@
     import { Box, ChannelDetails, CreateChannelModal, Icon, ListManager, WriteMessageModal } from '$lib/components'
     import type { ChannelInfo } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
+    import { formatDateAndTime } from '$lib/app/utils'
 
     export let showSearch: boolean = true
     export let listViewButtons: ActionButton[] = [
@@ -104,7 +105,9 @@
                     { value: channel.channelAddress },
                     { value: channel.topics.map((topic) => topic?.type) },
                     { value: channel.topics.map((topic) => topic?.source) },
-                    { value: channel.created },
+                    {
+                        value: formatDateAndTime(channel.created),
+                    },
                     {
                         pills:
                             isUserOwner || isUserSubscribed

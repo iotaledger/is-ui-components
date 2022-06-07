@@ -33,6 +33,7 @@
     import type { IdentityJson } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
     import { authenticatedUserDID } from '../../app/base'
+    import { formatDate } from '$lib/app/utils'
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
     export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
@@ -87,7 +88,7 @@
                     value: identity?.username,
                 },
                 { value: identity?.claim?.type },
-                { value: identity?.registrationDate },
+                { value: formatDate(identity?.registrationDate) },
                 { value: identity?.numberOfCredentials ?? 0 },
             ],
         })),
