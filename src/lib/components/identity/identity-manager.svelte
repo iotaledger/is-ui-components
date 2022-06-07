@@ -33,6 +33,8 @@
     import type { IdentityJson } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
     import { authenticatedUserDID, authenticatedUserRole } from '../../app/base'
+    import { formatDate } from '$lib/app/utils'
+
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
     export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
@@ -88,7 +90,7 @@
                     value: identity?.username,
                 },
                 { value: identity?.claim?.type },
-                { value: identity?.registrationDate },
+                { value: formatDate(identity?.registrationDate) },
                 { value: identity?.numberOfCredentials ?? 0 },
             ],
         })),
@@ -138,7 +140,7 @@
             searchByType: _isType(get(identitySearchQuery)),
             searchByUsername: !_isType(get(identitySearchQuery)),
             limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-            index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+            index: Math.ceil(entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT),
         })
         searchIdentitiesResults.update((results) => [...results, ...newIdentities])
     }
