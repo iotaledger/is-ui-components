@@ -9,7 +9,7 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         fields: [
             {
                 id: 'username',
-                name: 'username',
+                name: 'Username',
                 required: true,
                 type: FieldType.Text,
             },
@@ -338,3 +338,5 @@ export const CREDENTIAL_ICON = {
     icon: 'credential',
     boxColor: BoxColor.Purple,
 }
+
+export const DEFAULT_CREATOR_FILTER_STATE = true
