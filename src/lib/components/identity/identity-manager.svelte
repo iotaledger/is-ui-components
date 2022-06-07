@@ -26,7 +26,7 @@
         previousAuthenticatedIdentityUserDID,
         creatorFilterState,
     } from '$lib/app/identity'
-    import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
+    import { UserRoles, type ExtendedUser, type IdentityTemplate, type VerifiableCredentialTemplate } from '$lib/app/types/identity'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, ListManager } from '$lib/components'
@@ -52,7 +52,7 @@
             onClick: openCreateCredentialModal,
             icon: 'plus',
             color: 'dark',
-            hidden: $authenticatedUserRole !== 'Admin',
+            hidden: $authenticatedUserRole !== UserRoles.Admin,
         },
     ]
     $: identityFilter = [

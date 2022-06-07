@@ -3,14 +3,8 @@ import { ApiVersion, ChannelClient, IdentityClient } from '@iota/is-client'
 import { derived, get } from 'svelte/store'
 import { logout } from './identity'
 import { showNotification } from './notification'
-import { NotificationType } from './types'
+import { NotificationType, type JwtUser } from './types'
 import { persistent } from './utils'
-
-enum UserRoles {
-    Admin = 'Admin',
-    Manager = 'Manager',
-    User = 'User',
-}
 
 const config: ClientConfig = {
     apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
@@ -36,12 +30,7 @@ authenticationData?.subscribe(($authenticationData) => {
 
 function getUserRole(jwtToken: string): UserRoles {
     if (typeof window !== 'undefined') {
-        const payload = JSON.parse(window?.atob(jwtToken?.split('.')?.[1])).user as {
-            id: string
-            publicKey: string
-            role: UserRoles
-            username: string
-        }
+        const payload: JwtUser = JSON.parse(window?.atob(jwtToken?.split('.')?.[1])).user
         return payload.role
     }
 }
