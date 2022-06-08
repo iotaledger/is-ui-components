@@ -5,28 +5,27 @@ import type {
     RequestSubscriptionResponse,
     Subscription,
 } from '@iota/is-client'
-import { AccessRights, type ChannelInfo } from '@iota/is-client'
-import { get } from 'svelte/store'
+import { AccessRights } from '@iota/is-client'
+import type { ChannelInfo } from '@iota/is-client'
+import type { Writable } from 'svelte/store'
+import { get, writable } from 'svelte/store'
 import { authenticationData, channelClient, isAuthenticated } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
-import { DEFAULT_AUTHOR_FILTER_STATE, FEED_INTERVAL_MS } from './constants/streams'
+import { FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
 import { SubscriptionState } from './types/streams'
 import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
-import type { Reset } from './types/stores'
-import { reset } from './stores'
 
-export const selectedChannelPageIndex: Reset<number> = reset(1)
-export const channelSearchQuery: Reset<string> = reset('')
-export const authorFilterState: Reset<boolean> = reset(DEFAULT_AUTHOR_FILTER_STATE)
-export const selectedChannel: Reset<ChannelInfo> = reset(null)
-export const searchChannelsResults: Reset<ChannelInfo[]> = reset([])
-export const selectedChannelData: Reset<ChannelData[]> = reset([])
-export const selectedChannelBusy: Reset<boolean> = reset(false)
-export const selectedChannelSubscriptions: Reset<Subscription[]> = reset(null)
+export const selectedChannelPageIndex: Writable<number> = writable(1)
+export const channelSearchQuery: Writable<string> = writable('')
+export const selectedChannel: Writable<ChannelInfo> = writable(null)
+export const searchChannelsResults: Writable<ChannelInfo[]> = writable([])
+export const selectedChannelData: Writable<ChannelData[]> = writable([])
+export const selectedChannelBusy = writable(false)
+export const selectedChannelSubscriptions: Writable<Subscription[]> = writable(null)
 // used for the async search that makes N background queries to get the full list of channels
-export const isAsyncLoadingChannels: Reset<boolean> = reset(false)
+export const isAsyncLoadingChannels: Writable<boolean> = writable(false)
 
 let haltSearchAll = false
 // used to keep track of the last search query
@@ -34,37 +33,17 @@ let searchAllHash: string
 
 let channelFeedInterval
 
-/**
- * Resets the state in stores to their default values
- */
-export function resetStreamsState(): void {
-    selectedChannelPageIndex.reset()
-    channelSearchQuery.reset()
-    authorFilterState.reset()
-    selectedChannel.reset()
-    searchChannelsResults.reset()
-    selectedChannelData.reset()
-    selectedChannelBusy.reset()
-    selectedChannelSubscriptions.reset()
-    isAsyncLoadingChannels.reset()
-}
-
 // Note: this is an async function that returns nothing, but fills the searchChannelsResults store.
 // This is because the searchAllChannels function is called in the background, and the results are
 // stored in the searchChannelsResults store.
 // TODO: Improve search algorithm, now it is searching only by author id or topic type
 let index = 0
-export async function searchAllChannels(query: string, options?: { limit?: number; authorId?: string }): Promise<void> {
-    const _search = async (
-        _searchAllHash: string,
-        query: string,
-        options?: { limit?: number; authorId?: string }
-    ): Promise<void> => {
+export async function searchAllChannels(query: string, options?: { limit?: number }): Promise<void> {
+    const _search = async (_searchAllHash: string, query: string, options?: { limit?: number }): Promise<void> => {
         const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:')
         const newResults: ChannelInfo[] = await searchChannelsSingleRequest(query, {
             searchByAuthorId: _isAuthorId(query),
             searchBySource: !_isAuthorId(query),
-            authorId: options?.authorId,
             limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
             index,
         })
@@ -97,15 +76,14 @@ export async function searchAllChannels(query: string, options?: { limit?: numbe
 
 export async function searchChannelsSingleRequest(
     query: string,
-    options: { searchByAuthorId?: boolean; searchBySource?: boolean; authorId?: string; limit: number; index?: number }
+    options: { searchByAuthorId?: boolean; searchBySource?: boolean; limit: number; index?: number }
 ): Promise<ChannelInfo[]> {
     let partialResults = []
     if (get(isAuthenticated)) {
-        const { searchByAuthorId, searchBySource, authorId, limit, index } = options
-        const authorIdQuery = searchByAuthorId ? query : undefined
+        const { searchByAuthorId, searchBySource, limit, index } = options
         try {
             partialResults = await channelClient.search({
-                authorId: authorId ? authorId : authorIdQuery, // If set, authorId overrides searchByAuthorId
+                authorId: searchByAuthorId ? query : undefined,
                 topicSource: searchBySource ? query : undefined,
                 limit: limit,
                 index: index,
@@ -404,12 +382,12 @@ export async function createChannel(
             })
             return channel
         } catch (e) {
-            if (e?.message?.includes('409')) {
+            if(e?.message?.includes('409')){
                 showNotification({
                     type: NotificationType.Error,
                     message: 'The channel already exists.',
                 })
-            } else {
+            }else{
                 showNotification({
                     type: NotificationType.Error,
                     message: 'There was an error creating the channel',

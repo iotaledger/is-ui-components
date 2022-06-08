@@ -1,6 +1,5 @@
 <script lang="ts">
     import { CREDENTIAL_ICON } from '$lib/app/constants/identity'
-    import { UserRoles } from '$lib/app/types/identity'
     import { createJsonDataUrl } from '$lib/app/utils'
     import { Icon, JSONViewer } from '$lib/components'
     import type { VerifiableCredentialInternal } from '@iota/is-client'
@@ -9,7 +8,6 @@
     import Modal from 'sveltestrap/src/Modal.svelte'
 
     export let vc: VerifiableCredentialInternal
-    export let userRole: UserRoles
     export let revoking: boolean = false
     export let onRevoke = (..._: any[]): void => {}
 
@@ -59,50 +57,48 @@
                             <Icon type="download" size={16} />
                             <span class="ms-2">Download</span>
                         </a>
-                        {#if userRole === UserRoles.Admin}
-                            <Button
-                                size="sm"
-                                block
-                                outline
-                                color="danger"
-                                disabled={revoking}
-                                class=" mt-lg-2 "
-                                on:click={onModalClose}
-                            >
-                                <div class="d-flex align-items-center justify-content-center">
-                                    {#if !revoking}
-                                        <Icon type="trash" size={16} />
-                                    {/if}
-                                    <span class="ms-2">{revoking ? 'Revoking...' : 'Revoke'}</span>
+                        <Button
+                            size="sm"
+                            block
+                            outline
+                            color="danger"
+                            disabled={revoking}
+                            class=" mt-lg-2 "
+                            on:click={onModalClose}
+                        >
+                            <div class="d-flex align-items-center justify-content-center">
+                                {#if !revoking}
+                                    <Icon type="trash" size={16} />
+                                {/if}
+                                <span class="ms-2">{revoking ? 'Revoking...' : 'Revoke'}</span>
 
-                                    <Modal {isOpen} toggle={onModalClose}>
-                                        <div class="p-3 d-flex flex-column">
-                                            <ModalHeader toggle={onModalClose}>Are you sure?</ModalHeader>
-                                            <ModalBody>
-                                                <div class="text-break">
-                                                    Credential with ID <span class="fw-light">{vc?.id}</span> is going to be revoked.
-                                                </div>
-                                            </ModalBody>
-                                            <ModalFooter>
-                                                <Button
-                                                    color="danger"
-                                                    on:click={() => {
-                                                        onRevoke(vc)
-                                                    }}
-                                                    >{#if revoking}
-                                                        <span>Revoking...</span>
-                                                        <Spinner size="sm" type="border" color="light" class="ms-1" />
-                                                    {:else}
-                                                        Yes, revoke
-                                                    {/if}</Button
-                                                >
-                                                <Button color="secondary" on:click={onModalClose}>Cancel</Button>
-                                            </ModalFooter>
-                                        </div>
-                                    </Modal>
-                                </div>
-                            </Button>
-                        {/if}
+                                <Modal {isOpen} toggle={onModalClose}>
+                                    <div class="p-3 d-flex flex-column">
+                                        <ModalHeader toggle={onModalClose}>Are you sure?</ModalHeader>
+                                        <ModalBody>
+                                            <div class="text-break">
+                                                Credential with ID <span class="fw-light">{vc?.id}</span> is going to be revoked.
+                                            </div>
+                                        </ModalBody>
+                                        <ModalFooter>
+                                            <Button
+                                                color="danger"
+                                                on:click={() => {
+                                                    onRevoke(vc)
+                                                }}
+                                                >{#if revoking}
+                                                    <span>Revoking...</span>
+                                                    <Spinner size="sm" type="border" color="light" class="ms-1" />
+                                                {:else}
+                                                    Yes, revoke
+                                                {/if}</Button
+                                            >
+                                            <Button color="secondary" on:click={onModalClose}>Cancel</Button>
+                                        </ModalFooter>
+                                    </div>
+                                </Modal>
+                            </div>
+                        </Button>
                     </div>
                 </div>
             </div>

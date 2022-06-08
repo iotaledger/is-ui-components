@@ -98,17 +98,3 @@ export type VerifiableCredentialTemplate = {
     credentialType: CredentialTypes
     userType: UserType
 }
-
-// TODO: Replace with shared-modules enum when when shared-modules are working
-export enum UserRoles {
-    Admin = 'Admin',
-    Manager = 'Manager',
-    User = 'User',
-}
-
-export type JwtUser = {
-    id: string
-    publicKey: string
-    role: UserRoles
-    username: string
-}
