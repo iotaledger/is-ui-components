@@ -2,9 +2,10 @@ import { ChannelClient, IdentityClient } from '@iota/is-client'
 import { derived, get } from 'svelte/store'
 import { logout } from './identity'
 import { showNotification } from './notification'
-import { NotificationType, UserRoles } from './types'
-import type { JwtUser } from './types'
-import { persistent } from './stores'
+import { NotificationType } from './types'
+import { persistent } from './utils'
+import { ApiVersion } from '@iota/is-client'
+import type { ClientConfig } from '@iota/is-client'
 
 const config: ClientConfig = {
     apiKey: process.env.IOTA_IS_SDK_API_KEY as string,
