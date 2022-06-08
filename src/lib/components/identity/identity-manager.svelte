@@ -25,13 +25,15 @@
         identitySearchQuery,
         creatorFilterState,
     } from '$lib/app/identity'
-    import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
+    import { UserRoles, type ExtendedUser, type IdentityTemplate, type VerifiableCredentialTemplate } from '$lib/app/types/identity'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, ListManager } from '$lib/components'
     import type { IdentityJson } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
-    import { authenticatedUserDID } from '../../app/base'
+    import { authenticatedUserDID, authenticatedUserRole } from '../../app/base'
+    import { formatDate } from '$lib/app/utils'
+
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
     export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
@@ -51,6 +53,7 @@
             onClick: openCreateCredentialModal,
             icon: 'plus',
             color: 'dark',
+            hidden: $authenticatedUserRole !== UserRoles.Admin,
         },
     ]
     $: identityFilter = [
@@ -86,7 +89,7 @@
                     value: identity?.username,
                 },
                 { value: identity?.claim?.type },
-                { value: identity?.registrationDate },
+                { value: formatDate(identity?.registrationDate) },
                 { value: identity?.numberOfCredentials ?? 0 },
             ],
         })),
@@ -127,7 +130,7 @@
             searchByType: _isType(get(identitySearchQuery)),
             searchByUsername: !_isType(get(identitySearchQuery)),
             limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-            index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+            index: Math.ceil(entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT),
         })
         searchIdentitiesResults.update((results) => [...results, ...newIdentities])
     }

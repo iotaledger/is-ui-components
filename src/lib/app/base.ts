@@ -3,8 +3,8 @@ import { ApiVersion, ChannelClient, IdentityClient } from '@iota/is-client'
 import { derived, get } from 'svelte/store'
 import { logout } from './identity'
 import { showNotification } from './notification'
-import { NotificationType } from './types'
-import { persistent } from './stores'
+import { NotificationType, type JwtUser } from './types'
+import { persistent } from './utils'
 
 const config: ClientConfig = {
     apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
@@ -21,10 +21,19 @@ export const authenticatedUserDID = derived(authenticationData, ($authData) => $
 
 export const isAuthenticated = derived(authenticationData, ($authenticationData) => !!$authenticationData?.jwt)
 
+export const authenticatedUserRole = derived(authenticationData, ($authenticationData) => getUserRole($authenticationData?.jwt))
+
 authenticationData?.subscribe(($authenticationData) => {
     identityClient.jwtToken = $authenticationData?.jwt
     channelClient.jwtToken = $authenticationData?.jwt
 })
+
+function getUserRole(jwtToken: string): UserRoles {
+    if (typeof window !== 'undefined') {
+        const payload: JwtUser = JSON.parse(window?.atob(jwtToken?.split('.')?.[1])).user
+        return payload.role
+    }
+}
 
 export const isJwtExpired = (token: string): boolean => {
     try {

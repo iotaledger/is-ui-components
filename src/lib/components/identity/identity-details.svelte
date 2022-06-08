@@ -3,7 +3,7 @@
     import { getVerifiableCredentials, revokeVC } from '$lib/app/identity'
     import type { ExtendedUser } from '$lib/app/types/identity'
     import type { ActionButton } from '$lib/app/types/layout'
-    import { createJsonDataUrl } from '$lib/app/utils'
+    import { createJsonDataUrl, formatDate } from '$lib/app/utils'
     import { Credential, Icon, JSONViewer } from '$lib/components'
     import type { VerifiableCredentialInternal } from '@iota/is-client'
     import { Accordion, AccordionItem, Button, Spinner } from 'sveltestrap'
@@ -48,7 +48,7 @@
         <div class="d-xl-flex align-items-center justify-content-between">
             <div class="ms-12 me-12">
                 <div class="text-secondary text-break">
-                    <span class="fw-bold">Date: </span><span class="text-break ">{identity?.registrationDate}</span>
+                    <span class="fw-bold">Date: </span><span class="text-break ">{formatDate(identity?.registrationDate)}</span>
                 </div>
                 <div class="text-secondary">
                     <span class="fw-bold">Public Key: </span><span class="text-break ">{identity?.publicKey}</span>
@@ -59,25 +59,27 @@
             </div>
             <div class="d-flex flex-column align-items-start">
                 {#if actionButtons}
-                    {#each actionButtons as { label, onClick, icon, color, loading, disabled }}
-                        <Button
-                            size="sm"
-                            outline
-                            color={color ?? 'dark'}
-                            on:click={onClick}
-                            {disabled}
-                            class="d-flex align-items-center mt-3"
-                        >
-                            {#if icon}
-                                <div class="me-1">
-                                    <Icon type={icon} size={16} />
-                                </div>
-                            {/if}
-                            <span class="ms-1">{label}</span>
-                            {#if loading}
-                                <div class="ms-2 flex align-items-center"><Spinner size="sm" type="border" /></div>
-                            {/if}
-                        </Button>
+                    {#each actionButtons as { label, onClick, icon, color, loading, disabled, hidden }}
+                        {#if !hidden}
+                            <Button
+                                size="sm"
+                                outline
+                                color={color ?? 'dark'}
+                                on:click={onClick}
+                                {disabled}
+                                class="d-flex align-items-center mt-3"
+                            >
+                                {#if icon}
+                                    <div class="me-1">
+                                        <Icon type={icon} size={16} />
+                                    </div>
+                                {/if}
+                                <span class="ms-1">{label}</span>
+                                {#if loading}
+                                    <div class="ms-2 flex align-items-center"><Spinner size="sm" type="border" /></div>
+                                {/if}
+                            </Button>
+                        {/if}
                     {/each}
                 {/if}
             </div>

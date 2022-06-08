@@ -14,6 +14,7 @@ export type ActionButton = {
     color?: Color
     disabled?: boolean
     loading?: boolean
+    hidden?: boolean
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
