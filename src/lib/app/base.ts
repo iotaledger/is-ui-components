@@ -6,15 +6,21 @@ import { showNotification } from './notification'
 import { NotificationType, UserRoles } from './types'
 import type { JwtUser } from './types'
 import { persistent } from './stores'
+import { settingsStore } from './settings'
 
-const config: ClientConfig = {
-    apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
-    isGatewayUrl: import.meta.env.VITE_IOTA_IS_SDK_GATEWAY_URL as string,
-    apiVersion: ApiVersion.v01,
-}
+export let identityClient: IdentityClient = undefined
+export let channelClient: ChannelClient = undefined
 
-export const identityClient = new IdentityClient(config)
-export const channelClient = new ChannelClient(config)
+settingsStore?.subscribe(($settings) => {
+    const config: ClientConfig = {
+        apiKey: $settings.isApiKey,
+        isGatewayUrl: $settings.isGatewayUrl,
+        apiVersion: ApiVersion.v01,
+    }
+    console.log(config)
+    identityClient = new IdentityClient(config)
+    channelClient = new ChannelClient(config)
+})
 
 export const authenticationData = persistent<{ jwt: string; did: string }>('authentication-data', null)
 

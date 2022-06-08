@@ -1,13 +1,29 @@
-<script context="module" lang="ts">
+<script lang="ts" context="module">
+    import { settingsStore } from '$lib/app/settings'
+    export async function load({ fetch }) {
+        const url = '/settings.json'
+        const res = await fetch(url)
+        if (res.ok) {
+            const settings = await res.json()
+            settingsStore.set(settings)
+            return {
+                status: res.status,
+            }
+        }
+        return {
+            status: res.status,
+            error: new Error('Could not load the settings.'),
+        }
+    }
+</script>
+
+<script lang="ts">
     export const SITE_PAGES = [
         { title: 'Identity Manager', url: '/identity-manager' },
         { title: 'Streams Manager', url: '/streams-manager' },
         { title: 'Channel History', url: '/history' },
         { title: 'Verify Credential', url: '/verify-credential' },
     ]
-</script>
-
-<script lang="ts">
     import { startPollExpirationCheckJWT, stopPollExpirationCheckJWT } from '$lib/app/base'
     import { Icon, NotificationManager } from '$lib/components'
     import '$lib/scss/index.scss'
