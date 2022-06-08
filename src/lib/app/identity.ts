@@ -6,27 +6,40 @@ import type {
     VerifiableCredentialJson,
 } from '@iota/is-client'
 import { UserType } from '@iota/is-client'
-import type { Writable } from 'svelte/store'
-import { get, writable } from 'svelte/store'
+import { get } from 'svelte/store'
 import { authenticationData, channelClient, identityClient, isAuthenticated } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
 import { DEFAULT_CREATOR_FILTER_STATE } from './constants/identity'
 import { showNotification } from './notification'
+import { reset } from './stores'
+import { resetStreamsState } from './streams'
 import type { ExtendedUser } from './types/identity'
 import { NotificationType } from './types/notification'
+import type { Reset } from './types/stores'
 
-export const selectedIdentityPageIndex: Writable<number> = writable(1)
-export const identitySearchQuery: Writable<string> = writable('')
-export const creatorFilterState: Writable<boolean> = writable(DEFAULT_CREATOR_FILTER_STATE)
-export const previousAuthenticatedIdentityUserDID: Writable<string> = writable(undefined)
-export const searchIdentitiesResults: Writable<ExtendedUser[]> = writable([])
-export const selectedIdentity: Writable<ExtendedUser> = writable(null)
+export const selectedIdentityPageIndex: Reset<number> = reset(1)
+export const identitySearchQuery: Reset<string> = reset('')
+export const creatorFilterState: Reset<boolean> = reset(DEFAULT_CREATOR_FILTER_STATE)
+export const searchIdentitiesResults: Reset<ExtendedUser[]> = reset([])
+export const selectedIdentity: Reset<ExtendedUser> = reset(null)
 // used for the async search that makes N background queries to get the full list of identities
-export const isAsyncLoadingIdentities: Writable<boolean> = writable(false)
+export const isAsyncLoadingIdentities: Reset<boolean> = reset(false)
 
 let haltSearchAll = false
 // used to keep track of the last search query
 let searchAllHash: string
+
+/**
+ * Resets the state in stores to their default values
+ */
+function resetIdentityState(): void {
+    selectedIdentityPageIndex.reset()
+    identitySearchQuery.reset()
+    creatorFilterState.reset()
+    searchIdentitiesResults.reset()
+    selectedIdentity.reset()
+    isAsyncLoadingIdentities.reset()
+}
 
 /**
  * Authenticates the user to the api for requests where authentication is needed
@@ -48,11 +61,13 @@ export async function authenticate(id: string, secret: string): Promise<boolean>
     }
 }
 /**
- * Logout the current user
+ * Logout the current user and reset state
  * @returns void
  */
 export function logout(): void {
-    authenticationData.set(undefined)
+    authenticationData.reset()
+    resetIdentityState()
+    resetStreamsState()
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

@@ -28,7 +28,6 @@
         stopChannelsSearch,
         stopReadingChannel,
         channelSearchQuery,
-        previousAuthenticatedStreamsUserDID,
         authorFilterState,
     } from '$lib/app/streams'
     import { get, writable, type Writable } from 'svelte/store'
@@ -126,11 +125,9 @@
 
     onMount(() => {
         const results = get(searchChannelsResults)
-        // Fetch data if cached data is empty or user has changed
-        if (!results || results?.length === 0 || userChanged()) {
+        // Fetch data if cached data is empty
+        if (!results || results?.length === 0) {
             searchAllChannels('', getSearchOptions(true))
-            // Used for determining if user has changed from previous onMount() call
-            previousAuthenticatedStreamsUserDID.set(get(authenticatedUserDID))
         }
     })
 
@@ -148,13 +145,6 @@
         const authorId = get(authorFilterState) ? get(authenticatedUserDID) : undefined
         const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
         return { limit, authorId }
-    }
-
-    /**
-     * Check if the cached userDID (set in onMount()) is the same as the current userDID
-     */
-    function userChanged(): boolean {
-        return get(previousAuthenticatedStreamsUserDID) !== get(authenticatedUserDID)
     }
 
     async function loadMore(entries: number): Promise<void> {
