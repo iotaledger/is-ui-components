@@ -26,7 +26,12 @@
         previousAuthenticatedIdentityUserDID,
         creatorFilterState,
     } from '$lib/app/identity'
-    import { UserRoles, type ExtendedUser, type IdentityTemplate, type VerifiableCredentialTemplate } from '$lib/app/types/identity'
+    import {
+        UserRoles,
+        type ExtendedUser,
+        type IdentityTemplate,
+        type VerifiableCredentialTemplate,
+    } from '$lib/app/types/identity'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, ListManager } from '$lib/components'
@@ -34,7 +39,6 @@
     import { onDestroy, onMount } from 'svelte'
     import { authenticatedUserDID, authenticatedUserRole } from '../../app/base'
     import { formatDate } from '$lib/app/utils'
-
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
     export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
@@ -74,6 +78,7 @@
     let loading: boolean = false
     let message: string
     let isCreateIdentityModalOpen = false
+    let isNewIdentityCreated = false
     let isCreateCredentialModalOpen = false
 
     $: $selectedIdentity, updateState()
@@ -213,6 +218,7 @@
 
     function closeCreateIdentityModal(): void {
         isCreateIdentityModalOpen = false
+        isNewIdentityCreated = false
     }
 
     function openCreateCredentialModal(): void {
@@ -254,6 +260,7 @@
             actionButtons={detailViewButtons}
             onRevokeSuccess={updateIdentityInSearchResults}
             identity={$selectedIdentity}
+            userRole={$authenticatedUserRole}
         />
     {/if}
 </Box>
@@ -262,6 +269,7 @@
     onModalClose={closeCreateIdentityModal}
     onSuccess={onCreateIdentitySuccess}
     {identitiesTemplate}
+    bind:isCreated={isNewIdentityCreated}
 />
 <!-- TODO: add possility to not pass targetDid here -->
 <CreateCredentialModal

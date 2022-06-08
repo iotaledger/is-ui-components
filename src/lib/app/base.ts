@@ -3,7 +3,7 @@ import { ApiVersion, ChannelClient, IdentityClient } from '@iota/is-client'
 import { derived, get } from 'svelte/store'
 import { logout } from './identity'
 import { showNotification } from './notification'
-import { NotificationType, type JwtUser } from './types'
+import { NotificationType, UserRoles, type JwtUser } from './types'
 import { persistent } from './utils'
 
 const config: ClientConfig = {

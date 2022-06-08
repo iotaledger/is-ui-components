@@ -28,6 +28,7 @@
             handleCreateVC(formFieldsValues)
         },
         loading: false,
+        visible: true,
         label: 'Create credential',
         labelWhileLoading: 'Creating credential...',
     }
