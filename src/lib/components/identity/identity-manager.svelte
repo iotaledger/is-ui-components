@@ -260,6 +260,7 @@
             actionButtons={detailViewButtons}
             onRevokeSuccess={updateIdentityInSearchResults}
             identity={$selectedIdentity}
+            userRole={$authenticatedUserRole}
         />
     {/if}
 </Box>
