@@ -31,9 +31,9 @@
         if (registeredIdentity) {
             onSuccess(registeredIdentity, selectedTemplate?.type, formFieldsValues['username'])
             onSubmitButton = {
-            ...onSubmitButton,
-            visible: false,
-        }
+                ...onSubmitButton,
+                visible: false,
+            }
         }
         formLoading = false
     }

@@ -136,3 +136,11 @@ export function generateRandomId(): string {
         return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
     })
 }
+
+export function formatDate(date: string): string {
+    return date.slice(0, 10).split('-').reverse().join('-')
+}
+
+export function formatDateAndTime(date: string): string {
+    return date.slice(0, 10).split('-').reverse().join('-') + ` at ` + date.slice(11, 19)
+}

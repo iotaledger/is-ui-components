@@ -125,19 +125,19 @@
         {/each}
     </div>
     {#if onSubmitButton.visible}
-    <Button size="lg" color="primary" block class="mt-4" disabled={onSubmitButton?.loading} type="submit"
-        ><div class="d-flex justify-content-center align-items-center">
-            {onSubmitButton?.loading ? onSubmitButton?.labelWhileLoading : onSubmitButton?.label}
-            {#if onSubmitButton?.loading}
-                <div class="ms-2"><Spinner size="sm" type="border" color="light" /></div>
-            {/if}
-        </div>
-    </Button>
+        <Button size="lg" color="primary" block class="mt-4" disabled={onSubmitButton?.loading} type="submit"
+            ><div class="d-flex justify-content-center align-items-center">
+                {onSubmitButton?.loading ? onSubmitButton?.labelWhileLoading : onSubmitButton?.label}
+                {#if onSubmitButton?.loading}
+                    <div class="ms-2"><Spinner size="sm" type="border" color="light" /></div>
+                {/if}
+            </div>
+        </Button>
     {/if}
 </form>
 
 <style lang="scss">
-    .overflow-content{
+    .overflow-content {
         max-height: 31vh;
         overflow-y: scroll;
     }
