@@ -7,7 +7,7 @@ import { NotificationType, UserRoles } from './types'
 import type { JwtUser } from './types'
 import { persistent } from './stores'
 import { settingsStore } from './settings'
-
+let identityClientToken, channelClientToken
 export let identityClient: IdentityClient = undefined
 export let channelClient: ChannelClient = undefined
 
@@ -17,9 +17,10 @@ settingsStore?.subscribe(($settings) => {
         isGatewayUrl: $settings.isGatewayUrl,
         apiVersion: ApiVersion.v01,
     }
-    console.log(config)
     identityClient = new IdentityClient(config)
     channelClient = new ChannelClient(config)
+    identityClient.jwtToken = identityClientToken
+    channelClient.jwtToken = channelClientToken
 })
 
 export const authenticationData = persistent<{ jwt: string; did: string }>('authentication-data', null)
@@ -31,8 +32,10 @@ export const isAuthenticated = derived(authenticationData, ($authenticationData)
 export const authenticatedUserRole = derived(authenticationData, ($authenticationData) => getUserRole($authenticationData?.jwt))
 
 authenticationData?.subscribe(($authenticationData) => {
-    identityClient.jwtToken = $authenticationData?.jwt
-    channelClient.jwtToken = $authenticationData?.jwt
+    identityClientToken = $authenticationData?.jwt
+    channelClientToken = $authenticationData?.jwt
+    identityClient.jwtToken = identityClientToken
+    channelClient.jwtToken = channelClientToken
 })
 
 function getUserRole(jwtToken: string): UserRoles {
