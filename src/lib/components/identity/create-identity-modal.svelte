@@ -28,9 +28,7 @@
     <ModalHeader toggle={onModalClose} class="px-4 pt-3">{title}</ModalHeader>
     <ModalBody class="px-4 pb-3" style="overflow-y: hidden">
         <CreateIdentityForm onSuccess={onCreateIdentitySuccess} {identitiesTemplate} />
-    </ModalBody>
-    {#if isCreated}
-        <ModalFooter>
+        {#if isCreated}
             <a
                 class="d-flex align-items-center justify-content-center mt-4 btn btn-primary btn-block w-100 btn-lg"
                 href={createJsonDataUrl(identity)}
@@ -41,6 +39,6 @@
                 <Icon type="download" />
                 <span class="ms-2">Save identity</span>
             </a>
-        </ModalFooter>
-    {/if}
+        {/if}
+    </ModalBody>
 </Modal>
