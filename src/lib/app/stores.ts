@@ -1,33 +1,29 @@
 import { writable, type Unsubscriber, type Writable } from 'svelte/store'
 import { browser } from '$app/env'
+import type { Reset } from './types/stores'
 /**
  * Writable store with reset to initial value functionality
- * @param value - initial value
+ * @param initialValue - initial value
  * @returns writable store with reset functionality
  */
-export function reset<Type>(value: Type): {
-    subscribe: (...params: Parameters<typeof subscribe>) => Unsubscriber
-    set: (...params: Parameters<typeof set>) => void
-    update: (...params: Parameters<typeof update>) => void
-    reset: () => void
-} {
-    const { subscribe, set, update } = writable<Type>(value)
+export function reset<T>(initialValue: T): Reset<T> {
+    const { subscribe, set, update } = writable<T>(initialValue)
 
     return {
         subscribe,
         set,
         update,
-        reset: () => set(value),
+        reset: () => set(initialValue),
     }
 }
 
 /**
  * Persist a writable Svelte store to local storage
  */
-export const persistent = <T>(key: string, initialValue: T): Writable<T> => {
+export const persistent = <T>(key: string, initialValue: T): Reset<T> => {
     if (browser) {
-        let value = initialValue
-
+        let value: T
+        const state = reset(initialValue)
         try {
             const json = localStorage.getItem(key)
             if (json) {
@@ -37,7 +33,7 @@ export const persistent = <T>(key: string, initialValue: T): Writable<T> => {
             console.error(err)
         }
 
-        const state = writable(value)
+        state.set(value)
 
         state.subscribe(($value): void => {
             if ($value === undefined || $value === null) {

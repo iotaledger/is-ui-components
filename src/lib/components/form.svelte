@@ -135,7 +135,7 @@
 </form>
 
 <style lang="scss">
-    .overflow-content{
+    .overflow-content {
         max-height: 31vh;
         overflow-y: scroll;
     }

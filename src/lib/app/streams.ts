@@ -37,7 +37,7 @@ let channelFeedInterval
 /**
  * Resets the state in stores to their default values
  */
- export function resetStreamsState(): void {
+export function resetStreamsState(): void {
     selectedChannelPageIndex.reset()
     channelSearchQuery.reset()
     authorFilterState.reset()
@@ -404,12 +404,12 @@ export async function createChannel(
             })
             return channel
         } catch (e) {
-            if(e?.message?.includes('409')){
+            if (e?.message?.includes('409')) {
                 showNotification({
                     type: NotificationType.Error,
                     message: 'The channel already exists.',
                 })
-            }else{
+            } else {
                 showNotification({
                     type: NotificationType.Error,
                     message: 'There was an error creating the channel',

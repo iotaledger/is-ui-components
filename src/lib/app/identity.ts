@@ -65,7 +65,7 @@ export async function authenticate(id: string, secret: string): Promise<boolean>
  * @returns void
  */
 export function logout(): void {
-    authenticationData.set(undefined)
+    authenticationData.reset()
     resetIdentityState()
     resetStreamsState()
 }
@@ -77,12 +77,12 @@ export async function registerIdentity(username?: string, claimType = UserType.P
     try {
         registeredIdentity = await identityClient.create(username, claimType, claim)
     } catch (e) {
-        if (e?.message?.includes(409)){
+        if (e?.message?.includes(409)) {
             showNotification({
                 type: NotificationType.Error,
                 message: 'The user already exists.',
             })
-        }else{
+        } else {
             showNotification({
                 type: NotificationType.Error,
                 message: 'The register failed',
