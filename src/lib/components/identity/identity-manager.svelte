@@ -60,6 +60,7 @@
     let loading: boolean = false
     let message: string
     let isCreateIdentityModalOpen = false
+    let isNewIdentityCreated = false
     let isCreateCredentialModalOpen = false
 
     $: $selectedIdentity, updateState()
@@ -177,6 +178,7 @@
 
     function closeCreateIdentityModal(): void {
         isCreateIdentityModalOpen = false
+        isNewIdentityCreated = false
     }
 
     function openCreateCredentialModal(): void {
@@ -225,6 +227,7 @@
     onModalClose={closeCreateIdentityModal}
     onSuccess={onCreateIdentitySuccess}
     {identitiesTemplate}
+    bind:isCreated={isNewIdentityCreated}
 />
 <!-- TODO: add possility to not pass targetDid here -->
 <CreateCredentialModal

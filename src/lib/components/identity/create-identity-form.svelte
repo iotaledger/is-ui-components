@@ -19,6 +19,7 @@
         onSubmit: (formFieldsValues) => {
             handleRegister(formFieldsValues)
         },
+        visible: true,
         loading: false,
         label: 'Create identity',
         labelWhileLoading: 'Creating identity...',
@@ -29,6 +30,10 @@
         registeredIdentity = await registerIdentity(formFieldsValues['username'], selectedTemplate?.type, formFieldsValues)
         if (registeredIdentity) {
             onSuccess(registeredIdentity, selectedTemplate?.type, formFieldsValues['username'])
+            onSubmitButton = {
+            ...onSubmitButton,
+            visible: false,
+        }
         }
         formLoading = false
     }

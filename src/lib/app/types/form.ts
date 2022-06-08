@@ -3,6 +3,7 @@ import type { FieldType } from '$lib/app/types/identity'
 export interface SubmitButton {
     onSubmit: (..._any) => void
     loading?: boolean
+    visible: boolean
     label: string
     labelWhileLoading?: string
 }

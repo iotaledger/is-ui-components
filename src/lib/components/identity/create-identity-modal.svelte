@@ -15,11 +15,11 @@
     export let onModalClose = (..._: any[]): void => {}
     export let onSuccess = (..._: any[]): void => {}
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
-    export const identity: IdentityJson = undefined
+    export let identity: IdentityJson = undefined
 
-    function onCreateIdentitySuccess(identity: IdentityJson): void {
-        console.log('onSuccess Identity:', identity)
-        onSuccess(identity)
+    function onCreateIdentitySuccess(createdIdentity: IdentityJson): void {
+        onSuccess(createdIdentity)
+        identity = createdIdentity
         isCreated = true
     }
 </script>
@@ -36,6 +36,7 @@
                 href={createJsonDataUrl(identity)}
                 role="button"
                 download="identity.json"
+                on:click={onModalClose}
             >
                 <Icon type="download" />
                 <span class="ms-2">Save identity</span>
