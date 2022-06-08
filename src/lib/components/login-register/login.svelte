@@ -64,7 +64,7 @@
         {/if}
     </div>
     <div class="w-100">
-        <Dropzone on:drop={handleFilesSelect}>
+        <Dropzone on:drop={handleFilesSelect} accept="application/json">
             <p>{file?.name ?? 'Upload a JSON file or drag and drop'}</p>
         </Dropzone>
     </div>

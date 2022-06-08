@@ -6,24 +6,40 @@ import type {
     VerifiableCredentialJson,
 } from '@iota/is-client'
 import { UserType } from '@iota/is-client'
-import type { Writable } from 'svelte/store'
-import { get, writable } from 'svelte/store'
+import { get } from 'svelte/store'
 import { authenticationData, channelClient, identityClient, isAuthenticated } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
+import { DEFAULT_CREATOR_FILTER_STATE } from './constants/identity'
 import { showNotification } from './notification'
+import { reset } from './stores'
+import { resetStreamsState } from './streams'
 import type { ExtendedUser } from './types/identity'
 import { NotificationType } from './types/notification'
+import type { Reset } from './types/stores'
 
-export const selectedIdentityPageIndex: Writable<number> = writable(1)
-export const identitySearchQuery: Writable<string> = writable('')
-export const searchIdentitiesResults: Writable<ExtendedUser[]> = writable([])
-export const selectedIdentity: Writable<ExtendedUser> = writable(null)
+export const selectedIdentityPageIndex: Reset<number> = reset(1)
+export const identitySearchQuery: Reset<string> = reset('')
+export const creatorFilterState: Reset<boolean> = reset(DEFAULT_CREATOR_FILTER_STATE)
+export const searchIdentitiesResults: Reset<ExtendedUser[]> = reset([])
+export const selectedIdentity: Reset<ExtendedUser> = reset(null)
 // used for the async search that makes N background queries to get the full list of identities
-export const isAsyncLoadingIdentities: Writable<boolean> = writable(false)
+export const isAsyncLoadingIdentities: Reset<boolean> = reset(false)
 
 let haltSearchAll = false
 // used to keep track of the last search query
 let searchAllHash: string
+
+/**
+ * Resets the state in stores to their default values
+ */
+function resetIdentityState(): void {
+    selectedIdentityPageIndex.reset()
+    identitySearchQuery.reset()
+    creatorFilterState.reset()
+    searchIdentitiesResults.reset()
+    selectedIdentity.reset()
+    isAsyncLoadingIdentities.reset()
+}
 
 /**
  * Authenticates the user to the api for requests where authentication is needed
@@ -45,11 +61,13 @@ export async function authenticate(id: string, secret: string): Promise<boolean>
     }
 }
 /**
- * Logout the current user
+ * Logout the current user and reset state
  * @returns void
  */
 export function logout(): void {
-    authenticationData.set(undefined)
+    authenticationData.reset()
+    resetIdentityState()
+    resetStreamsState()
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -59,12 +77,12 @@ export async function registerIdentity(username?: string, claimType = UserType.P
     try {
         registeredIdentity = await identityClient.create(username, claimType, claim)
     } catch (e) {
-        if (e?.message?.includes(409)){
+        if (e?.message?.includes(409)) {
             showNotification({
                 type: NotificationType.Error,
                 message: 'The user already exists.',
             })
-        }else{
+        } else {
             showNotification({
                 type: NotificationType.Error,
                 message: 'The register failed',
@@ -79,8 +97,12 @@ export async function registerIdentity(username?: string, claimType = UserType.P
 // This is because the searchAllIdentities function is called in the background, and the results are
 // stored in the searchIdentitiesResults store.
 let index = 0
-export async function searchAllIdentities(query: string, options?: { limit?: number }): Promise<void> {
-    const _search = async (_searchAllHash: string, query: string, options?: { limit?: number }): Promise<void> => {
+export async function searchAllIdentities(query: string, options?: { limit?: number; creator?: string }): Promise<void> {
+    const _search = async (
+        _searchAllHash: string,
+        query: string,
+        options?: { limit?: number; creator?: string }
+    ): Promise<void> => {
         const _isDID = (query: string): boolean => query.startsWith('did:iota:')
         const _isType = (query: string): boolean =>
             Object.values(UserType).some((userType) => userType.toLowerCase() === query.toLowerCase())
@@ -94,6 +116,7 @@ export async function searchAllIdentities(query: string, options?: { limit?: num
             const newResults = await searchIdentitiesSingleRequest(query, {
                 searchByType: _isType(query),
                 searchByUsername: !_isType(query),
+                creator: options?.creator,
                 limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
                 index,
             })
@@ -152,16 +175,17 @@ export async function searchIdentityByDID(did: string): Promise<ExtendedUser> {
 }
 export async function searchIdentitiesSingleRequest(
     query: string,
-    options: { searchByType?: boolean; searchByUsername?: boolean; limit: number; index: number }
+    options: { searchByType?: boolean; searchByUsername?: boolean; creator?: string; limit: number; index: number }
 ): Promise<ExtendedUser[]> {
     let partialResults = []
     if (get(isAuthenticated)) {
-        const { searchByType, searchByUsername, limit, index } = options
+        const { searchByType, searchByUsername, creator, limit, index } = options
         try {
             partialResults = await identityClient.search({
                 username: searchByUsername ? query : undefined,
                 type: searchByType ? query : undefined,
                 limit: limit,
+                creator,
                 index: index,
                 asc: false,
             })

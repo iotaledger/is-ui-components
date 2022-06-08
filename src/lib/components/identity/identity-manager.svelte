@@ -23,13 +23,21 @@
         stopIdentitiesSearch,
         updateIdentityInSearchResults,
         identitySearchQuery,
+        creatorFilterState,
     } from '$lib/app/identity'
-    import type { ExtendedUser, IdentityTemplate, VerifiableCredentialTemplate } from '$lib/app/types/identity'
-    import type { ActionButton } from '$lib/app/types/layout'
+    import {
+        UserRoles,
+        type ExtendedUser,
+        type IdentityTemplate,
+        type VerifiableCredentialTemplate,
+    } from '$lib/app/types/identity'
+    import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, ListManager } from '$lib/components'
     import type { IdentityJson } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
+    import { authenticatedUserDID, authenticatedUserRole } from '../../app/base'
+    import { formatDate } from '$lib/app/utils'
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
     export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
@@ -49,8 +57,17 @@
             onClick: openCreateCredentialModal,
             icon: 'plus',
             color: 'dark',
+            hidden: $authenticatedUserRole !== UserRoles.Admin,
         },
     ]
+    $: identityFilter = [
+        {
+            label: 'Only own identities',
+            onChange: onOnlyOwnIdentities,
+            // Get the current filter state from store
+            state: $creatorFilterState,
+        },
+    ] as FilterCheckbox[]
 
     enum State {
         ListIdentities = 'listIdentities',
@@ -60,6 +77,7 @@
     let loading: boolean = false
     let message: string
     let isCreateIdentityModalOpen = false
+    let isNewIdentityCreated = false
     let isCreateCredentialModalOpen = false
 
     $: $selectedIdentity, updateState()
@@ -76,16 +94,17 @@
                     value: identity?.username,
                 },
                 { value: identity?.claim?.type },
-                { value: identity?.registrationDate },
+                { value: formatDate(identity?.registrationDate) },
                 { value: identity?.numberOfCredentials ?? 0 },
             ],
         })),
     } as TableData
 
-    onMount(async () => {
+    onMount(() => {
         const results = get(searchIdentitiesResults)
+        // Fetch data if cached data is empty
         if (!results || results?.length === 0) {
-            searchAllIdentities('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+            searchAllIdentities('', getSearchOptions(true))
         }
     })
 
@@ -95,7 +114,13 @@
 
     async function onSearch(): Promise<void> {
         selectedIdentityPageIndex.set(1) // reset index
-        await searchAllIdentities(get(identitySearchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+        await searchAllIdentities(get(identitySearchQuery), getSearchOptions())
+    }
+
+    function getSearchOptions(firstLoad = false): { limit: number; creator: string } {
+        const creator = get(creatorFilterState) ? get(authenticatedUserDID) : undefined
+        const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
+        return { limit, creator }
     }
 
     function onPageChange(page) {
@@ -110,7 +135,7 @@
             searchByType: _isType(get(identitySearchQuery)),
             searchByUsername: !_isType(get(identitySearchQuery)),
             limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-            index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+            index: Math.ceil(entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT),
         })
         searchIdentitiesResults.update((results) => [...results, ...newIdentities])
     }
@@ -171,12 +196,19 @@
         loading = false
     }
 
+    function onOnlyOwnIdentities(): void {
+        // Toggle authorFilterState
+        creatorFilterState.set(!get(creatorFilterState))
+        onSearch()
+    }
+
     function openCreateIdentityModal(): void {
         isCreateIdentityModalOpen = true
     }
 
     function closeCreateIdentityModal(): void {
         isCreateIdentityModalOpen = false
+        isNewIdentityCreated = false
     }
 
     function openCreateCredentialModal(): void {
@@ -203,6 +235,7 @@
             searchPlaceholder="Search identities"
             loading={loading || $isAsyncLoadingIdentities}
             actionButtons={listViewButtons}
+            filters={identityFilter}
             bind:searchQuery={$identitySearchQuery}
         />
     {:else if state === State.IdentityDetail}
@@ -217,6 +250,7 @@
             actionButtons={detailViewButtons}
             onRevokeSuccess={updateIdentityInSearchResults}
             identity={$selectedIdentity}
+            userRole={$authenticatedUserRole}
         />
     {/if}
 </Box>
@@ -225,6 +259,7 @@
     onModalClose={closeCreateIdentityModal}
     onSuccess={onCreateIdentitySuccess}
     {identitiesTemplate}
+    bind:isCreated={isNewIdentityCreated}
 />
 <!-- TODO: add possility to not pass targetDid here -->
 <CreateCredentialModal

@@ -3,11 +3,12 @@
     import type { IdentityTemplate } from '$lib/app/types/identity'
     import { Box, Icon, RegisterSuccess } from '$lib/components'
     import type { IdentityJson, UserType } from '@iota/is-client'
-    import CreateIdentityForm from '../identity/create-identity-form.svelte'
+    import CreateIdentityModal from '../identity/create-identity-modal.svelte'
 
     export let switchToLogin = (..._: any[]): void => {}
     export let onSuccess = (identity: IdentityJson): void => {}
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
+    export let isCreateIdentityModalOpen: boolean = false
 
     let identity: IdentityJson
     let userType: UserType
@@ -19,25 +20,20 @@
         username = _username
         onSuccess(_identity)
     }
+
+    function closeCreateIdentityModal(): void {
+        isCreateIdentityModalOpen = false
+        switchToLogin()
+    }
 </script>
 
 {#if !identity}
-    <Box>
-        <div class="mb-4 d-flex flex-column align-items-center">
-            <div class="mb-4">
-                <Icon type="identity" size={48} />
-            </div>
-            <h1 class="mb-1">Register a new DID</h1>
-            <div>
-                or
-                <span class="text-primary cursor-pointer" on:click={switchToLogin}>log in with DID</span>
-            </div>
-        </div>
-
-        <div class="w-100">
-            <CreateIdentityForm onSuccess={onIdentityCreatedSuccess} {identitiesTemplate} />
-        </div>
-    </Box>
+    <CreateIdentityModal
+        onSuccess={onIdentityCreatedSuccess}
+        {identitiesTemplate}
+        onModalClose={closeCreateIdentityModal}
+        isOpen={isCreateIdentityModalOpen}
+    />
 {:else}
     <RegisterSuccess {identity} type={userType} {username} {switchToLogin} />
 {/if}

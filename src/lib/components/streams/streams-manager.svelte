@@ -28,14 +28,16 @@
         stopChannelsSearch,
         stopReadingChannel,
         channelSearchQuery,
+        authorFilterState,
     } from '$lib/app/streams'
     import { get, writable, type Writable } from 'svelte/store'
-    import type { ActionButton } from '$lib/app/types/layout'
+    import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
     import { SubscriptionState } from '$lib/app/types/streams'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, ChannelDetails, CreateChannelModal, Icon, ListManager, WriteMessageModal } from '$lib/components'
     import type { ChannelInfo } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
+    import { formatDateAndTime } from '$lib/app/utils'
 
     export let showSearch: boolean = true
     export let listViewButtons: ActionButton[] = [
@@ -54,6 +56,14 @@
             color: 'dark',
         },
     ]
+    $: streamsFilter = [
+        {
+            label: 'Only own channels',
+            onChange: onOnlyOwnChannels,
+            // Get the current filter state from store
+            state: $authorFilterState,
+        },
+    ] as FilterCheckbox[]
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
 
     enum State {
@@ -94,7 +104,9 @@
                     { value: channel.channelAddress },
                     { value: channel.topics.map((topic) => topic?.type) },
                     { value: channel.topics.map((topic) => topic?.source) },
-                    { value: channel.created },
+                    {
+                        value: formatDateAndTime(channel.created),
+                    },
                     {
                         pills:
                             isUserOwner || isUserSubscribed
@@ -111,10 +123,11 @@
         }),
     } as TableData
 
-    onMount(async () => {
+    onMount(() => {
         const results = get(searchChannelsResults)
+        // Fetch data if cached data is empty
         if (!results || results?.length === 0) {
-            searchAllChannels('', { limit: WELCOME_LIST_RESULTS_NUMBER })
+            searchAllChannels('', getSearchOptions(true))
         }
     })
 
@@ -125,7 +138,13 @@
 
     async function onSearch(): Promise<void> {
         selectedChannelPageIndex.set(1) // reset index
-        await searchAllChannels(get(channelSearchQuery), { limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT })
+        await searchAllChannels(get(channelSearchQuery), getSearchOptions())
+    }
+
+    function getSearchOptions(firstLoad = false): { limit: number; authorId: string } {
+        const authorId = get(authorFilterState) ? get(authenticatedUserDID) : undefined
+        const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
+        return { limit, authorId }
     }
 
     async function loadMore(entries: number): Promise<void> {
@@ -244,6 +263,12 @@
         selectedChannelSubscriptions.set(subscriptions)
     }
 
+    function onOnlyOwnChannels(): void {
+        // Toggle authorFilterState
+        authorFilterState.set(!get(authorFilterState))
+        onSearch()
+    }
+
     function openCreateChannelModal(): void {
         isCreateChannelModalOpen = true
     }
@@ -273,6 +298,7 @@
             {loadMore}
             loading={loading || $isAsyncLoadingChannels}
             actionButtons={listViewButtons}
+            filters={streamsFilter}
             bind:searchQuery={$channelSearchQuery}
         />
     {:else if state === State.ChannelDetail}

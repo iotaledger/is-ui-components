@@ -1,15 +1,16 @@
 <script lang="ts">
     import { CREDENTIAL_ICON, USER_ICONS } from '$lib/app/constants/identity'
     import { getVerifiableCredentials, revokeVC } from '$lib/app/identity'
-    import type { ExtendedUser } from '$lib/app/types/identity'
+    import type { ExtendedUser, UserRoles } from '$lib/app/types/identity'
     import type { ActionButton } from '$lib/app/types/layout'
-    import { createJsonDataUrl } from '$lib/app/utils'
+    import { createJsonDataUrl, formatDate } from '$lib/app/utils'
     import { Credential, Icon, JSONViewer } from '$lib/components'
     import type { VerifiableCredentialInternal } from '@iota/is-client'
     import { Accordion, AccordionItem, Button, Spinner } from 'sveltestrap'
     import { BoxColor } from '$lib/app'
 
     export let identity: ExtendedUser
+    export let userRole: UserRoles
     export let loading: boolean = false
     export let onRevokeSuccess = (identity: ExtendedUser): void => {}
     export let actionButtons: ActionButton[] = []
@@ -48,7 +49,7 @@
         <div class="d-xl-flex align-items-center justify-content-between">
             <div class="ms-12 me-12">
                 <div class="text-secondary text-break">
-                    <span class="fw-bold">Date: </span><span class="text-break ">{identity?.registrationDate}</span>
+                    <span class="fw-bold">Date: </span><span class="text-break ">{formatDate(identity?.registrationDate)}</span>
                 </div>
                 <div class="text-secondary">
                     <span class="fw-bold">Public Key: </span><span class="text-break ">{identity?.publicKey}</span>
@@ -59,25 +60,27 @@
             </div>
             <div class="d-flex flex-column align-items-start">
                 {#if actionButtons}
-                    {#each actionButtons as { label, onClick, icon, color, loading, disabled }}
-                        <Button
-                            size="sm"
-                            outline
-                            color={color ?? 'dark'}
-                            on:click={onClick}
-                            {disabled}
-                            class="d-flex align-items-center mt-3"
-                        >
-                            {#if icon}
-                                <div class="me-1">
-                                    <Icon type={icon} size={16} />
-                                </div>
-                            {/if}
-                            <span class="ms-1">{label}</span>
-                            {#if loading}
-                                <div class="ms-2 flex align-items-center"><Spinner size="sm" type="border" /></div>
-                            {/if}
-                        </Button>
+                    {#each actionButtons as { label, onClick, icon, color, loading, disabled, hidden }}
+                        {#if !hidden}
+                            <Button
+                                size="sm"
+                                outline
+                                color={color ?? 'dark'}
+                                on:click={onClick}
+                                {disabled}
+                                class="d-flex align-items-center mt-3"
+                            >
+                                {#if icon}
+                                    <div class="me-1">
+                                        <Icon type={icon} size={16} />
+                                    </div>
+                                {/if}
+                                <span class="ms-1">{label}</span>
+                                {#if loading}
+                                    <div class="ms-2 flex align-items-center"><Spinner size="sm" type="border" /></div>
+                                {/if}
+                            </Button>
+                        {/if}
                     {/each}
                 {/if}
             </div>
@@ -122,7 +125,7 @@
             {#each identity?.vc as vc}
                 <div class="credential mt-4">
                     {#key vc}
-                        <Credential {vc} {revoking} onRevoke={handleRevoke} />
+                        <Credential {userRole} {vc} {revoking} onRevoke={handleRevoke} />
                     {/key}
                 </div>
             {/each}
