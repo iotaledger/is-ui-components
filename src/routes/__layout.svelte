@@ -6,6 +6,7 @@
         if (res.ok) {
             const settings = await res.json()
             settingsStore.set(settings)
+            console.log('response:', JSON.stringify(settings))
             return {
                 status: res.status,
             }

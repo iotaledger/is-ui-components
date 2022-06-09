@@ -14,23 +14,22 @@ const defaultConfig: ClientConfig = {
     isGatewayUrl: import.meta?.env?.VITE_IOTA_IS_SDK_GATEWAY_URL as string,
     apiVersion: ApiVersion.v01,
 }
-
 export let identityClient: IdentityClient = new IdentityClient(defaultConfig)
 export let channelClient: ChannelClient = new ChannelClient(defaultConfig)
 
 settingsStore?.subscribe(($settings) => {
-    if ($settings.isApiKey === undefined && $settings.isGatewayUrl === undefined) {
-        return
+    console.log('settings in store: ', JSON.stringify($settings))
+    if ($settings.isApiKey !== undefined && $settings.isGatewayUrl !== undefined) {
+        const config: ClientConfig = {
+            apiKey: $settings.isApiKey,
+            isGatewayUrl: $settings.isGatewayUrl,
+            apiVersion: ApiVersion.v01,
+        }
+        identityClient = new IdentityClient(config)
+        channelClient = new ChannelClient(config)
+        identityClient.jwtToken = identityClientToken
+        channelClient.jwtToken = channelClientToken
     }
-    const config: ClientConfig = {
-        apiKey: $settings.isApiKey,
-        isGatewayUrl: $settings.isGatewayUrl,
-        apiVersion: ApiVersion.v01,
-    }
-    identityClient = new IdentityClient(config)
-    channelClient = new ChannelClient(config)
-    identityClient.jwtToken = identityClientToken
-    channelClient.jwtToken = channelClientToken
 })
 
 export const authenticationData = persistent<{ jwt: string; did: string }>('authentication-data', null)

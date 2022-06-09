@@ -9,7 +9,7 @@
         "package": "svelte-kit package",
         "build-css": "sass src/lib/scss/index.scss:src/lib/css/index.css",
         "dist": "run-s build-css package",
-        "preview": "svelte-kit preview",
+        "preview": "env-cmd svelte-kit preview --port 3044",
         "check": "svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
         "lint": "prettier --ignore-path .gitignore --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
