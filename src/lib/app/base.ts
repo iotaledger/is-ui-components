@@ -8,10 +8,20 @@ import type { JwtUser } from './types'
 import { persistent } from './stores'
 import { settingsStore } from './settings'
 let identityClientToken, channelClientToken
-export let identityClient: IdentityClient = undefined
-export let channelClient: ChannelClient = undefined
+
+const defaultConfig: ClientConfig = {
+    apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
+    isGatewayUrl: import.meta?.env?.VITE_IOTA_IS_SDK_GATEWAY_URL as string,
+    apiVersion: ApiVersion.v01,
+}
+
+export let identityClient: IdentityClient = new IdentityClient(defaultConfig)
+export let channelClient: ChannelClient = new ChannelClient(defaultConfig)
 
 settingsStore?.subscribe(($settings) => {
+    if ($settings.isApiKey === undefined && $settings.isGatewayUrl === undefined) {
+        return
+    }
     const config: ClientConfig = {
         apiKey: $settings.isApiKey,
         isGatewayUrl: $settings.isGatewayUrl,
