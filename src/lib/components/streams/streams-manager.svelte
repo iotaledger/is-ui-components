@@ -154,7 +154,7 @@
             searchByAuthorId: _isAuthorId(get(channelSearchQuery)),
             searchBySource: !_isAuthorId(get(channelSearchQuery)),
             limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-            index: entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+            index: Math.ceil(entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT),
         })
         searchChannelsResults.update((results) => [...results, ...newChannels])
     }
