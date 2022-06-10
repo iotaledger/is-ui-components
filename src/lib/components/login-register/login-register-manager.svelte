@@ -36,6 +36,6 @@
     {:else if state === State.Login}
         <Login {switchToRegister} onSuccess={onLoginSuccess} />
     {:else if state === State.Register}
-        <Register {switchToLogin} {identitiesTemplate} isCreateIdentityModalOpen={true} />
+        <Register {switchToLogin} {identitiesTemplate} />
     {/if}
 </div>
