@@ -94,7 +94,7 @@
     {#each paginationRange as pageNumber}
         {#if pageNumber === DOTS}
             <li class="pagination-item dots d-flex align-items-center justify-content-center cursor-pointer">&#8230;</li>
-        {:else}
+        {:else if typeof pageNumber === "number"}
             <li
                 class="pagination-item d-flex align-items-center justify-content-center cursor-pointer"
                 class:selected={pageNumber === currentPage}
