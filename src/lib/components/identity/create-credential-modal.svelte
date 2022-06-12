@@ -20,7 +20,7 @@
     export let targetDid: string = undefined
 
     let selectedTemplateId = credentialsTemplate?.[0].id ?? DEFAULT_VCS_TEMPLATES[0].id
-    $: selectedTemplate = credentialsTemplate.find(template => template.id === selectedTemplateId)
+    $: selectedTemplate = credentialsTemplate.find((template) => template.id === selectedTemplateId)
     let verifiableCredential: VerifiableCredentialJson = undefined
     let formLoading = false
     let formInputs: InputType[] = []

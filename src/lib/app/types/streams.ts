@@ -10,9 +10,8 @@ export enum ChannelType {
 }
 
 export type WriteMessageForm = {
-    metadata?: string,
-    payload?: string,
-    publicPayload?: string,
+    metadata?: string
+    payload?: string
+    publicPayload?: string
     type?: string
-
 }
