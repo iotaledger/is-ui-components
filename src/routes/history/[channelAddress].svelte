@@ -11,7 +11,8 @@
 
     let channelType = writable('')
     let presharedKey = writable('')
-    let channelAddress
+    let channelAddress: string
+    
     onMount(async () => {
         const urlParams = new URLSearchParams(window.location.search)
         channelType.set(urlParams.get('type'))
