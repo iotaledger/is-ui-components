@@ -17,7 +17,7 @@
         'iota-logo': IotaLogo,
     }
 
-    $: customIcon = TYPES[type]
+    $: customIcon = TYPES?.[type]
 </script>
 
 {#if boxed}

@@ -1,7 +1,3 @@
-import { browser } from '$app/env'
-import type { Writable } from 'svelte/store'
-import { writable } from 'svelte/store'
-
 function toUTF8Array(str) {
     const utf8 = []
     for (let i = 0; i < str.length; i++) {
@@ -68,36 +64,6 @@ export const syntaxHighlight = (json: string): string => {
         )
 }
 
-/**
- * Persist a writable Svelte store to local storage
- */
-export const persistent = <T>(key: string, initialValue: T): Writable<T> => {
-    if (browser) {
-        let value = initialValue
-
-        try {
-            const json = localStorage.getItem(key)
-            if (json) {
-                value = JSON.parse(json)
-            }
-        } catch (err) {
-            console.error(err)
-        }
-
-        const state = writable(value)
-
-        state.subscribe(($value): void => {
-            if ($value === undefined || $value === null) {
-                localStorage.removeItem(key)
-            } else {
-                localStorage.setItem(key, JSON.stringify($value))
-            }
-        })
-
-        return state
-    }
-}
-
 export function isJson(str: string): boolean {
     try {
         JSON.parse(str)
@@ -120,10 +86,10 @@ export function isAnArrayOfObjects(array: unknown[]): boolean {
 }
 
 export function generateRandomId(): string {
-    var d = new Date().getTime() //Timestamp
-    var d2 = (typeof performance !== 'undefined' && performance.now && performance.now() * 1000) || 0 //Time in microseconds since page-load or 0 if unsupported
+    let d = new Date().getTime() //Timestamp
+    let d2 = (typeof performance !== 'undefined' && performance.now && performance.now() * 1000) || 0 //Time in microseconds since page-load or 0 if unsupported
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = Math.random() * 16 //random number between 0 and 16
+        let r = Math.random() * 16 //random number between 0 and 16
         if (d > 0) {
             //Use timestamp until depleted
             r = (d + r) % 16 | 0

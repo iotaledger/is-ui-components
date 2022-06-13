@@ -1,7 +1,7 @@
 <script lang="ts">
     import { CREDENTIAL_ICON, USER_ICONS } from '$lib/app/constants/identity'
     import { getVerifiableCredentials, revokeVC } from '$lib/app/identity'
-    import type { ExtendedUser } from '$lib/app/types/identity'
+    import type { ExtendedUser, UserRoles } from '$lib/app/types/identity'
     import type { ActionButton } from '$lib/app/types/layout'
     import { createJsonDataUrl, formatDate } from '$lib/app/utils'
     import { Credential, Icon, JSONViewer } from '$lib/components'
@@ -10,6 +10,7 @@
     import { BoxColor } from '$lib/app'
 
     export let identity: ExtendedUser
+    export let userRole: UserRoles
     export let loading: boolean = false
     export let onRevokeSuccess = (identity: ExtendedUser): void => {}
     export let actionButtons: ActionButton[] = []
@@ -124,7 +125,7 @@
             {#each identity?.vc as vc}
                 <div class="credential mt-4">
                     {#key vc}
-                        <Credential {vc} {revoking} onRevoke={handleRevoke} />
+                        <Credential {userRole} {vc} {revoking} onRevoke={handleRevoke} />
                     {/key}
                 </div>
             {/each}

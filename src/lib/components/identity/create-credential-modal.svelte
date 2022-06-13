@@ -29,6 +29,7 @@
             handleCreateVC(formFieldsValues)
         },
         loading: false,
+        visible: true,
         label: 'Create credential',
         labelWhileLoading: 'Creating credential...',
     }
@@ -68,7 +69,7 @@
     $: formLoading, updateLoading()
 </script>
 
-<Modal {isOpen} toggle={onClose}>
+<Modal bind:isOpen toggle={onClose}>
     <ModalHeader toggle={onClose} class="px-4 pt-3">Add a credential</ModalHeader>
     <ModalBody class="px-4 pb-4">
         <!-- Template selector -->

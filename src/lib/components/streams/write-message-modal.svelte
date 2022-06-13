@@ -63,6 +63,7 @@
             handleWriteMessage(formFieldsValues)
         },
         loading: false,
+        visible: true,
         label: 'Write message',
         labelWhileLoading: 'Writing message...',
     }

@@ -23,7 +23,6 @@
         stopIdentitiesSearch,
         updateIdentityInSearchResults,
         identitySearchQuery,
-        previousAuthenticatedIdentityUserDID,
         creatorFilterState,
     } from '$lib/app/identity'
     import {
@@ -78,6 +77,7 @@
     let loading: boolean = false
     let message: string
     let isCreateIdentityModalOpen = false
+    let isNewIdentityCreated = false
     let isCreateCredentialModalOpen = false
 
     $: $selectedIdentity, updateState()
@@ -102,11 +102,9 @@
 
     onMount(() => {
         const results = get(searchIdentitiesResults)
-        // Fetch data if cached data is empty or user has changed
-        if (!results || results?.length === 0 || userChanged()) {
+        // Fetch data if cached data is empty
+        if (!results || results?.length === 0) {
             searchAllIdentities('', getSearchOptions(true))
-            // Used for determining if user has changed from previous onMount() call
-            previousAuthenticatedIdentityUserDID.set(get(authenticatedUserDID))
         }
     })
 
@@ -123,13 +121,6 @@
         const creator = get(creatorFilterState) ? get(authenticatedUserDID) : undefined
         const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
         return { limit, creator }
-    }
-
-    /**
-     * Check if the cached userDID (set in onMount()) is the same as the current userDID
-     */
-    function userChanged(): boolean {
-        return get(previousAuthenticatedIdentityUserDID) !== get(authenticatedUserDID)
     }
 
     function onPageChange(page: number) {
@@ -217,6 +208,7 @@
 
     function closeCreateIdentityModal(): void {
         isCreateIdentityModalOpen = false
+        isNewIdentityCreated = false
     }
 
     function openCreateCredentialModal(): void {
@@ -258,6 +250,7 @@
             actionButtons={detailViewButtons}
             onRevokeSuccess={updateIdentityInSearchResults}
             identity={$selectedIdentity}
+            userRole={$authenticatedUserRole}
         />
     {/if}
 </Box>
@@ -266,6 +259,7 @@
     onModalClose={closeCreateIdentityModal}
     onSuccess={onCreateIdentitySuccess}
     {identitiesTemplate}
+    bind:isCreated={isNewIdentityCreated}
 />
 <!-- TODO: add possility to not pass targetDid here -->
 <CreateCredentialModal
