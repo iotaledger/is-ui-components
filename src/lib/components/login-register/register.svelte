@@ -1,7 +1,7 @@
 <script lang="ts">
     import { DEFAULT_IDENTITIES_TEMPLATES } from '$lib/app/constants/identity'
     import type { IdentityTemplate } from '$lib/app/types/identity'
-    import { Box, Icon, RegisterSuccess } from '$lib/components'
+    import { RegisterSuccess } from '$lib/components'
     import type { IdentityJson, UserType } from '@iota/is-client'
     import CreateIdentityModal from '../identity/create-identity-modal.svelte'
 

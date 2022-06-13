@@ -80,7 +80,7 @@
 
     let subscriptionTimeout: number
 
-    function onPageChange(page) {
+    function onPageChange(page: number) {
         selectedChannelPageIndex.set(page)
     }
 

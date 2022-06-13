@@ -132,7 +132,7 @@
         return get(previousAuthenticatedIdentityUserDID) !== get(authenticatedUserDID)
     }
 
-    function onPageChange(page) {
+    function onPageChange(page: number) {
         selectedIdentityPageIndex.set(page)
     }
 
