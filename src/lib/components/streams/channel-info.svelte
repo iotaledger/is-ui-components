@@ -10,7 +10,7 @@
     export let channel: ChannelInfo = undefined
     export let subscriptionStatus: SubscriptionState = undefined
     export let loading: boolean = false
-    export let onSubscriptionAction: (...__any) => void = () => {}
+    export let onSubscriptionAction: (...__any: any[]) => void = () => {}
 
     $: isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
 
