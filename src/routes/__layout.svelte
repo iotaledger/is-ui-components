@@ -10,6 +10,8 @@
 <script lang="ts">
     import { startPollExpirationCheckJWT, stopPollExpirationCheckJWT } from '$lib/app/base'
     import { Icon, NotificationManager } from '$lib/components'
+    import { goto } from '$app/navigation'
+    import { logout, isAuthenticated } from '$lib/app'
     import '$lib/scss/index.scss'
     import 'bootstrap/dist/css/bootstrap.min.css'
     import { onMount } from 'svelte'
@@ -23,6 +25,11 @@
             stopPollExpirationCheckJWT()
         }
     })
+
+    async function _logout() {
+        logout()
+        await goto('/')
+    }
 
     function handleCollapse(event: CustomEvent) {
         isOpen = event.detail.isOpen
@@ -47,6 +54,10 @@
                     <NavLink href={page.url}>{page.title}</NavLink>
                 </NavItem>
             {/each}
+            {#if $isAuthenticated}
+                <NavItem><hr class="me-3" /></NavItem>
+                <NavItem><NavLink on:click={_logout}>Logout</NavLink></NavItem>
+            {/if}
         </Nav>
     </Collapse>
 </Navbar>
