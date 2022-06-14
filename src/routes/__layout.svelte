@@ -28,7 +28,7 @@
 
     async function _logout() {
         logout()
-        goto('/')
+        await goto('/')
     }
 
     function handleCollapse(event: CustomEvent) {
