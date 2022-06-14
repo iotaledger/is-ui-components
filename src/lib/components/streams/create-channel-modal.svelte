@@ -24,6 +24,8 @@
         },
     ]
     let channelType = ChannelType.private
+    // set the default:
+    let hasPresharedKey
     let name: string = ''
     let description: string = ''
     let unsubscribe
@@ -117,6 +119,25 @@
                     <option value={ChannelType.private}>Private Channel</option>
                     <option value={ChannelType.public}>Public Channel</option>
                 </Input>
+
+                <!-- The toggle button shall only be clickable if it is a private channel otherwise it shall be disabled since this does not exist for public channels. -->
+                <!-- If selecting a preshared key= true the IS will generate a key which will be returned in the response. -->
+
+                <!-- This preshared key must then be displayed after creating the channel in a dialog and must be copied and
+                resubmitted in a local input by the creator to verify he knows about the key. Also add a warning that this key is
+                not stored anywhere and cant be recovered. -->
+
+                {#if channelType === ChannelType.private}
+                    <Label class="mt-3">Private channel has preshared Key</Label>
+                    <Input required type="select" name="select" class="mb-4" bind:value={hasPresharedKey}>
+                        <option value={(hasPresharedKey = true)}>true</option>
+                        <option value={(hasPresharedKey = false)}>false</option>
+                    </Input>
+                    <!-- {#if (hasPresharedKey = true)}
+                        <!-- call generatePresharedKey -->
+                    <!-- on success display the save Preshared key button-->
+                {/if}
+
                 <Label>Name</Label>
                 <Input
                     placeholder={'Channel name...'}
