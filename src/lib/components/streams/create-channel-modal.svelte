@@ -26,7 +26,7 @@
     let channelType = ChannelType.private
     let name: string = ''
     let description: string = ''
-    let unsubscribe
+    let unsubscribe: any 
     let formValidated = false
     let formContainer: HTMLFormElement
 
@@ -83,7 +83,7 @@
         ]
     }
 
-    function handleRemoveTopic(i) {
+    function handleRemoveTopic(i: number) {
         topics = [...topics.slice(0, i), ...topics.slice(i + 1)]
     }
 

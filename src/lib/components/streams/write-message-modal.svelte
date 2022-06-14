@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { FieldType } from '$lib/app'
+    import { FieldType, type WriteMessageForm } from '$lib/app'
     import { selectedChannelBusy, writeMessage } from '$lib/app/streams'
     import type { Input as InputType, SubmitButton } from '$lib/app/types/form'
     import { Form } from '$lib/components'
@@ -59,7 +59,7 @@
     ]
 
     let onSubmitButton: SubmitButton = {
-        onSubmit: (formFieldsValues) => {
+        onSubmit: (formFieldsValues: WriteMessageForm) => {
             handleWriteMessage(formFieldsValues)
         },
         loading: false,
@@ -68,9 +68,8 @@
         labelWhileLoading: 'Writing message...',
     }
 
-    async function handleWriteMessage(formFieldsValues): Promise<void> {
+    async function handleWriteMessage(formFieldsValues: WriteMessageForm): Promise<void> {
         formLoading = true
-
         // ---- Avoid locked channel error when sending messages ----
         while ($selectedChannelBusy) {
             timeout = setTimeout(() => handleWriteMessage(formFieldsValues), 100)

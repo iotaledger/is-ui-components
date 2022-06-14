@@ -6,7 +6,7 @@
     import Dropzone from 'svelte-file-dropzone'
     import { Button, Spinner } from 'sveltestrap'
 
-    export let switchToRegister
+    export let switchToRegister = (..._: any[]): void => {}
     export let onSuccess = (..._: any[]): void => {}
 
     let fileReader: FileReader

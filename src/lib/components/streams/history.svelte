@@ -6,7 +6,7 @@
     import ChannelInfo from '$lib/components/streams/channel-info.svelte'
     import type { ChannelData, ChannelInfo as ChannelInfoType } from '@iota/is-client'
 
-    export let channelAddress
+    export let channelAddress: string
     export let channelType: string
     export let presharedKey: string
 

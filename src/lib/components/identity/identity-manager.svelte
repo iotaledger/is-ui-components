@@ -123,7 +123,7 @@
         return { limit, creator }
     }
 
-    function onPageChange(page) {
+    function onPageChange(page: number) {
         selectedIdentityPageIndex.set(page)
     }
 

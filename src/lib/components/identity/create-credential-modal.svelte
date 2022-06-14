@@ -19,7 +19,8 @@
     // TODO: add possibility to not use this targetDid and enable the input
     export let targetDid: string = undefined
 
-    let selectedTemplate = credentialsTemplate?.[0] ?? DEFAULT_VCS_TEMPLATES[0]
+    let selectedTemplateId = credentialsTemplate?.[0].id ?? DEFAULT_VCS_TEMPLATES[0].id
+    $: selectedTemplate = credentialsTemplate.find((template) => template.id === selectedTemplateId)
     let verifiableCredential: VerifiableCredentialJson = undefined
     let formLoading = false
     let formInputs: InputType[] = []
@@ -64,7 +65,7 @@
         }
     }
 
-    $: selectedTemplate, onSelectedTemplateChange()
+    $: selectedTemplateId, onSelectedTemplateChange()
     $: formLoading, updateLoading()
 </script>
 
@@ -72,9 +73,9 @@
     <ModalHeader toggle={onClose} class="px-4 pt-3">Add a credential</ModalHeader>
     <ModalBody class="px-4 pb-4">
         <!-- Template selector -->
-        <Input required type="select" name="select" class="mb-4" bind:value={selectedTemplate}>
+        <Input required type="select" name="select" class="mb-4" bind:value={selectedTemplateId}>
             {#each credentialsTemplate as template}
-                <option value={template}>
+                <option value={template.id}>
                     {template.name}
                 </option>
             {/each}

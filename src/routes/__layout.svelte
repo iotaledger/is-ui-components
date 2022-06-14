@@ -24,7 +24,7 @@
         }
     })
 
-    function handleCollapse(event) {
+    function handleCollapse(event: CustomEvent) {
         isOpen = event.detail.isOpen
     }
 </script>

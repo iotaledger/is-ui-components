@@ -27,10 +27,10 @@
                 return
             }
 
-            await stopReadingChannel()
+            stopReadingChannel()
             await startReadingChannel(channel?.channelAddress)
         } else {
-            await stopReadingChannel()
+            stopReadingChannel()
         }
     }
 
