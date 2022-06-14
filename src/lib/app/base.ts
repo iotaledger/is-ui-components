@@ -30,7 +30,7 @@ authenticationData?.subscribe(($authenticationData) => {
 })
 
 function getUserRole(jwtToken: string): UserRoles {
-    if (window?.atob && jwtToken) {
+    if (typeof window !== 'undefined' && window?.atob && jwtToken) {
         const payload: JwtUser = JSON.parse(window?.atob(jwtToken?.split('.')?.[1]))?.user
         return payload.role
     }
