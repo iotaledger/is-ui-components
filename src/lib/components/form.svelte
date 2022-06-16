@@ -2,7 +2,7 @@
     import { FieldType } from '$lib/app'
     import type { Input as InputType, SubmitButton } from '$lib/app/types/form'
     import { Multiselect } from '$lib/components'
-    import { Button, FormGroup, Label, Spinner } from 'sveltestrap'
+    import { Button, FormGroup, Label, Spinner, Tooltip } from 'sveltestrap'
     import Input from 'sveltestrap/src/Input.svelte'
 
     export let enableValidation: boolean = false
@@ -13,6 +13,10 @@
     let unsubscribe
     let formValidated: boolean = false
     let formContainer: HTMLFormElement
+
+    let isPrivate = false
+    let isOpen = false
+    inputFields['isPrivate'] = isPrivate
 
     // In case of an input that allows multiple values in a same text input area, we need a separator to split the values.
     const STRING_ARRAY_SEPARATOR: string = ','
@@ -72,8 +76,23 @@
     <div class="overflow-content">
         {#each inputs as input}
             <FormGroup class="mb-4">
-                <Label class="mb-2">{input?.name}</Label>
-                {#if input?.type === FieldType.MultipleSelector}
+                <Label id={`label-${input?.id}`} class="mb-2">{input?.name}</Label>
+                {#if input?.type === FieldType.Checkbox && input?.id === 'isPrivate'}
+                    <Input
+                        class="ms-1"
+                        id={`input-${input?.id}`}
+                        type={getHTMLInputType(input?.type)}
+                        bind:checked={isPrivate}
+                        on:change={() => {
+                            inputFields[input?.id] = !isPrivate
+                            isOpen = !isPrivate
+                        }}
+                        on:blur={() => isOpen = false}
+                    />
+                    <Tooltip bind:isOpen placement="right" target={`label-${input?.id}`}>
+                        All credentials from other users will be hidden for this identity. Only admin users will be able to see the credentials.
+                    </Tooltip>
+                {:else if input?.type === FieldType.MultipleSelector}
                     <Multiselect bind:value={inputFields[input?.id]}>
                         {#each input?.options as { label, value }}
                             <option {value}>{label}</option>

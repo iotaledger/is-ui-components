@@ -10,6 +10,7 @@ export enum FieldType {
     StringArray = 'stringArray',
     Text = 'text',
     TextArea = 'textarea',
+    Checkbox = 'checkbox'
 }
 
 export enum ProductEnum {

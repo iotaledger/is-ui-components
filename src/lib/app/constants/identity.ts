@@ -8,6 +8,11 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Person,
         fields: [
             {
+                id: 'isPrivate',
+                name: 'Private Identity',
+                type: FieldType.Checkbox
+            },
+            {
                 id: 'username',
                 name: 'Username',
                 required: true,
@@ -51,18 +56,23 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
                 type: FieldType.Email,
             },
             {
-                id: 'bithdate',
+                id: 'birthdate',
                 name: 'Birth date',
                 type: FieldType.Date,
-            },
+            }
         ],
     },
     {
         type: UserType.Organization,
         fields: [
             {
+                id: 'isPrivate',
+                name: 'Private Identity',
+                type: FieldType.Checkbox
+            },
+            {
                 id: 'username',
-                name: 'username',
+                name: 'Username',
                 type: FieldType.Text,
                 required: true,
             },
@@ -108,8 +118,13 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Service,
         fields: [
             {
+                id: 'isPrivate',
+                name: 'Private Identity',
+                type: FieldType.Checkbox
+            },
+            {
                 id: 'username',
-                name: 'username',
+                name: 'Username',
                 type: FieldType.Text,
                 required: true,
             },
@@ -145,14 +160,19 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Device,
         fields: [
             {
+                id: 'isPrivate',
+                name: 'Private Identity',
+                type: FieldType.Checkbox
+            },
+            {
                 id: 'username',
-                name: 'username',
+                name: 'Username',
                 type: FieldType.Text,
                 required: true,
             },
             {
                 id: 'name',
-                name: 'name',
+                name: 'Name',
                 type: FieldType.Text,
                 required: true,
             },
@@ -184,14 +204,19 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Product,
         fields: [
             {
+                id: 'isPrivate',
+                name: 'Private Identity',
+                type: FieldType.Checkbox
+            },
+            {
                 id: 'username',
-                name: 'username',
+                name: 'Username',
                 type: FieldType.Text,
                 required: true,
             },
             {
                 id: 'name',
-                name: 'name',
+                name: 'Name',
                 type: FieldType.Text,
                 required: true,
             },
@@ -251,14 +276,19 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Unknown,
         fields: [
             {
+                id: 'isPrivate',
+                name: 'Private Identity',
+                type: FieldType.Checkbox
+            },
+            {
                 id: 'username',
-                name: 'username',
+                name: 'Username',
                 type: FieldType.Text,
                 required: true,
             },
             {
                 id: 'name',
-                name: 'name',
+                name: 'Name',
                 type: FieldType.Text,
                 required: true,
             },
