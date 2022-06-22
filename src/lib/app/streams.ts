@@ -9,10 +9,10 @@ import { AccessRights, type ChannelInfo } from '@iota/is-client'
 import { get } from 'svelte/store'
 import { authenticationData, channelClient, isAuthenticated } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
-import { DEFAULT_AUTHOR_FILTER_STATE, FEED_INTERVAL_MS } from './constants/streams'
+import { DEFAULT_AUTHOR_FILTER_STATE, DEFAULT_REQUESTED_SUBSCRIPTION_STATE, DEFAULT_SUBSCRIBED_FILTER_STATE, FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
-import { SubscriptionState } from './types/streams'
+import { SubscriptionState, type SearchOptions } from './types/streams'
 import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 import type { Reset } from './types/stores'
 import { reset } from './stores'
@@ -20,6 +20,8 @@ import { reset } from './stores'
 export const selectedChannelPageIndex: Reset<number> = reset(1)
 export const channelSearchQuery: Reset<string> = reset('')
 export const authorFilterState: Reset<boolean> = reset(DEFAULT_AUTHOR_FILTER_STATE)
+export const subscribedFilterState: Reset<boolean> = reset(DEFAULT_SUBSCRIBED_FILTER_STATE);
+export const requestedSubscriptionFilterState: Reset<boolean> = reset(DEFAULT_REQUESTED_SUBSCRIPTION_STATE);
 export const selectedChannel: Reset<ChannelInfo> = reset(null)
 export const searchChannelsResults: Reset<ChannelInfo[]> = reset([])
 export const selectedChannelData: Reset<ChannelData[]> = reset([])
@@ -54,17 +56,19 @@ export function resetStreamsState(): void {
 // stored in the searchChannelsResults store.
 // TODO: Improve search algorithm, now it is searching only by author id or topic type
 let index = 0
-export async function searchAllChannels(query: string, options?: { limit?: number; authorId?: string }): Promise<void> {
+export async function searchAllChannels(query: string, options?: SearchOptions): Promise<void> {
     const _search = async (
         _searchAllHash: string,
         query: string,
-        options?: { limit?: number; authorId?: string }
+        options?: { limit?: number; authorId?: string; subscribedId?: string, requestedSubscriptionId?: string }
     ): Promise<void> => {
         const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:')
         const newResults: ChannelInfo[] = await searchChannelsSingleRequest(query, {
             searchByAuthorId: _isAuthorId(query),
             searchBySource: !_isAuthorId(query),
             authorId: options?.authorId,
+            subscribedId: options?.subscribedId,
+            requestedSubscriptionId: options?.requestedSubscriptionId,
             limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
             index,
         })
@@ -97,15 +101,24 @@ export async function searchAllChannels(query: string, options?: { limit?: numbe
 
 export async function searchChannelsSingleRequest(
     query: string,
-    options: { searchByAuthorId?: boolean; searchBySource?: boolean; authorId?: string; limit: number; index?: number }
+    options: {
+        searchByAuthorId?: boolean;
+        searchBySource?: boolean;
+        authorId?: string;
+        subscribedId?: string,
+        requestedSubscriptionId?: string,
+        limit: number; index?: number
+    }
 ): Promise<ChannelInfo[]> {
     let partialResults = []
     if (get(isAuthenticated)) {
-        const { searchByAuthorId, searchBySource, authorId, limit, index } = options
+        const { searchByAuthorId, searchBySource, authorId, subscribedId, requestedSubscriptionId, limit, index } = options
         const authorIdQuery = searchByAuthorId ? query : undefined
         try {
             partialResults = await channelClient.search({
                 authorId: authorId ? authorId : authorIdQuery, // If set, authorId overrides searchByAuthorId
+                subscriberId: subscribedId ? subscribedId : authorIdQuery,
+                requestedSubscriptionId: requestedSubscriptionId ? requestedSubscriptionId : authorIdQuery,
                 topicSource: searchBySource ? query : undefined,
                 limit: limit,
                 index: index,
@@ -329,8 +342,8 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
             return !ownSuscription
                 ? SubscriptionState.NotSubscribed
                 : ownSuscription.isAuthorized
-                ? SubscriptionState.Authorized
-                : SubscriptionState.Subscribed
+                    ? SubscriptionState.Authorized
+                    : SubscriptionState.Subscribed
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -455,4 +468,8 @@ export function isUserOwnerOfChannel(userDID: string, channel: ChannelInfo): boo
 
 export function isUserSubscribedToChannel(userDID: string, channel: ChannelInfo): boolean {
     return channel?.subscriberIds?.includes(userDID) && channel?.authorId !== userDID
+}
+
+export function hasUserRequestedSubscriptionToChannel(userDID: string, channel: ChannelInfo): boolean{
+    return channel?.requestedSubscriptionIds?.includes(userDID) && channel?.authorId !== userDID
 }

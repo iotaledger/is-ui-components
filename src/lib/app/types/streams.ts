@@ -15,3 +15,10 @@ export type WriteMessageForm = {
     publicPayload?: string
     type?: string
 }
+
+export type SearchOptions = {
+    limit?: number
+    authorId?: string
+    subscribedId?: string 
+    requestedSubscriptionId?: string 
+}
