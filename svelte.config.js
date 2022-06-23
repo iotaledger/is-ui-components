@@ -24,6 +24,9 @@ const config = {
                     $lib: path.resolve('./src/lib'),
                 },
             },
+            ssr: {
+                noExternal: ['@popperjs/core']
+              }
         },
     },
 }

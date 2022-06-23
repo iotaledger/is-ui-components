@@ -18,7 +18,6 @@
     export let handleRejectSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
     $: subscriptionStatus, manageChannelData()
     $: isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
-
     async function manageChannelData(): Promise<void> {
         if (subscriptionStatus === SubscriptionState.Authorized) {
             if (channel.type === ChannelType.public) {
