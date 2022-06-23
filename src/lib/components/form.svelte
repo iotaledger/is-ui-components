@@ -13,9 +13,8 @@
     let unsubscribe
     let formValidated: boolean = false
     let formContainer: HTMLFormElement
-
-    let isPrivate = false
-    let isOpen = false
+    let isPrivate: boolean = false
+    let isOpen: boolean = false
     inputFields['isPrivate'] = isPrivate
 
     // In case of an input that allows multiple values in a same text input area, we need a separator to split the values.
@@ -90,7 +89,7 @@
                         on:blur={() => isOpen = false}
                     />
                     <Tooltip bind:isOpen placement="right" target={`label-${input?.id}`}>
-                        All credentials from other users will be hidden for this identity. Only admin users will be able to see the credentials.
+                        All credentials are hidden to other users.
                     </Tooltip>
                 {:else if input?.type === FieldType.MultipleSelector}
                     <Multiselect bind:value={inputFields[input?.id]}>
