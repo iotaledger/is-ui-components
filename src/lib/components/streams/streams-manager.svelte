@@ -62,19 +62,9 @@
     ]
     $: filters = [
         {
-            label: 'Author of Channels',
+            label: 'Show related Channels',
             onChange: () => setFilterState(authorFilterState),
             state: $authorFilterState,
-        },
-        {
-            label: 'Subscribed to Channels',
-            onChange: () => setFilterState(subscribedFilterState),
-            state: $subscribedFilterState,
-        },
-        {
-            label: 'Requested Subscriptions',
-            onChange: () => setFilterState(requestedSubscriptionFilterState),
-            state: $requestedSubscriptionFilterState,
         },
     ] as FilterCheckbox[]
 
@@ -162,22 +152,23 @@
     }
 
     function getSearchOptions(firstLoad = false): SearchOptions {
-        const subscribedId = get(subscribedFilterState) ? get(authenticatedUserDID) : undefined
-        const requestedSubscriptionId = get(requestedSubscriptionFilterState) ? get(authenticatedUserDID) : undefined
         const authorId = get(authorFilterState) ? get(authenticatedUserDID) : undefined
         const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
-        return { limit, authorId, subscribedId, requestedSubscriptionId }
+        return { limit, authorId }
     }
 
     async function loadMore(entries: number): Promise<void> {
         const _isAuthorId = (q: string): boolean => q?.startsWith('did:iota:')
 
-        const newChannels = await searchChannelsSingleRequest(get(channelSearchQuery), {
-            searchByAuthorId: _isAuthorId(get(channelSearchQuery)),
-            searchBySource: !_isAuthorId(get(channelSearchQuery)),
-            limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-            index: Math.ceil(entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT),
-        })
+        const newChannels = await searchChannelsSingleRequest(
+            get(channelSearchQuery),
+            _isAuthorId(get(channelSearchQuery)),
+            !_isAuthorId(get(channelSearchQuery)),
+            {
+                limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+                index: Math.ceil(entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT),
+            }
+        )
         searchChannelsResults.update((results) => [...results, ...newChannels])
     }
 
@@ -313,7 +304,7 @@
             {tableData}
             {message}
             {tableConfiguration}
-            title="Show related Channels"
+            title="Channels"
             searchPlaceholder="Search channels"
             selectedPageIndex={$selectedChannelPageIndex}
             {onPageChange}

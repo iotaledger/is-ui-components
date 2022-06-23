@@ -54,24 +54,23 @@ export function resetStreamsState(): void {
 // Note: this is an async function that returns nothing, but fills the searchChannelsResults store.
 // This is because the searchAllChannels function is called in the background, and the results are
 // stored in the searchChannelsResults store.
-// TODO: Improve search algorithm, now it is searching only by author id or topic type
 let index = 0
 export async function searchAllChannels(query: string, options?: SearchOptions): Promise<void> {
     const _search = async (
         _searchAllHash: string,
         query: string,
-        options?: { limit?: number; authorId?: string; subscribedId?: string, requestedSubscriptionId?: string }
+        options?: SearchOptions
     ): Promise<void> => {
         const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:')
-        const newResults: ChannelInfo[] = await searchChannelsSingleRequest(query, {
-            searchByAuthorId: _isAuthorId(query),
-            searchBySource: !_isAuthorId(query),
-            authorId: options?.authorId,
-            subscribedId: options?.subscribedId,
-            requestedSubscriptionId: options?.requestedSubscriptionId,
-            limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-            index,
-        })
+        const newResults: ChannelInfo[] = await searchChannelsSingleRequest(
+            query,
+            _isAuthorId(query),
+            !_isAuthorId(query),
+            {
+                authorId: options?.authorId,
+                limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+                index,
+            })
         // filter out old requests
         if (_searchAllHash === searchAllHash) {
             if (newResults?.length) {
@@ -101,25 +100,20 @@ export async function searchAllChannels(query: string, options?: SearchOptions):
 
 export async function searchChannelsSingleRequest(
     query: string,
-    options: {
-        searchByAuthorId?: boolean;
-        searchBySource?: boolean;
-        authorId?: string;
-        subscribedId?: string,
-        requestedSubscriptionId?: string,
-        limit: number; index?: number
-    }
+    searchByAuthorId: boolean,
+    searchBySource: boolean,
+    options: SearchOptions
 ): Promise<ChannelInfo[]> {
     let partialResults = []
     if (get(isAuthenticated)) {
-        const { searchByAuthorId, searchBySource, authorId, subscribedId, requestedSubscriptionId, limit, index } = options
+        const { authorId, limit, index } = options
         const authorIdQuery = searchByAuthorId ? query : undefined
         try {
             partialResults = await channelClient.search({
                 authorId: authorId ? authorId : authorIdQuery, // If set, authorId overrides searchByAuthorId
-                subscriberId: subscribedId ? subscribedId : authorIdQuery,
-                requestedSubscriptionId: requestedSubscriptionId ? requestedSubscriptionId : authorIdQuery,
-                topicSource: searchBySource ? query : undefined,
+                subscriberId: authorId ? authorId : authorIdQuery,
+                requestedSubscriptionId: authorId ? authorId : authorIdQuery,
+                topicSource: (searchBySource && query) ? query : undefined,
                 limit: limit,
                 index: index,
                 ascending: false,
@@ -470,6 +464,6 @@ export function isUserSubscribedToChannel(userDID: string, channel: ChannelInfo)
     return channel?.subscriberIds?.includes(userDID) && channel?.authorId !== userDID
 }
 
-export function hasUserRequestedSubscriptionToChannel(userDID: string, channel: ChannelInfo): boolean{
+export function hasUserRequestedSubscriptionToChannel(userDID: string, channel: ChannelInfo): boolean {
     return channel?.requestedSubscriptionIds?.includes(userDID) && channel?.authorId !== userDID
 }

@@ -17,8 +17,11 @@ export type WriteMessageForm = {
 }
 
 export type SearchOptions = {
-    limit?: number
     authorId?: string
-    subscribedId?: string 
-    requestedSubscriptionId?: string 
+    subscriberId?: string
+    requestedSubscriptionId?: string
+    topicSource?: string
+    limit?: number
+    index?: number
+    ascending?: boolean
 }
