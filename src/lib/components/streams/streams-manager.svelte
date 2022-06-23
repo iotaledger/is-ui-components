@@ -62,7 +62,7 @@
     ]
     $: filters = [
         {
-            label: 'Show related Channels',
+            label: 'Show related channels',
             onChange: () => setFilterState(authorFilterState),
             state: $authorFilterState,
         },
