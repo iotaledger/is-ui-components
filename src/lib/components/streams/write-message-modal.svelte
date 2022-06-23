@@ -16,7 +16,6 @@
     export let onSuccess = (..._: any[]): void => {}
     const MAX_LENGTH_TEXTAREA = 100
     const MIN_LENGTH_TEXTAREA = 3
-    // console.log("TYPE",typeof type)
     let timeout: NodeJS.Timeout
     let formLoading = false
     let formInputPrivate: InputType[] = [
@@ -48,6 +47,7 @@
             maxLength: MAX_LENGTH_TEXTAREA,
         },
     ]
+    
     let formInputPublic: InputType[] = [
         {
             id: 'publicPayload',
