@@ -9,13 +9,12 @@
     export let inputs: InputType[]
     export let onSubmitButton: SubmitButton
 
-    let inputFields = {}
     let unsubscribe
     let formValidated: boolean = false
     let formContainer: HTMLFormElement
     let isPrivate: boolean = false
     let isOpen: boolean = false
-    inputFields['isPrivate'] = isPrivate
+    let inputFields = { isPrivate }
 
     // In case of an input that allows multiple values in a same text input area, we need a separator to split the values.
     const STRING_ARRAY_SEPARATOR: string = ','
@@ -78,7 +77,6 @@
                 <Label id={`label-${input?.id}`} class="mb-2">{input?.name}</Label>
                 {#if input?.type === FieldType.Checkbox && input?.id === 'isPrivate'}
                     <Input
-                        class="ms-1"
                         id={`input-${input?.id}`}
                         type={getHTMLInputType(input?.type)}
                         bind:checked={isPrivate}
@@ -86,7 +84,7 @@
                             inputFields[input?.id] = !isPrivate
                             isOpen = !isPrivate
                         }}
-                        on:blur={() => isOpen = false}
+                        on:blur={() => (isOpen = false)}
                     />
                     <Tooltip bind:isOpen placement="right" target={`label-${input?.id}`}>
                         All credentials are hidden to other users.
