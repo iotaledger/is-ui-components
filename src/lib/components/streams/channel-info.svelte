@@ -33,7 +33,7 @@
                     <Badge pill color="info">owner</Badge>
                 {:else if !isUserOwner && subscriptionStatus === SubscriptionState.Requested}
                     <Badge pill color="info">requested</Badge>
-                {:else if !isUserOwner && subscriptionStatus === SubscriptionState.Subscribed}
+                {:else if !isUserOwner && subscriptionStatus === SubscriptionState.Authorized}
                     <Badge pill color="success">subscribed</Badge>
                 {/if}
                 {#if channel?.type}

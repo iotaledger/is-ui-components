@@ -33,7 +33,7 @@
     } from '$lib/app/streams'
     import { get, writable, type Writable } from 'svelte/store'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
-    import { SubscriptionState, type SearchOptions } from '$lib/app/types/streams'
+    import { ChannelType, SubscriptionState, type SearchOptions } from '$lib/app/types/streams'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, ChannelDetails, CreateChannelModal, Icon, ListManager, WriteMessageModal } from '$lib/components'
     import type { ChannelInfo } from '@iota/is-client'
@@ -202,9 +202,9 @@
 
     async function handleBackClick(): Promise<void> {
         selectedChannel.set(undefined)
-        if(subscriptionStatusChanged){
-            await onSearch();
-            subscriptionStatusChanged = false;
+        if (subscriptionStatusChanged) {
+            await onSearch()
+            subscriptionStatusChanged = false
         }
     }
 
@@ -232,8 +232,10 @@
         loading = true
         const response = await requestSubscription($selectedChannel?.channelAddress)
         if (response) {
-            subscriptionStatus.set(SubscriptionState.Requested)
-            subscriptionStatusChanged = true;
+            $selectedChannel.type === ChannelType.private
+                ? subscriptionStatus.set(SubscriptionState.Requested)
+                : subscriptionStatus.set(SubscriptionState.Authorized)
+            subscriptionStatusChanged = true
         }
         loading = false
     }
@@ -243,7 +245,7 @@
         const response = await requestUnsubscription($selectedChannel?.channelAddress)
         if (response) {
             subscriptionStatus.set(SubscriptionState.NotSubscribed)
-            subscriptionStatusChanged = true;
+            subscriptionStatusChanged = true
         }
         loading = false
     }
