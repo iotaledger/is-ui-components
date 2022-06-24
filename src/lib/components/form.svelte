@@ -74,67 +74,78 @@
     <div class="overflow-content">
         {#each inputs as input}
             <FormGroup class="mb-4">
-                <Label id={`label-${input?.id}`} class="mb-2">{input?.name}</Label>
+                <!-- <Label id={`label-${input?.id}`} class="mb-2">{input?.name}</Label>
                 {#if input?.type === FieldType.Checkbox && input?.id === 'isPrivate'}
-                    <Input
-                        id={`input-${input?.id}`}
-                        type={getHTMLInputType(input?.type)}
-                        bind:checked={isPrivate}
-                        on:change={() => {
-                            inputFields[input?.id] = !isPrivate
-                            isOpen = !isPrivate
-                        }}
-                        on:blur={() => (isOpen = false)}
-                    />
-                    <Tooltip bind:isOpen placement="right" target={`label-${input?.id}`}>
+                    afokawpofkawopfk
+                    
+                {:else if input?.type === FieldType.MultipleSelector}-->
+                {#if input?.type === FieldType.Checkbox}
+                    <div id="input-container-{input?.id}" class="d-inline-block">
+                        <Input
+                            id={`input-${input?.id}`}
+                            class="ms-1"
+                            type={getHTMLInputType(input?.type)}
+                            bind:checked={isPrivate}
+                            on:change={() => {
+                                inputFields[input?.id] = !isPrivate
+                                isOpen = !isPrivate
+                            }}
+                            label={input?.name}
+                            on:blur={() => (isOpen = false)}
+                        />
+                    </div>
+                    <Tooltip bind:isOpen placement="right" target={`input-container-isPrivate`}>
                         All credentials are hidden to other users.
                     </Tooltip>
-                {:else if input?.type === FieldType.MultipleSelector}
-                    <Multiselect bind:value={inputFields[input?.id]}>
-                        {#each input?.options as { label, value }}
-                            <option {value}>{label}</option>
-                        {/each}
-                    </Multiselect>
                 {:else}
-                    <Input
-                        id={`input-${input?.id}`}
-                        class="py-3 ps-3"
-                        placeholder={`${input?.name} ${input?.required ? '*' : ''}`}
-                        type={getHTMLInputType(input?.type)}
-                        bind:value={inputFields[input?.id]}
-                        required={input?.required}
-                        minlength={input?.minLength}
-                        maxlength={input?.maxLength}
-                        on:keydown={input?.onKeyDown}
-                        on:input={(event) => {
-                            if (input?.type === FieldType.StringArray) {
-                                onStringArrayInput(event, input?.id)
-                            }
-                        }}
-                    >
-                        {#if input?.type === FieldType.Selector}
-                            {#each input?.options as { value, label }}
+                    <Label class="mb-2">{input?.name}</Label>
+                    {#if input?.type === FieldType.MultipleSelector}
+                        <Multiselect bind:value={inputFields[input?.id]}>
+                            {#each input?.options as { label, value }}
                                 <option {value}>{label}</option>
                             {/each}
+                        </Multiselect>
+                    {:else}
+                        <Input
+                            id={`input-${input?.id}`}
+                            class="py-3 ps-3"
+                            placeholder={`${input?.name} ${input?.required ? '*' : ''}`}
+                            type={getHTMLInputType(input?.type)}
+                            bind:value={inputFields[input?.id]}
+                            required={input?.required}
+                            minlength={input?.minLength}
+                            maxlength={input?.maxLength}
+                            on:keydown={input?.onKeyDown}
+                            on:input={(event) => {
+                                if (input?.type === FieldType.StringArray) {
+                                    onStringArrayInput(event, input?.id)
+                                }
+                            }}
+                        >
+                            {#if input?.type === FieldType.Selector}
+                                {#each input?.options as { value, label }}
+                                    <option {value}>{label}</option>
+                                {/each}
+                            {/if}
+                        </Input>
+                        <div class="invalid-feedback">
+                            {#if !inputFields[input?.id]?.length}
+                                This field is required
+                            {:else if input?.maxLength && inputFields[input?.id]?.length > input?.maxLength}
+                                This field must be at most {input?.maxLength} characters long
+                            {:else if input?.minLength && inputFields[input?.id]?.length < input?.minLength}
+                                This field must be at least {input?.minLength} characters long
+                            {:else}
+                                This field is invalid
+                            {/if}
+                        </div>
+                        {#if input?.type === FieldType.StringArray && inputFields[input?.id]?.length > 0}
+                            <Label class="fst-italic text-secondary">
+                                Multiple values ​​can be chosen when separated by <span class="fst-italic fw-bold"
+                                    >"{STRING_ARRAY_SEPARATOR}"</span
+                                >
+                            </Label>
                         {/if}
-                    </Input>
-                    <div class="invalid-feedback">
-                        {#if !inputFields[input?.id]?.length}
-                            This field is required
-                        {:else if input?.maxLength && inputFields[input?.id]?.length > input?.maxLength}
-                            This field must be at most {input?.maxLength} characters long
-                        {:else if input?.minLength && inputFields[input?.id]?.length < input?.minLength}
-                            This field must be at least {input?.minLength} characters long
-                        {:else}
-                            This field is invalid
-                        {/if}
-                    </div>
-                    {#if input?.type === FieldType.StringArray && inputFields[input?.id]?.length > 0}
-                        <Label class="fst-italic text-secondary">
-                            Multiple values ​​can be chosen when separated by <span class="fst-italic fw-bold"
-                                >"{STRING_ARRAY_SEPARATOR}"</span
-                            >
-                        </Label>
                     {/if}
                 {/if}
             </FormGroup>

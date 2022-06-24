@@ -56,7 +56,7 @@
 
 <!-- Template selector -->
 <Label class="mb-2">Identity template</Label>
-<Input required type="select" name="select" class="mb-4" bind:value={selectedTemplate}>
+<Input required type="select" name="select" class="mb-1" bind:value={selectedTemplate}>
     {#each identitiesTemplate as _user}
         <option value={_user}>
             {_user.type}
