@@ -12,9 +12,9 @@
     let unsubscribe
     let formValidated: boolean = false
     let formContainer: HTMLFormElement
-    let isPrivate: boolean = false
+    let hidden: boolean = false
     let isOpen: boolean = false
-    let inputFields = { isPrivate }
+    let inputFields = { hidden }
 
     // In case of an input that allows multiple values in a same text input area, we need a separator to split the values.
     const STRING_ARRAY_SEPARATOR: string = ','
@@ -74,27 +74,22 @@
     <div class="overflow-content">
         {#each inputs as input}
             <FormGroup class="mb-4">
-                <!-- <Label id={`label-${input?.id}`} class="mb-2">{input?.name}</Label>
-                {#if input?.type === FieldType.Checkbox && input?.id === 'isPrivate'}
-                    afokawpofkawopfk
-                    
-                {:else if input?.type === FieldType.MultipleSelector}-->
                 {#if input?.type === FieldType.Checkbox}
                     <div id="input-container-{input?.id}" class="d-inline-block">
                         <Input
                             id={`input-${input?.id}`}
                             class="ms-1"
                             type={getHTMLInputType(input?.type)}
-                            bind:checked={isPrivate}
+                            bind:checked={hidden}
                             on:change={() => {
-                                inputFields[input?.id] = !isPrivate
-                                isOpen = !isPrivate
+                                inputFields[input?.id] = !hidden
+                                isOpen = !hidden
                             }}
                             label={input?.name}
                             on:blur={() => (isOpen = false)}
                         />
                     </div>
-                    <Tooltip bind:isOpen placement="right" target={`input-container-isPrivate`}>
+                    <Tooltip bind:isOpen placement="right" target={`input-container-hidden`}>
                         All credentials are hidden to other users.
                     </Tooltip>
                 {:else}

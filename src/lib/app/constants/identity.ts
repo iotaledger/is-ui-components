@@ -8,9 +8,9 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Person,
         fields: [
             {
-                id: 'isPrivate',
-                name: 'Private Identity',
-                type: FieldType.Checkbox
+                id: 'hidden',
+                name: 'Hidden Identity',
+                type: FieldType.Checkbox,
             },
             {
                 id: 'username',
@@ -59,16 +59,16 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
                 id: 'birthdate',
                 name: 'Birth date',
                 type: FieldType.Date,
-            }
+            },
         ],
     },
     {
         type: UserType.Organization,
         fields: [
             {
-                id: 'isPrivate',
-                name: 'Private Identity',
-                type: FieldType.Checkbox
+                id: 'hidden',
+                name: 'Hidden Identity',
+                type: FieldType.Checkbox,
             },
             {
                 id: 'username',
@@ -118,9 +118,9 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Service,
         fields: [
             {
-                id: 'isPrivate',
-                name: 'Private Identity',
-                type: FieldType.Checkbox
+                id: 'hidden',
+                name: 'Hidden Identity',
+                type: FieldType.Checkbox,
             },
             {
                 id: 'username',
@@ -160,9 +160,9 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Device,
         fields: [
             {
-                id: 'isPrivate',
-                name: 'Private Identity',
-                type: FieldType.Checkbox
+                id: 'hidden',
+                name: 'Hidden Identity',
+                type: FieldType.Checkbox,
             },
             {
                 id: 'username',
@@ -204,9 +204,9 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Product,
         fields: [
             {
-                id: 'isPrivate',
-                name: 'Private Identity',
-                type: FieldType.Checkbox
+                id: 'hidden',
+                name: 'Hidden Identity',
+                type: FieldType.Checkbox,
             },
             {
                 id: 'username',
@@ -276,9 +276,9 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Unknown,
         fields: [
             {
-                id: 'isPrivate',
-                name: 'Private Identity',
-                type: FieldType.Checkbox
+                id: 'hidden',
+                name: 'Hidden Identity',
+                type: FieldType.Checkbox,
             },
             {
                 id: 'username',
