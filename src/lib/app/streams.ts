@@ -337,7 +337,7 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
                 ? SubscriptionState.NotSubscribed
                 : ownSuscription.isAuthorized
                     ? SubscriptionState.Authorized
-                    : SubscriptionState.Subscribed
+                    : SubscriptionState.Requested
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,

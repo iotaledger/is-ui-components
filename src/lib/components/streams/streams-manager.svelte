@@ -29,8 +29,6 @@
         stopReadingChannel,
         channelSearchQuery,
         authorFilterState,
-        subscribedFilterState,
-        requestedSubscriptionFilterState,
         hasUserRequestedSubscriptionToChannel,
     } from '$lib/app/streams'
     import { get, writable, type Writable } from 'svelte/store'
@@ -82,6 +80,9 @@
     let isWriteMesageModalOpen: boolean = false
 
     let subscriptionTimeout: number
+
+    //used to load tabledata when subscribed,revoked or unsubscribed in channel details view and went back to list overview
+    let subscriptionStatusChanged: boolean = false
 
     function onPageChange(page: number) {
         selectedChannelPageIndex.set(page)
@@ -199,8 +200,12 @@
         selectedChannel.set(channel)
     }
 
-    function handleBackClick(): void {
+    async function handleBackClick(): Promise<void> {
         selectedChannel.set(undefined)
+        if(subscriptionStatusChanged){
+            await onSearch();
+            subscriptionStatusChanged = false;
+        }
     }
 
     // Add the newly created channel to the search results
@@ -227,7 +232,8 @@
         loading = true
         const response = await requestSubscription($selectedChannel?.channelAddress)
         if (response) {
-            subscriptionStatus.set(SubscriptionState.Subscribed)
+            subscriptionStatus.set(SubscriptionState.Requested)
+            subscriptionStatusChanged = true;
         }
         loading = false
     }
@@ -237,6 +243,7 @@
         const response = await requestUnsubscription($selectedChannel?.channelAddress)
         if (response) {
             subscriptionStatus.set(SubscriptionState.NotSubscribed)
+            subscriptionStatusChanged = true;
         }
         loading = false
     }
@@ -254,6 +261,7 @@
 
         await acceptSubscription($selectedChannel?.channelAddress, subscriptionId, true)
         await updateSubscriptions()
+        subscriptionStatusChanged = true
     }
 
     async function handleRejectSubscription(subscriptionId: string): Promise<void> {
@@ -269,6 +277,7 @@
 
         await rejectSubscription($selectedChannel?.channelAddress, subscriptionId, true)
         await updateSubscriptions()
+        subscriptionStatusChanged = true
     }
 
     async function updateSubscriptions(): Promise<void> {

@@ -16,7 +16,7 @@
 
     const BUTTON_MESSAGE = {
         [SubscriptionState.NotSubscribed]: 'Subscribe',
-        [SubscriptionState.Subscribed]: 'Waiting for approval',
+        [SubscriptionState.Requested]: 'Waiting for approval',
         [SubscriptionState.Authorized]: 'Unsubscribe',
     }
 </script>
@@ -31,8 +31,10 @@
                 </div>
                 {#if isUserOwner}
                     <Badge pill color="info">owner</Badge>
+                {:else if !isUserOwner && subscriptionStatus === SubscriptionState.Requested}
+                    <Badge pill color="info">requested</Badge>
                 {:else if !isUserOwner && subscriptionStatus === SubscriptionState.Subscribed}
-                    <Badge pill color="success">subscriber</Badge>
+                    <Badge pill color="success">subscribed</Badge>
                 {/if}
                 {#if channel?.type}
                     <Badge color="dark" class="me-1">{channel?.type}</Badge>
@@ -54,7 +56,7 @@
                     color="dark"
                     on:click={onSubscriptionAction}
                     class="mt-3 mt-lg-0  d-flex align-items-center"
-                    disabled={loading || subscriptionStatus === SubscriptionState.Subscribed}
+                    disabled={loading || subscriptionStatus === SubscriptionState.Subscribed || subscriptionStatus === SubscriptionState.Requested }
                 >
                     {#if subscriptionStatus != SubscriptionState.Subscribed}
                         <div class="me-1">

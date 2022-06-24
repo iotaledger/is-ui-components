@@ -1,6 +1,7 @@
 export enum SubscriptionState {
     Authorized = 'Authorized',
     Subscribed = 'Subscribed',
+    Requested = 'Requested',
     NotSubscribed = 'NotSubscribed',
 }
 
