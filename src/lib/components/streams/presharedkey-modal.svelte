@@ -10,10 +10,9 @@
 
 <div>
   <Modal isOpen={open} {toggle}>
-    <ModalHeader {toggle}>Preshared Key</ModalHeader>
     <ModalBody>
       <h4>This key is not stored anywhere and can't be recovered.</h4>
-      <b><i>{presharedKey}</i></b>
+      Preshared Key: <b>{presharedKey}</b>
     </ModalBody>
     <ModalFooter>
       <Button color="secondary" on:click={toggle}>Cancel</Button>
