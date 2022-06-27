@@ -7,8 +7,7 @@
     import { Button, FormGroup, Input, Label, ModalBody, ModalFooter, ModalHeader, Spinner, Collapse, Styles } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
-    import PresharedKeyModal from '$lib/components/streams/presharedkey-modal.svelte'
-import PresharedkeyModal from '$lib/components/streams/presharedkey-modal.svelte'
+    
     export let isOpen: boolean = false
     export let onModalClose = (..._: any[]): void => {}
     export let onSuccess = (..._: any[]): void => {}
@@ -34,6 +33,10 @@ import PresharedkeyModal from '$lib/components/streams/presharedkey-modal.svelte
     let formValidated = false
     let formContainer: HTMLFormElement
     let isOpenn = true
+    let isCreated = true
+    let open = true;
+    const toggle = () => (open = !open);
+
     $: formContainer, manageFormSubscription()
 
     function manageFormSubscription() {
@@ -72,12 +75,13 @@ import PresharedkeyModal from '$lib/components/streams/presharedkey-modal.svelte
             resetTopics()
             onSuccess(channel.channelAddress)
             formValidated = false
+            isCreated = true
         }
         loading = false
+        isCreated = false
         onClose()
         presharedKey = channel.presharedKey
     }
-
 
     async function handleToggle() {
         acceptTerms = !acceptTerms
@@ -121,6 +125,8 @@ import PresharedkeyModal from '$lib/components/streams/presharedkey-modal.svelte
         onModalClose()
     }
 </script>
+
+
 <Modal {isOpen} toggle={onClose}>
     <ModalHeader toggle={onClose} class="px-4 pt-3">Create channel</ModalHeader>
 
@@ -221,8 +227,22 @@ import PresharedkeyModal from '$lib/components/streams/presharedkey-modal.svelte
                     {/if}
                 </div>
             </Button>
-            <h2>Test</h2>
         </ModalFooter>
     </form>
 </Modal>
 
+{#if presharedKey}
+<div>
+    <Modal isOpen={open} {toggle}>
+      <ModalHeader {toggle}>Preshared Key</ModalHeader>
+      <ModalBody>
+        This key is not stored anywhere and can't be recovered.
+        {presharedKey}
+      </ModalBody>
+      <ModalFooter>
+        <Button color="secondary" on:click={toggle}>Cancel</Button>
+      </ModalFooter>
+    </Modal>
+  </div>
+<h2>Tets</h2>
+{/if}
