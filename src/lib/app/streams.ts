@@ -349,7 +349,6 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
 export async function writeMessage(
     address: string,
     payload?: string,
-    publicPayload?: string,
     metadata?: string,
     type?: string,
     triggerReadChannel = false
@@ -362,7 +361,6 @@ export async function writeMessage(
         try {
             const response: ChannelData = await channelClient.write(address, {
                 payload,
-                publicPayload,
                 metadata,
                 type,
             })

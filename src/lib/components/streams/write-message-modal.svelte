@@ -1,4 +1,4 @@
-<script  lang="ts">
+<script lang="ts">
     import { FieldType, type WriteMessageForm } from '$lib/app'
     import { selectedChannelBusy, writeMessage } from '$lib/app/streams'
     import type { Input as InputType, SubmitButton } from '$lib/app/types/form'
@@ -11,14 +11,14 @@
     export let address: string
     export let isOpen: boolean = false
     export let title: string = 'Write a message'
-    export let channelType:string = ''
+    export let channelType: string = ''
     export let onModalClose = (..._: any[]): void => {}
     export let onSuccess = (..._: any[]): void => {}
     const MAX_LENGTH_TEXTAREA = 100
     const MIN_LENGTH_TEXTAREA = 3
     let timeout: NodeJS.Timeout
     let formLoading = false
-    let formInputPrivate: InputType[] = [
+    let formInputs: InputType[] = [
         {
             id: 'payload',
             name: 'Payload',
@@ -47,37 +47,6 @@
             maxLength: MAX_LENGTH_TEXTAREA,
         },
     ]
-    
-    let formInputPublic: InputType[] = [
-        {
-            id: 'publicPayload',
-            name: 'Public payload',
-            placeholder: 'Public payload',
-            required: false,
-            type: FieldType.TextArea,
-            minLength: MIN_LENGTH_TEXTAREA,
-            maxLength: MAX_LENGTH_TEXTAREA,
-        },
-        {
-            id: 'metadata',
-            name: 'Metadata',
-            placeholder: 'Metadata',
-            required: false,
-            type: FieldType.TextArea,
-            minLength: MIN_LENGTH_TEXTAREA,
-            maxLength: MAX_LENGTH_TEXTAREA,
-        },
-        {
-            id: 'type',
-            name: 'Type',
-            placeholder: 'Type',
-            required: false,
-            type: FieldType.TextArea,
-            minLength: MIN_LENGTH_TEXTAREA,
-            maxLength: MAX_LENGTH_TEXTAREA,
-        },
-    ]
-    
 
     let onSubmitButton: SubmitButton = {
         onSubmit: (formFieldsValues: WriteMessageForm) => {
@@ -98,11 +67,21 @@
         }
         // ----------------------------------------------------------
         const { payload, publicPayload, metadata, type } = formFieldsValues
-        const message = await writeMessage(address, payload, publicPayload, metadata, type, true)
-        if (message) {
-            onSuccess()
-            onModalClose()
+
+        if (channelType === 'private') {
+            const message = await writeMessage(address, payload, metadata, type, true)
+            if (message) {
+                onSuccess()
+                onModalClose()
+            }
+        } else {
+            const message = await writeMessage(address, publicPayload, metadata, type, true)
+            if (message) {
+                onSuccess()
+                onModalClose()
+            }
         }
+
         formLoading = false
     }
 
@@ -129,11 +108,6 @@
 <Modal {isOpen} toggle={onClose}>
     <ModalHeader toggle={onClose} class="px-4 pt-3">{title}</ModalHeader>
     <ModalBody class="px-4 pb-4">
-        {#if channelType === 'private'}
-        <Form enableValidation inputs={formInputPrivate} {onSubmitButton} />
-        {:else }
-        <Form enableValidation inputs={formInputPublic} {onSubmitButton} />
-        {/if}
-
+        <Form enableValidation inputs={formInputs} {onSubmitButton} />
     </ModalBody>
 </Modal>
