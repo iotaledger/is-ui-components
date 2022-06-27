@@ -4,7 +4,7 @@
     import { BoxColor } from '$lib/app/constants/colors'
     import { createChannel } from '$lib/app/streams'
     import { Icon } from '$lib/components'
-    import { Button, FormGroup, Input, Label, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
+    import { Button, FormGroup, Input, Label, ModalBody, ModalFooter, ModalHeader, Spinner, Collapse, Styles } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
 
@@ -24,9 +24,11 @@
         },
     ]
     let channelType = ChannelType.private
+    let hasPresharedKey
+    let acceptTerms = false;
     let name: string = ''
     let description: string = ''
-    let unsubscribe: any 
+    let unsubscribe: any
     let formValidated = false
     let formContainer: HTMLFormElement
 
@@ -117,6 +119,17 @@
                     <option value={ChannelType.private}>Private Channel</option>
                     <option value={ChannelType.public}>Public Channel</option>
                 </Input>
+                {#if channelType === ChannelType.private}
+                    <Label class="mt-3">Private channel has preshared Key</Label>
+                    <Input type="switch" bind:checked={acceptTerms}/>
+                    {#if acceptTerms}
+                       
+                    {/if}
+                    <!-- {#if (hasPresharedKey = true)}
+                    <!-- call generatePresharedKey -->
+                    <!-- on success display the save Preshared key button-->
+                {/if}
+
                 <Label>Name</Label>
                 <Input
                     placeholder={'Channel name...'}
