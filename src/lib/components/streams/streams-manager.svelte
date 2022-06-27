@@ -29,15 +29,17 @@
         stopReadingChannel,
         channelSearchQuery,
         authorFilterState,
+        hasUserRequestedSubscriptionToChannel,
     } from '$lib/app/streams'
     import { get, writable, type Writable } from 'svelte/store'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
-    import { SubscriptionState } from '$lib/app/types/streams'
+    import { ChannelType, SubscriptionState, type SearchOptions } from '$lib/app/types/streams'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, ChannelDetails, CreateChannelModal, Icon, ListManager, WriteMessageModal } from '$lib/components'
     import type { ChannelInfo } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
     import { formatDateAndTime } from '$lib/app/utils'
+    import type { Reset } from '$lib/app/types/stores'
 
     export let showSearch: boolean = true
     export let listViewButtons: ActionButton[] = [
@@ -56,14 +58,14 @@
             color: 'dark',
         },
     ]
-    $: streamsFilter = [
+    $: filters = [
         {
-            label: 'Only own channels',
-            onChange: onOnlyOwnChannels,
-            // Get the current filter state from store
+            label: 'Show related channels',
+            onChange: () => setFilterState(authorFilterState),
             state: $authorFilterState,
         },
     ] as FilterCheckbox[]
+
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
 
     enum State {
@@ -79,6 +81,9 @@
 
     let subscriptionTimeout: number
 
+    //used to load tabledata when subscribed,revoked or unsubscribed in channel details view and went back to list overview
+    let subscriptionStatusChanged: boolean = false
+
     function onPageChange(page: number) {
         selectedChannelPageIndex.set(page)
     }
@@ -93,6 +98,7 @@
         rows: $searchChannelsResults.map((channel) => {
             const isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
             const isUserSubscribed = isUserSubscribedToChannel($authenticatedUserDID, channel)
+            const hasUserRequestedSubscription = hasUserRequestedSubscriptionToChannel($authenticatedUserDID, channel)
             return {
                 onClick: () => handleSelectChannel(channel),
                 content: [
@@ -116,7 +122,12 @@
                                           text: isUserOwner ? 'Owner' : 'Subscriber',
                                       },
                                   ]
-                                : undefined,
+                                : [
+                                      {
+                                          color: hasUserRequestedSubscription ? 'secondary' : '',
+                                          text: hasUserRequestedSubscription ? 'Requested' : '',
+                                      },
+                                  ],
                     },
                 ],
             }
@@ -141,7 +152,7 @@
         await searchAllChannels(get(channelSearchQuery), getSearchOptions())
     }
 
-    function getSearchOptions(firstLoad = false): { limit: number; authorId: string } {
+    function getSearchOptions(firstLoad = false): SearchOptions {
         const authorId = get(authorFilterState) ? get(authenticatedUserDID) : undefined
         const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
         return { limit, authorId }
@@ -150,12 +161,15 @@
     async function loadMore(entries: number): Promise<void> {
         const _isAuthorId = (q: string): boolean => q?.startsWith('did:iota:')
 
-        const newChannels = await searchChannelsSingleRequest(get(channelSearchQuery), {
-            searchByAuthorId: _isAuthorId(get(channelSearchQuery)),
-            searchBySource: !_isAuthorId(get(channelSearchQuery)),
-            limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-            index: Math.ceil(entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT),
-        })
+        const newChannels = await searchChannelsSingleRequest(
+            get(channelSearchQuery),
+            _isAuthorId(get(channelSearchQuery)),
+            !_isAuthorId(get(channelSearchQuery)),
+            {
+                limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+                index: Math.ceil(entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT),
+            }
+        )
         searchChannelsResults.update((results) => [...results, ...newChannels])
     }
 
@@ -186,8 +200,12 @@
         selectedChannel.set(channel)
     }
 
-    function handleBackClick(): void {
+    async function handleBackClick(): Promise<void> {
         selectedChannel.set(undefined)
+        if (subscriptionStatusChanged) {
+            await onSearch()
+            subscriptionStatusChanged = false
+        }
     }
 
     // Add the newly created channel to the search results
@@ -214,7 +232,10 @@
         loading = true
         const response = await requestSubscription($selectedChannel?.channelAddress)
         if (response) {
-            subscriptionStatus.set(SubscriptionState.Subscribed)
+            $selectedChannel.type === ChannelType.private
+                ? subscriptionStatus.set(SubscriptionState.Requested)
+                : subscriptionStatus.set(SubscriptionState.Authorized)
+            subscriptionStatusChanged = true
         }
         loading = false
     }
@@ -224,6 +245,7 @@
         const response = await requestUnsubscription($selectedChannel?.channelAddress)
         if (response) {
             subscriptionStatus.set(SubscriptionState.NotSubscribed)
+            subscriptionStatusChanged = true
         }
         loading = false
     }
@@ -241,6 +263,7 @@
 
         await acceptSubscription($selectedChannel?.channelAddress, subscriptionId, true)
         await updateSubscriptions()
+        subscriptionStatusChanged = true
     }
 
     async function handleRejectSubscription(subscriptionId: string): Promise<void> {
@@ -256,6 +279,7 @@
 
         await rejectSubscription($selectedChannel?.channelAddress, subscriptionId, true)
         await updateSubscriptions()
+        subscriptionStatusChanged = true
     }
 
     async function updateSubscriptions(): Promise<void> {
@@ -263,9 +287,9 @@
         selectedChannelSubscriptions.set(subscriptions)
     }
 
-    function onOnlyOwnChannels(): void {
-        // Toggle authorFilterState
-        authorFilterState.set(!get(authorFilterState))
+    function setFilterState(state: Reset<any>): void {
+        // Toggle authorFilterState, subscribedFilterState, requestedSubscriptionFilterState
+        state.set(!get(state))
         onSearch()
     }
 
@@ -298,7 +322,7 @@
             {loadMore}
             loading={loading || $isAsyncLoadingChannels}
             actionButtons={listViewButtons}
-            filters={streamsFilter}
+            {filters}
             bind:searchQuery={$channelSearchQuery}
         />
     {:else if state === State.ChannelDetail}

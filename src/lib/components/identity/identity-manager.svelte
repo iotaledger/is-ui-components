@@ -62,7 +62,7 @@
     ]
     $: identityFilter = [
         {
-            label: 'Only own identities',
+            label: 'Show own identities',
             onChange: onOnlyOwnIdentities,
             // Get the current filter state from store
             state: $creatorFilterState,

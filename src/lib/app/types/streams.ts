@@ -1,6 +1,7 @@
 export enum SubscriptionState {
     Authorized = 'Authorized',
     Subscribed = 'Subscribed',
+    Requested = 'Requested',
     NotSubscribed = 'NotSubscribed',
 }
 
@@ -14,4 +15,14 @@ export type WriteMessageForm = {
     payload?: string
     publicPayload?: string
     type?: string
+}
+
+export type SearchOptions = {
+    authorId?: string
+    subscriberId?: string
+    requestedSubscriptionId?: string
+    topicSource?: string
+    limit?: number
+    index?: number
+    ascending?: boolean
 }
