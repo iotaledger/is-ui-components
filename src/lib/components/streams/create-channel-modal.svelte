@@ -132,7 +132,7 @@
                     <option value={ChannelType.public}>Public Channel</option>
                 </Input>
                 {#if channelType === ChannelType.private}
-                    <Label class="mt-3">Private channel has preshared Key</Label>
+                    <Label class="mt-3">Private channel has preshared key</Label>
                     <Input type="switch" bind:checked={acceptTerms} on:change={handleToggle} />
                 {/if}
 
