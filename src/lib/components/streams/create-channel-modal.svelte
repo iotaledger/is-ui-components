@@ -7,8 +7,8 @@
     import { Button, FormGroup, Input, Label, ModalBody, ModalFooter, ModalHeader, Spinner, Collapse, Styles } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
-import PresharedkeyModal from './presharedkey-modal.svelte'
-    
+    import PresharedkeyModal from './presharedkey-modal.svelte'
+
     export let isOpen: boolean = false
     export let onModalClose = (..._: any[]): void => {}
     export let onSuccess = (..._: any[]): void => {}
@@ -32,11 +32,7 @@ import PresharedkeyModal from './presharedkey-modal.svelte'
     let unsubscribe: any
     let formValidated = false
     let formContainer: HTMLFormElement
-    let presharedKey:string
-    let isOpenn = true
-    let isCreated = true
-    let open = true;
-    const toggle = () => (open = !open);
+    let presharedKey: string
 
     $: formContainer, manageFormSubscription()
 
@@ -76,20 +72,17 @@ import PresharedkeyModal from './presharedkey-modal.svelte'
             resetTopics()
             onSuccess(channel.channelAddress)
             formValidated = false
-            isCreated = true
         }
         loading = false
-        isCreated = false
         onClose()
         presharedKey = channel.presharedKey
     }
 
     async function handleToggle() {
         acceptTerms = !acceptTerms
-        if(acceptTerms){
+        if (acceptTerms) {
             hasPresharedKey = true
-        }
-        else {
+        } else {
             hasPresharedKey = false
         }
     }
@@ -127,7 +120,6 @@ import PresharedkeyModal from './presharedkey-modal.svelte'
     }
 </script>
 
-
 <Modal {isOpen} toggle={onClose}>
     <ModalHeader toggle={onClose} class="px-4 pt-3">Create channel</ModalHeader>
 
@@ -141,7 +133,7 @@ import PresharedkeyModal from './presharedkey-modal.svelte'
                 </Input>
                 {#if channelType === ChannelType.private}
                     <Label class="mt-3">Private channel has preshared Key</Label>
-                    <Input type="switch" bind:checked={acceptTerms} on:change={ handleToggle}/>
+                    <Input type="switch" bind:checked={acceptTerms} on:change={handleToggle} />
                 {/if}
 
                 <Label>Name</Label>
@@ -232,6 +224,5 @@ import PresharedkeyModal from './presharedkey-modal.svelte'
     </form>
 </Modal>
 {#if presharedKey}
-<PresharedkeyModal  presharedKey = {presharedKey} />
+    <PresharedkeyModal {presharedKey} />
 {/if}
-

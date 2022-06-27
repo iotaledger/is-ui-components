@@ -1,5 +1,4 @@
 <script lang="ts">
-   
     import Modal from 'sveltestrap/src/Modal.svelte'
     import { Button, ModalBody, ModalFooter, ModalHeader } from 'sveltestrap'
     export let presharedKey
