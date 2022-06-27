@@ -7,6 +7,7 @@
     import { Button, FormGroup, Input, Label, ModalBody, ModalFooter, ModalHeader, Spinner, Collapse, Styles } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
+import PresharedkeyModal from './presharedkey-modal.svelte'
     
     export let isOpen: boolean = false
     export let onModalClose = (..._: any[]): void => {}
@@ -25,13 +26,13 @@
     ]
     let channelType = ChannelType.private
     let hasPresharedKey
-    let presharedKey
     let acceptTerms = false
     let name: string = ''
     let description: string = ''
     let unsubscribe: any
     let formValidated = false
     let formContainer: HTMLFormElement
+    let presharedKey:string
     let isOpenn = true
     let isCreated = true
     let open = true;
@@ -230,19 +231,7 @@
         </ModalFooter>
     </form>
 </Modal>
-
 {#if presharedKey}
-<div>
-    <Modal isOpen={open} {toggle}>
-      <ModalHeader {toggle}>Preshared Key</ModalHeader>
-      <ModalBody>
-        This key is not stored anywhere and can't be recovered.
-        {presharedKey}
-      </ModalBody>
-      <ModalFooter>
-        <Button color="secondary" on:click={toggle}>Cancel</Button>
-      </ModalFooter>
-    </Modal>
-  </div>
-<h2>Tets</h2>
+<PresharedkeyModal  presharedKey = {presharedKey} />
 {/if}
+
