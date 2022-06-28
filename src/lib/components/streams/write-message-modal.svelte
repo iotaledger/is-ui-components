@@ -66,16 +66,17 @@
             return
         }
         // ----------------------------------------------------------
-        const { payload, publicPayload, metadata, type } = formFieldsValues
+
+        const { payload, metadata, type } = formFieldsValues
 
         if (channelType === 'private') {
-            const message = await writeMessage(address, payload, metadata, type, true)
+            const message = await writeMessage(address, payload, undefined, metadata, type, true)
             if (message) {
                 onSuccess()
                 onModalClose()
             }
         } else {
-            const message = await writeMessage(address, publicPayload, metadata, type, true)
+            const message = await writeMessage(address, undefined, payload, metadata, type, true)
             if (message) {
                 onSuccess()
                 onModalClose()
