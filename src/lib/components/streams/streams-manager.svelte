@@ -39,8 +39,11 @@
     import type { ChannelInfo } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
     import { formatDateAndTime } from '$lib/app/utils'
+<<<<<<< HEAD
+=======
     import type { Reset } from '$lib/app/types/stores'
 
+>>>>>>> main
     export let showSearch: boolean = true
     export let listViewButtons: ActionButton[] = [
         {
@@ -307,6 +310,7 @@
     }
 </script>
 
+
 <Box>
     {#if state === State.ListChannels}
         <ListManager
@@ -345,9 +349,11 @@
         />
     {/if}
 </Box>
+
 <CreateChannelModal isOpen={isCreateChannelModalOpen} onModalClose={closeCreateChannelModal} onSuccess={onCreateChannelSuccess} />
 <WriteMessageModal
     isOpen={isWriteMesageModalOpen}
     onModalClose={closeWriteMessageModal}
     address={$selectedChannel?.channelAddress}
+    channelType = {$selectedChannel?.type}
 />

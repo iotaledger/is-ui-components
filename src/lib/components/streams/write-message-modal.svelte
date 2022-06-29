@@ -5,34 +5,25 @@
     import { Form } from '$lib/components'
     import { onDestroy } from 'svelte'
     import { ModalBody, ModalHeader } from 'sveltestrap'
+
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
-
     export let address: string
     export let isOpen: boolean = false
     export let title: string = 'Write a message'
+    export let channelType: string = ''
     export let onModalClose = (..._: any[]): void => {}
     export let onSuccess = (..._: any[]): void => {}
-
     const MAX_LENGTH_TEXTAREA = 100
     const MIN_LENGTH_TEXTAREA = 3
-
     let timeout: NodeJS.Timeout
     let formLoading = false
+    let message
     let formInputs: InputType[] = [
         {
             id: 'payload',
-            name: 'Encrypted data',
+            name: 'Payload',
             placeholder: 'Payload',
-            required: false,
-            type: FieldType.TextArea,
-            minLength: MIN_LENGTH_TEXTAREA,
-            maxLength: MAX_LENGTH_TEXTAREA,
-        },
-        {
-            id: 'publicPayload',
-            name: 'Public payload',
-            placeholder: 'Public payload',
             required: false,
             type: FieldType.TextArea,
             minLength: MIN_LENGTH_TEXTAREA,
@@ -77,8 +68,13 @@
         }
         // ----------------------------------------------------------
 
-        const { payload, publicPayload, metadata, type } = formFieldsValues
-        const message = await writeMessage(address, payload, publicPayload, metadata, type, true)
+        const { payload, metadata, type } = formFieldsValues
+
+        if (channelType === 'private') {
+            message = await writeMessage(address, payload, undefined, metadata, type, true)
+        } else {
+            message = await writeMessage(address, undefined, payload, metadata, type, true)
+        }
         if (message) {
             onSuccess()
             onModalClose()
