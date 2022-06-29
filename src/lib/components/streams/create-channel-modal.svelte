@@ -4,7 +4,7 @@
     import { BoxColor } from '$lib/app/constants/colors'
     import { createChannel } from '$lib/app/streams'
     import { Icon } from '$lib/components'
-    import { Button, FormGroup, Input, Label, ModalBody, ModalFooter, ModalHeader, Spinner, Collapse, Styles } from 'sveltestrap'
+    import { Button, FormGroup, Input, Label, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
     import PresharedkeyModal from './presharedkey-modal.svelte'
