@@ -18,6 +18,7 @@
     const MIN_LENGTH_TEXTAREA = 3
     let timeout: NodeJS.Timeout
     let formLoading = false
+    let message
     let formInputs: InputType[] = [
         {
             id: 'payload',
@@ -70,19 +71,14 @@
         const { payload, metadata, type } = formFieldsValues
 
         if (channelType === 'private') {
-            const message = await writeMessage(address, payload, undefined, metadata, type, true)
-            if (message) {
-                onSuccess()
-                onModalClose()
-            }
+            message = await writeMessage(address, payload, undefined, metadata, type, true)
         } else {
-            const message = await writeMessage(address, undefined, payload, metadata, type, true)
-            if (message) {
-                onSuccess()
-                onModalClose()
-            }
+            message = await writeMessage(address, undefined, payload, metadata, type, true)
         }
-
+        if (message) {
+            onSuccess()
+            onModalClose()
+        }
         formLoading = false
     }
 

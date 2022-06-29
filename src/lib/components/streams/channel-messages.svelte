@@ -66,7 +66,6 @@
             <div class="mb-4">
                 <div class="text-secondary">Link</div>
                 <div class="text-break">{msg?.link}</div>
-                <h6>{JSON.stringify(msg.log)}</h6>
             </div>
 
             {#if msg?.log?.publicPayload}
