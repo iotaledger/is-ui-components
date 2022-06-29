@@ -116,6 +116,7 @@
     function onClose() {
         resetFields()
         formValidated = false
+        acceptTerms = false
         onModalClose()
     }
 </script>
