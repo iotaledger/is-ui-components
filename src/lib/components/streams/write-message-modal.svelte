@@ -3,7 +3,7 @@
     import { selectedChannelBusy, writeMessage } from '$lib/app/streams'
     import type { Input as InputType, SubmitButton } from '$lib/app/types/form'
     import { Form } from '$lib/components'
-    import { onDestroy } from 'svelte'
+    import { onDestroy, onMount } from 'svelte'
     import { ModalBody, ModalHeader } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'

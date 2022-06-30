@@ -6,10 +6,13 @@
     import { Icon } from '$lib/components'
     import type { ChannelInfo } from '@iota/is-client'
     import { Badge, Button, Spinner } from 'sveltestrap'
+    import {
+        loading
+    } from '$lib/app/streams'
 
     export let channel: ChannelInfo = undefined
     export let subscriptionStatus: SubscriptionState = undefined
-    export let loading: boolean = false
+    export let loadings: boolean = false
     export let onSubscriptionAction: (...__any: any[]) => void = () => {}
 
     $: isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
@@ -56,7 +59,7 @@
                     color="dark"
                     on:click={onSubscriptionAction}
                     class="mt-3 mt-lg-0  d-flex align-items-center"
-                    disabled={loading || subscriptionStatus === SubscriptionState.Subscribed || subscriptionStatus === SubscriptionState.Requested }
+                    disabled={loadings || subscriptionStatus === SubscriptionState.Subscribed || subscriptionStatus === SubscriptionState.Requested }
                 >
                     {#if subscriptionStatus != SubscriptionState.Subscribed}
                         <div class="me-1">
@@ -64,7 +67,7 @@
                         </div>
                     {/if}
                     <span>{BUTTON_MESSAGE[subscriptionStatus]}</span>
-                    {#if loading}
+                    {#if $loading}
                         <Spinner size="sm" color="dark" class="ms-2" />
                     {/if}
                 </Button>

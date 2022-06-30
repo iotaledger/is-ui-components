@@ -6,9 +6,9 @@ import type {
     Subscription,
 } from '@iota/is-client'
 import { AccessRights, type ChannelInfo } from '@iota/is-client'
-import { get } from 'svelte/store'
-import { authenticationData, channelClient, isAuthenticated } from './base'
-import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
+import { get, writable } from 'svelte/store'
+import { authenticatedUserDID, authenticationData, channelClient, isAuthenticated } from './base'
+import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
 import { DEFAULT_AUTHOR_FILTER_STATE, DEFAULT_REQUESTED_SUBSCRIPTION_STATE, DEFAULT_SUBSCRIBED_FILTER_STATE, FEED_INTERVAL_MS } from './constants/streams'
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
@@ -16,6 +16,7 @@ import { SubscriptionState, type SearchOptions } from './types/streams'
 import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 import type { Reset } from './types/stores'
 import { reset } from './stores'
+import type { ActionButton } from './types'
 
 export const selectedChannelPageIndex: Reset<number> = reset(1)
 export const channelSearchQuery: Reset<string> = reset('')
@@ -29,12 +30,22 @@ export const selectedChannelBusy: Reset<boolean> = reset(false)
 export const selectedChannelSubscriptions: Reset<Subscription[]> = reset(null)
 // used for the async search that makes N background queries to get the full list of channels
 export const isAsyncLoadingChannels: Reset<boolean> = reset(false)
+ // used to determine the subscription status of the authenticated user on the current channel
+export const subscriptionStatus: Reset<SubscriptionState> = reset(undefined)
+
+export const handleRejectSubscription: Reset<(subscriptionId: string) => Promise<void>> = reset(undefined)
+export const handleAcceptSubscription: Reset<(subscriptionId: string) => Promise<void>> = reset(undefined)
+export const onSubscriptionAction: Reset<() => void> = reset(undefined)
+export const loading: Reset<boolean> = reset(false)
+export const messageFeedButtons: Reset<ActionButton[]> = reset(undefined)
+export const handleBackClick: Reset<() => Promise<void>> = reset(undefined);
+//export const onSearch: Reset<() => Promise<void>> = reset(undefined);
 
 let haltSearchAll = false
 // used to keep track of the last search query
 let searchAllHash: string
 
-let channelFeedInterval
+let channelFeedInterval: NodeJS.Timeout
 
 /**
  * Resets the state in stores to their default values
@@ -49,6 +60,7 @@ export function resetStreamsState(): void {
     selectedChannelBusy.reset()
     selectedChannelSubscriptions.reset()
     isAsyncLoadingChannels.reset()
+    loading.reset()
 }
 
 // Note: this is an async function that returns nothing, but fills the searchChannelsResults store.
@@ -74,7 +86,8 @@ export async function searchAllChannels(query: string, options?: SearchOptions):
         // filter out old requests
         if (_searchAllHash === searchAllHash) {
             if (newResults?.length) {
-                searchChannelsResults.update((results) => [...results, ...newResults])
+                searchChannelsResults.set(newResults)
+                //searchChannelsResults.update((results) => [...results, ...newResults])
             }
             // if the search is not finished, start a new search
             if (
@@ -138,6 +151,10 @@ export function stopChannelsSearch(): void {
     index = 0
     haltSearchAll = true
     isAsyncLoadingChannels.set(false)
+}
+
+export async function getChannelInfo(channelAddress: string): Promise<ChannelInfo>{
+    return await channelClient.info(channelAddress);
 }
 
 export async function readChannelMessages(channelAddress: string): Promise<void> {
@@ -466,4 +483,16 @@ export function isUserSubscribedToChannel(userDID: string, channel: ChannelInfo)
 
 export function hasUserRequestedSubscriptionToChannel(userDID: string, channel: ChannelInfo): boolean {
     return channel?.requestedSubscriptionIds?.includes(userDID) && channel?.authorId !== userDID
+}
+
+
+export async function onSearch(): Promise<void>  {
+    selectedChannelPageIndex.set(1) // reset index
+    await searchAllChannels(get(channelSearchQuery), getSearchOptions())
+}
+
+export function getSearchOptions(firstLoad = false): SearchOptions {
+    const authorId = get(authorFilterState) ? get(authenticatedUserDID) : undefined
+    const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
+    return { limit, authorId }
 }

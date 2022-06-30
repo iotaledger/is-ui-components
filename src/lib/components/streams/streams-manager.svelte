@@ -7,14 +7,12 @@
     } from '$lib/app/constants/base'
     import { BoxColor } from '$lib/app/constants/colors'
     import {
-        acceptSubscription,
         addChannelToSearchResults,
         getSubscriptions,
         getSubscriptionStatus,
         isAsyncLoadingChannels,
         isUserOwnerOfChannel,
         isUserSubscribedToChannel,
-        rejectSubscription,
         requestSubscription,
         requestUnsubscription,
         searchAllChannels,
@@ -22,24 +20,28 @@
         searchChannelsResults,
         selectedChannel,
         selectedChannelPageIndex,
-        selectedChannelBusy,
-        selectedChannelData,
         selectedChannelSubscriptions,
         stopChannelsSearch,
         stopReadingChannel,
         channelSearchQuery,
         authorFilterState,
         hasUserRequestedSubscriptionToChannel,
+        subscriptionStatus,
+        onSubscriptionAction,
+        loading,
+        onSearch,
+        getSearchOptions,
     } from '$lib/app/streams'
     import { get, writable, type Writable } from 'svelte/store'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
-    import { ChannelType, SubscriptionState, type SearchOptions } from '$lib/app/types/streams'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, ChannelDetails, CreateChannelModal, Icon, ListManager, WriteMessageModal } from '$lib/components'
     import type { ChannelInfo } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
     import { formatDateAndTime } from '$lib/app/utils'
     import type { Reset } from '$lib/app/types/stores'
+    import { goto } from '$app/navigation'
+    import type { SearchOptions } from '$lib/app/types'
 
     export let showSearch: boolean = true
     export let listViewButtons: ActionButton[] = [
@@ -50,14 +52,7 @@
             color: 'dark',
         },
     ]
-    export let messageFeedButtons: ActionButton[] = [
-        {
-            label: 'Write a message',
-            onClick: openWriteMessageModal,
-            icon: 'chat-square-dots',
-            color: 'dark',
-        },
-    ]
+
     $: filters = [
         {
             label: 'Show related channels',
@@ -74,7 +69,6 @@
     }
 
     let state: State = State.ListChannels
-    let loading: boolean = false
 
     let isCreateChannelModalOpen: boolean = false
     let isWriteMesageModalOpen: boolean = false
@@ -88,11 +82,8 @@
         selectedChannelPageIndex.set(page)
     }
 
-    // used to determine the subscription status of the authenticated user on the current channel
-    let subscriptionStatus: Writable<SubscriptionState> = writable(undefined)
-
     $: $selectedChannel, updateStateMachine()
-    $: message = $isAsyncLoadingChannels || loading || $searchChannelsResults?.length ? null : 'No channels found'
+    $: message = $isAsyncLoadingChannels || $loading || $searchChannelsResults?.length ? null : 'No channels found'
     $: tableData = {
         headings: ['Channel', 'Address', 'Topic types', 'Topic Sources', 'Date Created', ''],
         rows: $searchChannelsResults.map((channel) => {
@@ -144,19 +135,8 @@
 
     onDestroy(() => {
         stopChannelsSearch()
-        stopReadingChannel()
+        //stopReadingChannel()
     })
-
-    async function onSearch(): Promise<void> {
-        selectedChannelPageIndex.set(1) // reset index
-        await searchAllChannels(get(channelSearchQuery), getSearchOptions())
-    }
-
-    function getSearchOptions(firstLoad = false): SearchOptions {
-        const authorId = get(authorFilterState) ? get(authenticatedUserDID) : undefined
-        const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
-        return { limit, authorId }
-    }
 
     async function loadMore(entries: number): Promise<void> {
         const _isAuthorId = (q: string): boolean => q?.startsWith('did:iota:')
@@ -177,8 +157,6 @@
         subscriptionStatus.set(undefined)
         selectedChannelSubscriptions.set(null)
         if ($selectedChannel) {
-            state = State.ChannelDetail
-
             // Load all the necessary data for the selected channel
             // ----------------------------------------------------------------------------
 
@@ -189,10 +167,11 @@
             const subscriptions = await getSubscriptions($selectedChannel?.channelAddress)
             selectedChannelSubscriptions.set(subscriptions)
 
+            goto(`streams-manager/${$selectedChannel.channelAddress}`)
+
             // ----------------------------------------------------------------------------
         } else {
             subscriptionStatus.set(undefined)
-            state = State.ListChannels
         }
     }
 
@@ -200,91 +179,17 @@
         selectedChannel.set(channel)
     }
 
-    async function handleBackClick(): Promise<void> {
-        selectedChannel.set(undefined)
-        if (subscriptionStatusChanged) {
-            await onSearch()
-            subscriptionStatusChanged = false
-        }
-    }
-
     // Add the newly created channel to the search results
     async function onCreateChannelSuccess(channelAddress: string): Promise<void> {
-        loading = true
+        loading.set(true)
         // If query is not empty, we need to search again to get the match results
         if (get(channelSearchQuery)?.length) {
-            await onSearch()
+            onSearch()
         } else {
             // Add the channel to the search results directly, no need to search again
             await addChannelToSearchResults(channelAddress)
         }
-        loading = false
-    }
-
-    async function onSubscriptionAction(): Promise<void> {
-        get(subscriptionStatus) === SubscriptionState.NotSubscribed ? subscribe() : unsubscribe()
-    }
-
-    async function subscribe(): Promise<void> {
-        if (!$selectedChannel) {
-            return
-        }
-        loading = true
-        const response = await requestSubscription($selectedChannel?.channelAddress)
-        if (response) {
-            $selectedChannel.type === ChannelType.private
-                ? subscriptionStatus.set(SubscriptionState.Requested)
-                : subscriptionStatus.set(SubscriptionState.Authorized)
-            subscriptionStatusChanged = true
-        }
-        loading = false
-    }
-
-    async function unsubscribe(): Promise<void> {
-        loading = true
-        const response = await requestUnsubscription($selectedChannel?.channelAddress)
-        if (response) {
-            subscriptionStatus.set(SubscriptionState.NotSubscribed)
-            subscriptionStatusChanged = true
-        }
-        loading = false
-    }
-
-    async function handleAcceptSubscription(subscriptionId: string): Promise<void> {
-        // ---- Avoid locked channel error when accepting subscriptions ----
-        while ($selectedChannelBusy) {
-            if (subscriptionTimeout) {
-                clearTimeout(subscriptionTimeout)
-            }
-            subscriptionTimeout = setTimeout(handleAcceptSubscription, 100)
-            return
-        }
-        // ----------------------------------------------------------
-
-        await acceptSubscription($selectedChannel?.channelAddress, subscriptionId, true)
-        await updateSubscriptions()
-        subscriptionStatusChanged = true
-    }
-
-    async function handleRejectSubscription(subscriptionId: string): Promise<void> {
-        // ---- Avoid locked channel error when rejecting subscriptions ----
-        while ($selectedChannelBusy) {
-            if (subscriptionTimeout) {
-                clearTimeout(subscriptionTimeout)
-            }
-            subscriptionTimeout = setTimeout(handleRejectSubscription, 100)
-            return
-        }
-        // ----------------------------------------------------------
-
-        await rejectSubscription($selectedChannel?.channelAddress, subscriptionId, true)
-        await updateSubscriptions()
-        subscriptionStatusChanged = true
-    }
-
-    async function updateSubscriptions(): Promise<void> {
-        const subscriptions = await getSubscriptions($selectedChannel?.channelAddress)
-        selectedChannelSubscriptions.set(subscriptions)
+        loading.set(false)
     }
 
     function setFilterState(state: Reset<any>): void {
@@ -299,55 +204,24 @@
     function closeCreateChannelModal(): void {
         isCreateChannelModalOpen = false
     }
-    function openWriteMessageModal(): void {
-        isWriteMesageModalOpen = true
-    }
-    function closeWriteMessageModal(): void {
-        isWriteMesageModalOpen = false
-    }
 </script>
 
 <Box>
-    {#if state === State.ListChannels}
-        <ListManager
-            {showSearch}
-            {onSearch}
-            {tableData}
-            {message}
-            {tableConfiguration}
-            title="Channels"
-            searchPlaceholder="Search channels"
-            selectedPageIndex={$selectedChannelPageIndex}
-            {onPageChange}
-            {loadMore}
-            loading={loading || $isAsyncLoadingChannels}
-            actionButtons={listViewButtons}
-            {filters}
-            bind:searchQuery={$channelSearchQuery}
-        />
-    {:else if state === State.ChannelDetail}
-        <div class="mb-4 align-self-start">
-            <button on:click={handleBackClick} class="btn d-flex align-items-center">
-                <Icon type="arrow-left" size={16} />
-                <span class="ms-2">Back</span>
-            </button>
-        </div>
-        <ChannelDetails
-            {handleRejectSubscription}
-            {handleAcceptSubscription}
-            {onSubscriptionAction}
-            {loading}
-            subscriptionStatus={$subscriptionStatus}
-            subscriptions={$selectedChannelSubscriptions}
-            channel={$selectedChannel}
-            channelData={$selectedChannelData}
-            {messageFeedButtons}
-        />
-    {/if}
+    <ListManager
+        {showSearch}
+        {onSearch}
+        {tableData}
+        {message}
+        {tableConfiguration}
+        title="Channels"
+        searchPlaceholder="Search channels"
+        selectedPageIndex={$selectedChannelPageIndex}
+        {onPageChange}
+        {loadMore}
+        loading={$loading || $isAsyncLoadingChannels}
+        actionButtons={listViewButtons}
+        {filters}
+        bind:searchQuery={$channelSearchQuery}
+    />
 </Box>
 <CreateChannelModal isOpen={isCreateChannelModalOpen} onModalClose={closeCreateChannelModal} onSuccess={onCreateChannelSuccess} />
-<WriteMessageModal
-    isOpen={isWriteMesageModalOpen}
-    onModalClose={closeWriteMessageModal}
-    address={$selectedChannel?.channelAddress}
-/>
