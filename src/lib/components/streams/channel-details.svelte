@@ -15,29 +15,35 @@
     export let onSubscriptionAction: (channel: ChannelInfoType) => void
     export let handleAcceptSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
     export let handleRejectSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
-    $: subscriptionStatus, manageChannelData()
+    $: subscriptionStatus, () => {console.log('has hcanges'); manageChannelData()}
     $: isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
-    let channelData
 
     async function manageChannelData(): Promise<void> {
+        console.log(subscriptionStatus)
         if (subscriptionStatus === SubscriptionState.Authorized) {
             if (channel.type === ChannelType.public) {
                 // only request data once for public channel since it will be requested directly from the tangle
                 await readChannelMessages(channel.channelAddress)
-                channelData = $selectedChannelData
                 return
             }
 
             stopReadingChannel()
             await startReadingChannel(channel?.channelAddress)
-            channelData = $selectedChannelData
+            console.log($selectedChannelData)
+            
         } else {
             stopReadingChannel()
         }
     }
 
     onMount(async () => {
+        console.log('was here')
         await manageChannelData()
+    })
+
+    onDestroy(() => {
+        console.log('destroyed here')
+        stopReadingChannel()
     })
  
  
@@ -55,7 +61,7 @@
             <ChannelMessages
                 actionButtons={!isUserOwner && channel.type === ChannelType.public ? [] : messageFeedButtons}
                 isSpinnerVisible={channel.type !== ChannelType.public}
-                {channelData}
+                channelData={$selectedChannelData}
             />
         </div>
     {/if}

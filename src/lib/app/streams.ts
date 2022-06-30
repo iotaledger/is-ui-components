@@ -45,7 +45,7 @@ let haltSearchAll = false
 // used to keep track of the last search query
 let searchAllHash: string
 
-let channelFeedInterval: NodeJS.Timeout
+let channelFeedInterval
 
 /**
  * Resets the state in stores to their default values
@@ -169,6 +169,7 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
             const startDate = lastMessageDate ? new Date(lastMessageDate.setSeconds(lastMessageDate.getSeconds() + 1)) : null
 
             selectedChannelBusy.set(true)
+            console.log(channelAddress)
             const newMessages = await channelClient.read(channelAddress, {
                 startDate,
                 endDate: get(selectedChannelData)?.length ? new Date() : null,
@@ -227,9 +228,11 @@ export async function startReadingChannel(channelAddress: string): Promise<void>
     channelFeedInterval = setInterval(async () => {
         await readChannelMessages(channelAddress)
     }, FEED_INTERVAL_MS)
+    console.log(channelFeedInterval)
 }
 
 export function stopReadingChannel(): void {
+    console.log('stopping:' + channelFeedInterval)
     clearInterval(channelFeedInterval)
     channelFeedInterval = null
     selectedChannelData.set([])
@@ -488,6 +491,7 @@ export function hasUserRequestedSubscriptionToChannel(userDID: string, channel: 
 
 export async function onSearch(): Promise<void>  {
     selectedChannelPageIndex.set(1) // reset index
+    searchChannelsResults.reset()
     await searchAllChannels(get(channelSearchQuery), getSearchOptions())
 }
 
