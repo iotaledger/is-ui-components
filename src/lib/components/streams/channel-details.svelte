@@ -1,26 +1,33 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte'
     import { authenticatedUserDID } from '$lib/app/base'
-    import { isUserOwnerOfChannel, startReadingChannel, stopReadingChannel, readChannelMessages, selectedChannelData, stopChannelsSearch } from '$lib/app/streams'
+    import {
+        isUserOwnerOfChannel,
+        startReadingChannel,
+        stopReadingChannel,
+        readChannelMessages,
+        selectedChannelData,
+        selectedChannel,
+        subscriptionStatus,
+    } from '$lib/app/streams'
     import type { ActionButton } from '$lib/app/types/layout'
     import { ChannelType, SubscriptionState } from '$lib/app/types/streams'
     import { ChannelInfo, ChannelMessages, ChannelSubscriptions } from '$lib/components'
-    import type { ChannelData, ChannelInfo as ChannelInfoType, Subscription } from '@iota/is-client'
+    import type { ChannelInfo as ChannelInfoType, Subscription } from '@iota/is-client'
 
     export let channel: ChannelInfoType
-    export let subscriptionStatus: SubscriptionState
-    export let subscriptions: Subscription[] = undefined
     export let loading: boolean = false
+    export let subscriptionStatusValue: SubscriptionState
+    export let subscriptions: Subscription[] = undefined
     export let messageFeedButtons: ActionButton[] = []
     export let onSubscriptionAction: (channel: ChannelInfoType) => void
     export let handleAcceptSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
     export let handleRejectSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
-    $: subscriptionStatus, () => {console.log('has hcanges'); manageChannelData()}
     $: isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
+    $: subscriptionStatusValue, manageChannelData()
 
     async function manageChannelData(): Promise<void> {
-        console.log(subscriptionStatus)
-        if (subscriptionStatus === SubscriptionState.Authorized) {
+        if (subscriptionStatusValue === SubscriptionState.Authorized && channel === $selectedChannel) {
             if (channel.type === ChannelType.public) {
                 // only request data once for public channel since it will be requested directly from the tangle
                 await readChannelMessages(channel.channelAddress)
@@ -29,38 +36,30 @@
 
             stopReadingChannel()
             await startReadingChannel(channel?.channelAddress)
-            console.log($selectedChannelData)
-            
         } else {
             stopReadingChannel()
         }
     }
 
-    onMount(async () => {
-        console.log('was here')
-        await manageChannelData()
-    })
-
     onDestroy(() => {
-        console.log('destroyed here')
         stopReadingChannel()
+        selectedChannel.reset()
+        subscriptionStatus.reset()
     })
- 
- 
 </script>
 
 <div class="w-full">
     <div class="mb-4">
-        <ChannelInfo {channel} {subscriptionStatus} loadings={loading} {onSubscriptionAction} />
+        <ChannelInfo {channel} subscriptionStatus={subscriptionStatusValue} {onSubscriptionAction} {loading} />
     </div>
     <div class="mb-4">
         <ChannelSubscriptions {handleAcceptSubscription} {handleRejectSubscription} {channel} {subscriptions} />
     </div>
-    {#if isUserOwner || (!isUserOwner && subscriptionStatus === SubscriptionState.Authorized)}
+    {#if isUserOwner || (!isUserOwner && subscriptionStatusValue === SubscriptionState.Authorized)}
         <div class="mb-4">
             <ChannelMessages
                 actionButtons={!isUserOwner && channel.type === ChannelType.public ? [] : messageFeedButtons}
-                isSpinnerVisible={channel.type !== ChannelType.public}
+                isSpinnerVisible={channel?.type !== ChannelType.public}
                 channelData={$selectedChannelData}
             />
         </div>

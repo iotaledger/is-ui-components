@@ -5,13 +5,12 @@
 <script lang="ts">
     import { ChannelDetails, Icon, WriteMessageModal } from '$lib/components'
     import { Col, Container, Row } from 'sveltestrap'
-    import { onDestroy, onMount } from 'svelte'
+    import { onMount } from 'svelte'
     import {
         selectedChannel,
         selectedChannelSubscriptions,
         subscriptionStatus,
         loading,
-        onSearch,
         acceptSubscription,
         rejectSubscription,
         getSubscriptions,
@@ -21,32 +20,15 @@
         getSubscriptionStatus,
         getChannelInfo,
         stopReadingChannel,
-        searchAllChannels,
     } from '$lib/app/streams'
     import { goto } from '$app/navigation'
     import { ChannelType, SubscriptionState } from '$lib/app/types/streams'
     import { get } from 'svelte/store'
     import { page } from '$app/stores'
     import type { ActionButton } from '$lib/app/types'
-    import type { Subscription, ChannelInfo } from '@iota/is-client'
-
-    let isLoading: boolean = $loading
-    let subscriptionStatusValue: SubscriptionState = $subscriptionStatus
-    let channel: ChannelInfo = $selectedChannel
-    let subscriptions: Subscription[] = $selectedChannelSubscriptions
 
     let isWriteMesageModalOpen: boolean = false
     let subscriptionTimeout: number
-    //used to load tabledata when subscribed,revoked or unsubscribed in channel details view and went back to list overview
-    let subscriptionStatusChanged: boolean = false
-
-    function openWriteMessageModal(): void {
-        isWriteMesageModalOpen = true
-    }
-    function closeWriteMessageModal(): void {
-        isWriteMesageModalOpen = false
-    }
-
     const messageFeedButtons = [
         {
             label: 'Write a message',
@@ -56,15 +38,24 @@
         },
     ] as ActionButton[]
 
+    onMount(async () => {
+        if (!get(selectedChannel)) {
+            let channel = await getChannelInfo($page.params.channelAddress)
+            selectedChannel.set(channel)
+        }
+        let status = await getSubscriptionStatus($selectedChannel?.channelAddress)
+        subscriptionStatus.set(status)
+
+        let subscriptions = await getSubscriptions($selectedChannel?.channelAddress)
+        selectedChannelSubscriptions.set(subscriptions)
+    })
+
     async function handleBackClick(): Promise<void> {
-        /**if (subscriptionStatusChanged) {
-            await onSearch()
-            subscriptionStatusChanged = false
-        }**/
         goto('/streams-manager')
     }
 
     async function handleAcceptSubscription(subscriptionId: string): Promise<void> {
+        loading.set(true)
         // ---- Avoid locked channel error when accepting subscriptions ----
         while ($selectedChannelBusy) {
             if (subscriptionTimeout) {
@@ -74,14 +65,13 @@
             return
         }
         // ----------------------------------------------------------
-        loading.set(true)
-        await acceptSubscription(channel?.channelAddress, subscriptionId, true)
+        await acceptSubscription($selectedChannel?.channelAddress, subscriptionId, true)
         await updateSubscriptions()
-        subscriptionStatusChanged = true
         loading.set(false)
     }
 
     async function handleRejectSubscription(subscriptionId: string): Promise<void> {
+        loading.set(true)
         // ---- Avoid locked channel error when rejecting subscriptions ----
         while ($selectedChannelBusy) {
             if (subscriptionTimeout) {
@@ -91,17 +81,14 @@
             return
         }
         // ----------------------------------------------------------
-        loading.set(true)
-        await rejectSubscription(channel?.channelAddress, subscriptionId, true)
+        await rejectSubscription($selectedChannel?.channelAddress, subscriptionId, true)
         await updateSubscriptions()
-        subscriptionStatusChanged = true
         loading.set(false)
     }
 
     async function updateSubscriptions(): Promise<void> {
-        const channelSubscriptions = await getSubscriptions(channel?.channelAddress)
+        const channelSubscriptions = await getSubscriptions($selectedChannel?.channelAddress)
         selectedChannelSubscriptions.set(channelSubscriptions)
-        subscriptions = $selectedChannelSubscriptions
     }
 
     function onSubscriptionAction() {
@@ -109,18 +96,16 @@
     }
 
     async function subscribe(): Promise<void> {
-        if (!channel) {
+        if (!get(selectedChannel)) {
             return
         }
         loading.set(true)
-        const response = await requestSubscription(channel?.channelAddress)
+        const response = await requestSubscription($selectedChannel?.channelAddress)
         if (response) {
-            channel.type === ChannelType.private
+            $selectedChannel.type === ChannelType.private
                 ? subscriptionStatus.set(SubscriptionState.Requested)
                 : subscriptionStatus.set(SubscriptionState.Authorized)
-            subscriptionStatusValue = $subscriptionStatus
-            subscriptionStatusChanged = true
-            updateSubscriptions()
+            await updateSubscriptions()
         }
         loading.set(false)
     }
@@ -128,34 +113,20 @@
     async function unsubscribe(): Promise<void> {
         stopReadingChannel()
         loading.set(true)
-        const response = await requestUnsubscription(channel?.channelAddress)
+        const response = await requestUnsubscription($selectedChannel?.channelAddress)
         if (response) {
             subscriptionStatus.set(SubscriptionState.NotSubscribed)
-            subscriptionStatusValue = $subscriptionStatus
-            subscriptionStatusChanged = true
-            updateSubscriptions()
+            await updateSubscriptions()
         }
         loading.set(false)
     }
 
-    onMount(async () => {
-        let response: any
-        if (!get(selectedChannel)) {
-            response = await getChannelInfo($page.params.channelAddress)
-            selectedChannel.set(response)
-            channel = $selectedChannel
-        }
-        if (!get(subscriptionStatus)) {
-            response = await getSubscriptionStatus($selectedChannel?.channelAddress)
-            subscriptionStatus.set(response)
-            subscriptionStatusValue = $subscriptionStatus
-        }
-        if (!get(selectedChannelSubscriptions)) {
-            response = await getSubscriptions($selectedChannel?.channelAddress)
-            selectedChannelSubscriptions.set(response)
-            subscriptions = $selectedChannelSubscriptions
-        }
-    })
+    function openWriteMessageModal(): void {
+        isWriteMesageModalOpen = true
+    }
+    function closeWriteMessageModal(): void {
+        isWriteMesageModalOpen = false
+    }
 </script>
 
 <svelte:head>
@@ -165,7 +136,7 @@
 <Container class="my-5">
     <Row>
         <Col sm="12" md={{ size: 10, offset: 1 }}>
-            {#if channel && subscriptions}
+            {#if $subscriptionStatus && $selectedChannel && $selectedChannelSubscriptions}
                 <div class="mb-4 align-self-start">
                     <button on:click={handleBackClick} class="btn d-flex align-items-center">
                         <Icon type="arrow-left" size={16} />
@@ -176,16 +147,16 @@
                     {handleRejectSubscription}
                     {handleAcceptSubscription}
                     {onSubscriptionAction}
-                    loading={isLoading}
-                    subscriptionStatus={subscriptionStatusValue}
-                    {subscriptions}
-                    {channel}
+                    loading={$loading}
+                    subscriptionStatusValue={$subscriptionStatus}
+                    subscriptions={$selectedChannelSubscriptions}
+                    channel={$selectedChannel}
                     {messageFeedButtons}
                 />
                 <WriteMessageModal
                     isOpen={isWriteMesageModalOpen}
                     onModalClose={closeWriteMessageModal}
-                    address={channel?.channelAddress}
+                    address={$selectedChannel?.channelAddress}
                 />
             {/if}
         </Col>

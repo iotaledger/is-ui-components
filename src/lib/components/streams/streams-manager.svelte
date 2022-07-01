@@ -4,8 +4,6 @@
     import { BoxColor } from '$lib/app/constants/colors'
     import {
         addChannelToSearchResults,
-        getSubscriptions,
-        getSubscriptionStatus,
         isAsyncLoadingChannels,
         isUserOwnerOfChannel,
         isUserSubscribedToChannel,
@@ -14,7 +12,6 @@
         searchChannelsResults,
         selectedChannel,
         selectedChannelPageIndex,
-        selectedChannelSubscriptions,
         stopChannelsSearch,
         channelSearchQuery,
         authorFilterState,
@@ -23,7 +20,6 @@
         loading,
         onSearch,
         getSearchOptions,
-        stopReadingChannel,
     } from '$lib/app/streams'
     import { get } from 'svelte/store'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
@@ -130,42 +126,9 @@
         searchChannelsResults.update((results) => [...results, ...newChannels])
     }
 
-    async function updateStateMachine(): Promise<void> {
-        //subscriptionStatus.set(undefined)
-
-        if ($selectedChannel) {
-            // Load all the necessary data for the selected channel
-            // ----------------------------------------------------------------------------
-
-            // TODO: add a button to refresh subscription status as we dont subscribe to it
-            const status = await getSubscriptionStatus($selectedChannel?.channelAddress)
-            subscriptionStatus.set(status)
-
-            const subscriptions = await getSubscriptions($selectedChannel?.channelAddress)
-            selectedChannelSubscriptions.set(subscriptions)
-
-            goto(`streams-manager/${$selectedChannel.channelAddress}`)
-
-            // ----------------------------------------------------------------------------
-        } else {
-            subscriptionStatus.set(undefined)
-            selectedChannelSubscriptions.set(null)
-        }
-    }
-
     async function handleSelectChannel(channel: ChannelInfo): Promise<void> {
         selectedChannel.set(channel)
-        // Load all the necessary data for the selected channel
-        // ----------------------------------------------------------------------------
-
-        // TODO: add a button to refresh subscription status as we dont subscribe to it
-        const status = await getSubscriptionStatus($selectedChannel?.channelAddress)
-        subscriptionStatus.set(status)
-
-        const subscriptions = await getSubscriptions($selectedChannel?.channelAddress)
-        selectedChannelSubscriptions.set(subscriptions)
-
-        goto(`streams-manager/${$selectedChannel.channelAddress}`)
+        goto(`streams-manager/${channel?.channelAddress}`)
     }
 
     // Add the newly created channel to the search results

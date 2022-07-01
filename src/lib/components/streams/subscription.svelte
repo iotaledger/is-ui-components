@@ -3,7 +3,6 @@
     import { Button, Spinner, ModalBody, ModalFooter, ModalHeader } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
-    import { loading } from '$lib/app/streams'
 
     export let allowAcceptAction: boolean = false
     export let allowRejectAction: boolean = false
@@ -50,8 +49,8 @@
                         on:click={handleAccept}
                     >
                         <div class="d-flex justify-content-center align-items-center">
-                            {isAccepting || $loading ? 'Accepting...' : 'Accept'}
-                            {#if isAccepting || ($loading && !isRejecting)}
+                            {isAccepting ? 'Accepting...' : 'Accept'}
+                            {#if isAccepting}
                                 <div class="ms-2">
                                     <Spinner size="sm" type="border" color="success" />
                                 </div>
@@ -65,12 +64,12 @@
                         size="sm"
                         outline
                         color="danger"
-                        disabled={isAccepting || isRejecting }
+                        disabled={isAccepting || isRejecting}
                         on:click={() => (isOpen = true)}
                     >
                         <div class="d-flex justify-content-center align-items-center">
-                            {isRejecting || $loading ? 'Revoking...' : 'Revoke'}
-                            {#if isRejecting || ($loading && !isAccepting)}
+                            {isRejecting ? 'Revoking...' : 'Revoke'}
+                            {#if isRejecting }
                                 <div class="ms-2">
                                     <Spinner size="sm" type="border" color="danger" />
                                 </div>

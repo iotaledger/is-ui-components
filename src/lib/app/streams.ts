@@ -6,7 +6,7 @@ import type {
     Subscription,
 } from '@iota/is-client'
 import { AccessRights, type ChannelInfo } from '@iota/is-client'
-import { get, writable } from 'svelte/store'
+import { get } from 'svelte/store'
 import { authenticatedUserDID, authenticationData, channelClient, isAuthenticated } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
 import { DEFAULT_AUTHOR_FILTER_STATE, DEFAULT_REQUESTED_SUBSCRIPTION_STATE, DEFAULT_SUBSCRIBED_FILTER_STATE, FEED_INTERVAL_MS } from './constants/streams'
@@ -16,7 +16,6 @@ import { SubscriptionState, type SearchOptions } from './types/streams'
 import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 import type { Reset } from './types/stores'
 import { reset } from './stores'
-import type { ActionButton } from './types'
 
 export const selectedChannelPageIndex: Reset<number> = reset(1)
 export const channelSearchQuery: Reset<string> = reset('')
@@ -32,14 +31,7 @@ export const selectedChannelSubscriptions: Reset<Subscription[]> = reset(null)
 export const isAsyncLoadingChannels: Reset<boolean> = reset(false)
  // used to determine the subscription status of the authenticated user on the current channel
 export const subscriptionStatus: Reset<SubscriptionState> = reset(undefined)
-
-export const handleRejectSubscription: Reset<(subscriptionId: string) => Promise<void>> = reset(undefined)
-export const handleAcceptSubscription: Reset<(subscriptionId: string) => Promise<void>> = reset(undefined)
-export const onSubscriptionAction: Reset<() => void> = reset(undefined)
 export const loading: Reset<boolean> = reset(false)
-export const messageFeedButtons: Reset<ActionButton[]> = reset(undefined)
-export const handleBackClick: Reset<() => Promise<void>> = reset(undefined);
-//export const onSearch: Reset<() => Promise<void>> = reset(undefined);
 
 let haltSearchAll = false
 // used to keep track of the last search query
@@ -61,6 +53,8 @@ export function resetStreamsState(): void {
     selectedChannelSubscriptions.reset()
     isAsyncLoadingChannels.reset()
     loading.reset()
+    stopReadingChannel()
+    stopChannelsSearch()
 }
 
 // Note: this is an async function that returns nothing, but fills the searchChannelsResults store.
@@ -169,7 +163,6 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
             const startDate = lastMessageDate ? new Date(lastMessageDate.setSeconds(lastMessageDate.getSeconds() + 1)) : null
 
             selectedChannelBusy.set(true)
-            console.log(channelAddress)
             const newMessages = await channelClient.read(channelAddress, {
                 startDate,
                 endDate: get(selectedChannelData)?.length ? new Date() : null,
@@ -228,14 +221,12 @@ export async function startReadingChannel(channelAddress: string): Promise<void>
     channelFeedInterval = setInterval(async () => {
         await readChannelMessages(channelAddress)
     }, FEED_INTERVAL_MS)
-    console.log(channelFeedInterval)
 }
 
 export function stopReadingChannel(): void {
-    console.log('stopping:' + channelFeedInterval)
     clearInterval(channelFeedInterval)
     channelFeedInterval = null
-    selectedChannelData.set([])
+    selectedChannelData.set([])    
 }
 
 export async function requestSubscription(channelAddress: string): Promise<RequestSubscriptionResponse> {
