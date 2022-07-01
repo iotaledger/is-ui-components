@@ -367,7 +367,7 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
 export async function writeMessage(
     address: string,
     payload?: string,
-    publicPayload?: string,
+    publicPayload?:string,
     metadata?: string,
     type?: string,
     triggerReadChannel = false

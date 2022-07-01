@@ -158,6 +158,7 @@
     }
 </script>
 
+
 <Box>
     <ListManager
         {showSearch}
@@ -176,4 +177,5 @@
         bind:searchQuery={$channelSearchQuery}
     />
 </Box>
+
 <CreateChannelModal isOpen={isCreateChannelModalOpen} onModalClose={closeCreateChannelModal} onSuccess={onCreateChannelSuccess} />
