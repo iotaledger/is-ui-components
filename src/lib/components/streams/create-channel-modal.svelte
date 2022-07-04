@@ -26,7 +26,7 @@
     let channelType = ChannelType.private
     let name: string = ''
     let description: string = ''
-    let unsubscribe: any 
+    let unsubscribe: any
     let formValidated = false
     let formContainer: HTMLFormElement
 
