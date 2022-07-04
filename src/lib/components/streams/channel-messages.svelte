@@ -27,7 +27,6 @@
 
     onMount(() => {
         updateVisibleResults()
-        console.log('mount')
     })
 
     function pageChanged(page: number): void {
