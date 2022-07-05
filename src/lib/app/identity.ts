@@ -25,7 +25,7 @@ export const searchIdentitiesResults: Reset<ExtendedUser[]> = reset([])
 export const selectedIdentity: Reset<ExtendedUser> = reset(null)
 // used for the async search that makes N background queries to get the full list of identities
 export const isAsyncLoadingIdentities: Reset<boolean> = reset(false)
-export const loading: Reset<boolean> = reset(false)
+export const loadingIdentity: Reset<boolean> = reset(false)
 
 let haltSearchAll = false
 // used to keep track of the last search query
@@ -41,6 +41,7 @@ function resetIdentityState(): void {
     searchIdentitiesResults.reset()
     selectedIdentity.reset()
     isAsyncLoadingIdentities.reset()
+    loadingIdentity.reset()
 }
 
 /**
@@ -358,17 +359,27 @@ export async function getIdentityClaim(identityId: string): Promise<unknown> {
     return claim
 }
 
-export async function onSearch(): Promise<void> {
+export async function onIdentitySearch(): Promise<void> {
     selectedIdentityPageIndex.set(1) // reset index
-    await searchAllIdentities(get(identitySearchQuery), getSearchOptions())
+    await searchAllIdentities(get(identitySearchQuery), getIdentitySearchOptions())
 }
 
-export function getSearchOptions(firstLoad = false): { limit: number; creator: string } {
+export function getIdentitySearchOptions(firstLoad = false): { limit: number; creator: string } {
     const creator = get(creatorFilterState) ? get(authenticatedUserDID) : undefined
     const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
     return { limit, creator }
 }
 
 export async function getIdentitiy(id: string): Promise<User> {
-    return await identityClient.find(id);
+    try{
+        const identity = await identityClient.find(id);
+        if(!identity) throw new Error()
+        return identity
+    } catch(e:any) {
+        showNotification({
+            type: NotificationType.Error,
+            message: `Did not find identity with id: ${id}`,
+        })
+    }
+    
 }

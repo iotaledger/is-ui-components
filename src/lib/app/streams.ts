@@ -29,9 +29,9 @@ export const selectedChannelBusy: Reset<boolean> = reset(false)
 export const selectedChannelSubscriptions: Reset<Subscription[]> = reset(null)
 // used for the async search that makes N background queries to get the full list of channels
 export const isAsyncLoadingChannels: Reset<boolean> = reset(false)
- // used to determine the subscription status of the authenticated user on the current channel
+// used to determine the subscription status of the authenticated user on the current channel
 export const subscriptionStatus: Reset<SubscriptionState> = reset(undefined)
-export const loading: Reset<boolean> = reset(false)
+export const loadingChannel: Reset<boolean> = reset(false)
 
 let haltSearchAll = false
 // used to keep track of the last search query
@@ -52,7 +52,7 @@ export function resetStreamsState(): void {
     selectedChannelBusy.reset()
     selectedChannelSubscriptions.reset()
     isAsyncLoadingChannels.reset()
-    loading.reset()
+    loadingChannel.reset()
     stopReadingChannel()
     stopChannelsSearch()
 }
@@ -80,8 +80,7 @@ export async function searchAllChannels(query: string, options?: SearchOptions):
         // filter out old requests
         if (_searchAllHash === searchAllHash) {
             if (newResults?.length) {
-                searchChannelsResults.set(newResults)
-                //searchChannelsResults.update((results) => [...results, ...newResults])
+                searchChannelsResults.update((results) => [...results, ...newResults])
             }
             // if the search is not finished, start a new search
             if (
@@ -147,8 +146,18 @@ export function stopChannelsSearch(): void {
     isAsyncLoadingChannels.set(false)
 }
 
-export async function getChannelInfo(channelAddress: string): Promise<ChannelInfo>{
-    return await channelClient.info(channelAddress);
+export async function getChannelInfo(channelAddress: string): Promise<ChannelInfo> {
+    try {
+        const channelInfo = await channelClient.info(channelAddress)
+        if (!channelInfo) throw new Error()
+        return channelInfo
+    } catch (e: any) {
+        showNotification({
+            type: NotificationType.Error,
+            message: `Did not find any information for channel: ${channelAddress}`,
+        })
+    }
+
 }
 
 export async function readChannelMessages(channelAddress: string): Promise<void> {
@@ -226,7 +235,7 @@ export async function startReadingChannel(channelAddress: string): Promise<void>
 export function stopReadingChannel(): void {
     clearInterval(channelFeedInterval)
     channelFeedInterval = null
-    selectedChannelData.set([])    
+    selectedChannelData.set([])
 }
 
 export async function requestSubscription(channelAddress: string): Promise<RequestSubscriptionResponse> {
@@ -367,7 +376,7 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
 export async function writeMessage(
     address: string,
     payload?: string,
-    publicPayload?:string,
+    publicPayload?: string,
     metadata?: string,
     type?: string,
     triggerReadChannel = false
@@ -480,13 +489,13 @@ export function hasUserRequestedSubscriptionToChannel(userDID: string, channel: 
 }
 
 
-export async function onSearch(): Promise<void>  {
+export async function onChannelSearch(): Promise<void> {
     selectedChannelPageIndex.set(1) // reset index
     searchChannelsResults.reset()
-    await searchAllChannels(get(channelSearchQuery), getSearchOptions())
+    await searchAllChannels(get(channelSearchQuery), getChannelSearchOptions())
 }
 
-export function getSearchOptions(firstLoad = false): SearchOptions {
+export function getChannelSearchOptions(firstLoad = false): SearchOptions {
     const authorId = get(authorFilterState) ? get(authenticatedUserDID) : undefined
     const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
     return { limit, authorId }

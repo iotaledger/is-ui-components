@@ -16,10 +16,9 @@
         channelSearchQuery,
         authorFilterState,
         hasUserRequestedSubscriptionToChannel,
-        subscriptionStatus,
-        loading,
-        onSearch,
-        getSearchOptions,
+        loadingChannel,
+        onChannelSearch,
+        getChannelSearchOptions,
     } from '$lib/app/streams'
     import { get } from 'svelte/store'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
@@ -56,8 +55,7 @@
         selectedChannelPageIndex.set(page)
     }
 
-    $: $subscriptionStatus, onSearch()
-    $: message = $isAsyncLoadingChannels || $loading || $searchChannelsResults?.length ? null : 'No channels found'
+    $: message = $isAsyncLoadingChannels || $loadingChannel || $searchChannelsResults?.length ? null : 'No channels found'
     $: tableData = {
         headings: ['Channel', 'Address', 'Topic types', 'Topic Sources', 'Date Created', ''],
         rows: $searchChannelsResults.map((channel) => {
@@ -99,11 +97,11 @@
         }),
     } as TableData
 
-    onMount(() => {
+    onMount(async () => {
         const results = get(searchChannelsResults)
         // Fetch data if cached data is empty
         if (!results || results?.length === 0) {
-            searchAllChannels('', getSearchOptions(true))
+            await searchAllChannels('', getChannelSearchOptions(true))
         }
     })
 
@@ -133,21 +131,21 @@
 
     // Add the newly created channel to the search results
     async function onCreateChannelSuccess(channelAddress: string): Promise<void> {
-        loading.set(true)
+        loadingChannel.set(true)
         // If query is not empty, we need to search again to get the match results
         if (get(channelSearchQuery)?.length) {
-            onSearch()
+            onChannelSearch()
         } else {
             // Add the channel to the search results directly, no need to search again
             await addChannelToSearchResults(channelAddress)
         }
-        loading.set(false)
+        loadingChannel.set(false)
     }
 
     function setFilterState(state: Reset<any>): void {
         // Toggle authorFilterState, subscribedFilterState, requestedSubscriptionFilterState
         state.set(!get(state))
-        onSearch()
+        onChannelSearch()
     }
 
     function openCreateChannelModal(): void {
@@ -158,11 +156,10 @@
     }
 </script>
 
-
 <Box>
     <ListManager
         {showSearch}
-        {onSearch}
+        onSearch={onChannelSearch}
         {tableData}
         {message}
         {tableConfiguration}
@@ -171,7 +168,7 @@
         selectedPageIndex={$selectedChannelPageIndex}
         {onPageChange}
         {loadMore}
-        loading={$loading || $isAsyncLoadingChannels}
+        loading={$loadingChannel || $isAsyncLoadingChannels}
         actionButtons={listViewButtons}
         {filters}
         bind:searchQuery={$channelSearchQuery}

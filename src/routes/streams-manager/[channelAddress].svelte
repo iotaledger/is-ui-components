@@ -10,7 +10,7 @@
         selectedChannel,
         selectedChannelSubscriptions,
         subscriptionStatus,
-        loading,
+        loadingChannel,
         acceptSubscription,
         rejectSubscription,
         getSubscriptions,
@@ -20,6 +20,7 @@
         getSubscriptionStatus,
         getChannelInfo,
         stopReadingChannel,
+        onChannelSearch,
     } from '$lib/app/streams'
     import { goto } from '$app/navigation'
     import { ChannelType, SubscriptionState } from '$lib/app/types/streams'
@@ -27,6 +28,7 @@
     import { page } from '$app/stores'
     import type { ActionButton } from '$lib/app/types'
 
+    $: $subscriptionStatus, onChannelSearch()
     let isWriteMesageModalOpen: boolean = false
     let subscriptionTimeout: number
     const messageFeedButtons = [
@@ -40,13 +42,13 @@
 
     onMount(async () => {
         if (!get(selectedChannel)) {
-            let channel = await getChannelInfo($page.params.channelAddress)
+            const channel = await getChannelInfo($page.params.channelAddress)
             selectedChannel.set(channel)
         }
-        let status = await getSubscriptionStatus($selectedChannel?.channelAddress)
+        const status = await getSubscriptionStatus($selectedChannel?.channelAddress)
         subscriptionStatus.set(status)
 
-        let subscriptions = await getSubscriptions($selectedChannel?.channelAddress)
+        const subscriptions = await getSubscriptions($selectedChannel?.channelAddress)
         selectedChannelSubscriptions.set(subscriptions)
     })
 
@@ -55,7 +57,7 @@
     }
 
     async function handleAcceptSubscription(subscriptionId: string): Promise<void> {
-        loading.set(true)
+        loadingChannel.set(true)
         // ---- Avoid locked channel error when accepting subscriptions ----
         while ($selectedChannelBusy) {
             if (subscriptionTimeout) {
@@ -67,11 +69,11 @@
         // ----------------------------------------------------------
         await acceptSubscription($selectedChannel?.channelAddress, subscriptionId, true)
         await updateSubscriptions()
-        loading.set(false)
+        loadingChannel.set(false)
     }
 
     async function handleRejectSubscription(subscriptionId: string): Promise<void> {
-        loading.set(true)
+        loadingChannel.set(true)
         // ---- Avoid locked channel error when rejecting subscriptions ----
         while ($selectedChannelBusy) {
             if (subscriptionTimeout) {
@@ -83,7 +85,7 @@
         // ----------------------------------------------------------
         await rejectSubscription($selectedChannel?.channelAddress, subscriptionId, true)
         await updateSubscriptions()
-        loading.set(false)
+        loadingChannel.set(false)
     }
 
     async function updateSubscriptions(): Promise<void> {
@@ -99,7 +101,7 @@
         if (!get(selectedChannel)) {
             return
         }
-        loading.set(true)
+        loadingChannel.set(true)
         const response = await requestSubscription($selectedChannel?.channelAddress)
         if (response) {
             $selectedChannel.type === ChannelType.private
@@ -107,18 +109,18 @@
                 : subscriptionStatus.set(SubscriptionState.Authorized)
             await updateSubscriptions()
         }
-        loading.set(false)
+        loadingChannel.set(false)
     }
 
     async function unsubscribe(): Promise<void> {
         stopReadingChannel()
-        loading.set(true)
+        loadingChannel.set(true)
         const response = await requestUnsubscription($selectedChannel?.channelAddress)
         if (response) {
             subscriptionStatus.set(SubscriptionState.NotSubscribed)
             await updateSubscriptions()
         }
-        loading.set(false)
+        loadingChannel.set(false)
     }
 
     function openWriteMessageModal(): void {
@@ -147,7 +149,7 @@
                     {handleRejectSubscription}
                     {handleAcceptSubscription}
                     {onSubscriptionAction}
-                    loading={$loading}
+                    loading={$loadingChannel}
                     subscriptionStatusValue={$subscriptionStatus}
                     subscriptions={$selectedChannelSubscriptions}
                     channel={$selectedChannel}

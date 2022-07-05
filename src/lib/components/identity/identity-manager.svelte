@@ -18,9 +18,9 @@
         stopIdentitiesSearch,
         identitySearchQuery,
         creatorFilterState,
-        getSearchOptions,
-        onSearch,
-        loading,
+        getIdentitySearchOptions,
+        onIdentitySearch,
+        loadingIdentity,
     } from '$lib/app/identity'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
@@ -54,7 +54,7 @@
     let isCreateIdentityModalOpen = false
     let isNewIdentityCreated = false
     
-    $: message = $isAsyncLoadingIdentities || $loading || $searchIdentitiesResults?.length ? null : 'No identities found'
+    $: message = $isAsyncLoadingIdentities || $loadingIdentity || $searchIdentitiesResults?.length ? null : 'No identities found'
     $: tableData = {
         headings: ['Identity', 'Type', 'Date Created', 'Credentials'],
         rows: $searchIdentitiesResults.map((identity) => ({
@@ -76,7 +76,7 @@
         const results = get(searchIdentitiesResults)
         // Fetch data if cached data is empty
         if (!results || results?.length === 0) {
-            searchAllIdentities('', getSearchOptions(true))
+            searchAllIdentities('', getIdentitySearchOptions(true))
         }
     })
 
@@ -108,21 +108,21 @@
 
     // Add the newly created identity to the search results
     async function onCreateIdentitySuccess(identity: IdentityJson): Promise<void> {
-        loading.set(true)
+        loadingIdentity.set(true)
         // If query is not empty, we need to search again to get the match results
         if (get(identitySearchQuery)?.length) {
-            await onSearch()
+            await onIdentitySearch()
         } else {
             // Add the identity to the search results directly, no need to search again
             await addIdentityToSortedSearchResults(identity?.doc?.id)
         }
-        loading.set(false)
+        loadingIdentity.set(false)
     }
 
     function onOnlyOwnIdentities(): void {
         // Toggle authorFilterState
         creatorFilterState.set(!get(creatorFilterState))
-        onSearch()
+        onIdentitySearch()
     }
 
     function openCreateIdentityModal(): void {
@@ -138,7 +138,7 @@
 <Box>
     <ListManager
         {showSearch}
-        {onSearch}
+        onSearch={onIdentitySearch}
         {loadMore}
         {tableData}
         {message}
@@ -147,7 +147,7 @@
         {onPageChange}
         title="Identities"
         searchPlaceholder="Search identities"
-        loading={$loading || $isAsyncLoadingIdentities}
+        loading={$loadingIdentity || $isAsyncLoadingIdentities}
         actionButtons={listViewButtons}
         filters={identityFilter}
         bind:searchQuery={$identitySearchQuery}

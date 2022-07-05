@@ -11,30 +11,22 @@
         searchIdentityByDID,
         selectedIdentity,
         updateIdentityInSearchResults,
-        loading,
+        loadingIdentity,
         getIdentityClaim,
     } from '$lib/app/identity'
     import { UserRoles, type VerifiableCredentialTemplate } from '$lib/app/types'
     import type { ActionButton } from '$lib/app/types'
     import { Col, Container, Row } from 'sveltestrap'
     import { Icon } from '$lib/components'
-    import type { User } from '@iota/is-client'
     import { get } from 'svelte/store'
     import { page } from '$app/stores'
-    import { onDestroy, onMount } from 'svelte'
+    import { onMount } from 'svelte'
     import { goto } from '$app/navigation'
 
     let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
     let isCreateCredentialModalOpen = false
 
-    let identity: User = undefined
-    let userRole: UserRoles = undefined
-    let isLoading: boolean = false
-    const unsubscribeIdentity = selectedIdentity.subscribe((id) => (identity = id))
-    const unsubscribeUserRole = authenticatedUserRole.subscribe((role) => (userRole = role))
-    const unsubscribeLoading = loading.subscribe((loads) => (isLoading = loads))
-
-    let detailViewButtons: ActionButton[] = [
+    const detailViewButtons: ActionButton[] = [
         {
             label: 'Add credential',
             onClick: openCreateCredentialModal,
@@ -46,7 +38,7 @@
 
     // Add the newly created credential to the selected identity
     async function onCreateCredentialSuccess(): Promise<void> {
-        loading.set(true)
+        loadingIdentity.set(true)
         let identity = await searchIdentityByDID($selectedIdentity?.id)
         identity = { ...identity, numberOfCredentials: identity?.numberOfCredentials ?? 0 }
         if (identity) {
@@ -54,11 +46,11 @@
         }
         const vc = await getVerifiableCredentials($selectedIdentity?.id)
         selectedIdentity.update((identity) => ({ ...identity, vc }))
-        loading.set(false)
+        loadingIdentity.set(false)
     }
 
     function handleBackClick(): void {
-        selectedIdentity.set(null)
+        //selectedIdentity.set(null)
         goto('/identity-manager')
     }
 
@@ -71,7 +63,7 @@
     }
 
     async function loadIdentityDetails(): Promise<void> {
-        loading.set(true)
+        loadingIdentity.set(true)
         const vc = await getVerifiableCredentials($selectedIdentity?.id)
         const claim = (await getIdentityClaim($selectedIdentity?.id)) as {}
         selectedIdentity.update((identity) => ({
@@ -79,22 +71,17 @@
             vc,
             claim: { ...claim, type: $selectedIdentity?.claim?.type },
         }))
-        loading.set(false)
+        loadingIdentity.set(false)
     }
 
     onMount(async () => {
         if (!get(selectedIdentity)) {
-            let id = await getIdentitiy($page.params.id)
+            const id = await getIdentitiy($page.params.id)
             selectedIdentity.set(id)
         }
-        await loadIdentityDetails()
+        if(get(selectedIdentity))await loadIdentityDetails()
     })
 
-    onDestroy(() => {
-        unsubscribeIdentity()
-        unsubscribeLoading()
-        unsubscribeUserRole()
-    })
 </script>
 
 <svelte:head>
@@ -110,13 +97,13 @@
                     <span class="ms-2">Back</span>
                 </button>
             </div>
-            {#if userRole && identity}
+            {#if $authenticatedUserRole && $selectedIdentity}
                 <IdentityDetails
-                    loading={isLoading}
+                    loading={$loadingIdentity}
                     actionButtons={detailViewButtons}
                     onRevokeSuccess={updateIdentityInSearchResults}
-                    {identity}
-                    {userRole}
+                    identity={$selectedIdentity}
+                    userRole={$authenticatedUserRole}
                 />
             {/if}
 
@@ -124,7 +111,7 @@
             <CreateCredentialModal
                 isOpen={isCreateCredentialModalOpen}
                 onModalClose={closeCreateCredentialModal}
-                targetDid={identity?.id}
+                targetDid={$selectedIdentity?.id}
                 onSuccess={onCreateCredentialSuccess}
                 {credentialsTemplate}
             />

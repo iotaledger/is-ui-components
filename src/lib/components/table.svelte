@@ -3,7 +3,7 @@
     import type { TableData } from '$lib/app/types/table'
     import { Icon, Paginator } from '$lib/components'
     import { onMount } from 'svelte'
-    import { Badge, ListGroup, ListGroupItem, Nav, NavItem, NavLink, Spinner } from 'sveltestrap'
+    import { Badge, ListGroup, ListGroupItem, Spinner } from 'sveltestrap'
     import { DEFAULT_TABLE_PAGE_SIZE } from '$lib/app/constants/base'
 
     export let data: TableData = {
