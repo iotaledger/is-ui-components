@@ -25,8 +25,8 @@ const config = {
                 },
             },
             ssr: {
-                noExternal: ['@popperjs/core']
-              }
+                noExternal: ['@popperjs/core'],
+            },
         },
     },
 }

@@ -1,10 +1,7 @@
 <script lang="ts">
     import { BoxColor, type ExtendedUser, type IdentityTemplate } from '$lib/app'
     import { UserType } from '@iota/is-client'
-    import {
-        DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-        DEFAULT_TABLE_CONFIGURATION,
-    } from '$lib/app/constants/base'
+    import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, DEFAULT_TABLE_CONFIGURATION } from '$lib/app/constants/base'
     import { DEFAULT_IDENTITIES_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import { get } from 'svelte/store'
     import {
@@ -53,7 +50,7 @@
     let message: string
     let isCreateIdentityModalOpen = false
     let isNewIdentityCreated = false
-    
+
     $: message = $isAsyncLoadingIdentities || $loadingIdentity || $searchIdentitiesResults?.length ? null : 'No identities found'
     $: tableData = {
         headings: ['Identity', 'Type', 'Date Created', 'Credentials'],

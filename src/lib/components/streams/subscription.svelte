@@ -69,7 +69,7 @@
                     >
                         <div class="d-flex justify-content-center align-items-center">
                             {isRejecting ? 'Revoking...' : 'Revoke'}
-                            {#if isRejecting }
+                            {#if isRejecting}
                                 <div class="ms-2">
                                     <Spinner size="sm" type="border" color="danger" />
                                 </div>
