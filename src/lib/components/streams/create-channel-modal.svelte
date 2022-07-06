@@ -24,14 +24,15 @@
             source: '',
         },
     ]
-    let channelType = ChannelType.private
-    let hasPresharedKey
-    let acceptTerms = false
+
+
     let name: string = ''
     let description: string = ''
     let unsubscribe: any
     let formValidated = false
     let formContainer: HTMLFormElement
+    let channelType = ChannelType.private
+    let hasPresharedKey = false
     let presharedKey: string
 
     $: formContainer, manageFormSubscription()
@@ -75,16 +76,8 @@
         }
         loading = false
         onClose()
+        // presharedKey is undefined if not selected -> presharedKey modal is not shown
         presharedKey = channel.presharedKey
-    }
-
-    async function handleToggle() {
-        acceptTerms = !acceptTerms
-        if (acceptTerms) {
-            hasPresharedKey = true
-        } else {
-            hasPresharedKey = false
-        }
     }
 
     function handleAddTopic() {
@@ -116,7 +109,7 @@
     function onClose() {
         resetFields()
         formValidated = false
-        acceptTerms = false
+        hasPresharedKey = false
         onModalClose()
     }
 </script>
@@ -133,8 +126,8 @@
                     <option value={ChannelType.public}>Public Channel</option>
                 </Input>
                 {#if channelType === ChannelType.private}
-                    <Label class="mt-3">Private channel has preshared key</Label>
-                    <Input type="switch" bind:checked={acceptTerms} on:change={handleToggle} />
+                    <Label class="mt-3">Use preshared key</Label>
+                    <Input type="switch" bind:checked={hasPresharedKey} />
                 {/if}
 
                 <Label>Name</Label>
@@ -225,5 +218,5 @@
     </form>
 </Modal>
 {#if presharedKey}
-    <PresharedkeyModal {presharedKey} />
+    <PresharedkeyModal bind:presharedKey={presharedKey} />
 {/if}

@@ -2,32 +2,25 @@
     import Modal from 'sveltestrap/src/Modal.svelte'
     import { Button, ModalBody, ModalFooter, Input, Label, Alert } from 'sveltestrap'
 
-    export let presharedKey
+    export let presharedKey: string
     let isEqual = false
-
     let open = true
-    let color = 'warning'
-    let mouseClickOutsideModal
-    const toggle = () => {
-        if (mouseClickOutsideModal == false) {
-            open = !open
-        }
+
+    function onSubmit() {
+        open = !open
+        presharedKey = undefined
     }
-    const handleInput = (e) => {
-        if (presharedKey == e.target.value) {
-            isEqual = true
-            mouseClickOutsideModal = false
-        } else {
-            isEqual = false
-        }
+
+    function onPresharedKey(event: any) {
+        isEqual = presharedKey == event.target.value
     }
 </script>
 
 <div>
-    <Modal isOpen={open} {toggle}>
+    <Modal isOpen={open} toggle={onSubmit}>
         <ModalBody>
             <Alert color="warning">
-                <h4 class="alert-heading text-capitalize">{color}</h4>
+                <h4 class="alert-heading text-capitalize">Warning</h4>
                 This key is not stored anywhere and can't be recovered.
             </Alert>
 
@@ -37,14 +30,14 @@
                     type="text"
                     name="text"
                     id="presharedKeyText"
-                    placeholder="Copy preshared key here"
-                    on:input={handleInput}
+                    placeholder="Insert preshared key here"
+                    on:input={onPresharedKey}
                 />
                 <div />
             </div></ModalBody
         >
         <ModalFooter>
-            <Button color="primary" on:click={toggle} disabled={!isEqual}>OK</Button>
+            <Button color="primary" on:click={onSubmit} disabled={!isEqual}>OK</Button>
         </ModalFooter>
     </Modal>
 </div>
