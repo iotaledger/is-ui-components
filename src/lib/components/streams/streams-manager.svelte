@@ -346,9 +346,11 @@
         />
     {/if}
 </Box>
+
 <CreateChannelModal isOpen={isCreateChannelModalOpen} onModalClose={closeCreateChannelModal} onSuccess={onCreateChannelSuccess} />
 <WriteMessageModal
     isOpen={isWriteMesageModalOpen}
     onModalClose={closeWriteMessageModal}
     address={$selectedChannel?.channelAddress}
+    channelType={$selectedChannel?.type}
 />
