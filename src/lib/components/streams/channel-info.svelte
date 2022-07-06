@@ -56,7 +56,9 @@
                     color="dark"
                     on:click={onSubscriptionAction}
                     class="mt-3 mt-lg-0  d-flex align-items-center"
-                    disabled={loading || subscriptionStatus === SubscriptionState.Subscribed || subscriptionStatus === SubscriptionState.Requested }
+                    disabled={loading ||
+                        subscriptionStatus === SubscriptionState.Subscribed ||
+                        subscriptionStatus === SubscriptionState.Requested}
                 >
                     {#if subscriptionStatus != SubscriptionState.Subscribed}
                         <div class="me-1">

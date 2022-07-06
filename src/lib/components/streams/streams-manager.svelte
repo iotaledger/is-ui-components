@@ -40,6 +40,7 @@
     import { onDestroy, onMount } from 'svelte'
     import { formatDateAndTime } from '$lib/app/utils'
     import type { Reset } from '$lib/app/types/stores'
+
     export let showSearch: boolean = true
     export let listViewButtons: ActionButton[] = [
         {
@@ -306,7 +307,6 @@
     }
 </script>
 
-
 <Box>
     {#if state === State.ListChannels}
         <ListManager
@@ -351,5 +351,5 @@
     isOpen={isWriteMesageModalOpen}
     onModalClose={closeWriteMessageModal}
     address={$selectedChannel?.channelAddress}
-    channelType = {$selectedChannel?.type}
+    channelType={$selectedChannel?.type}
 />

@@ -9,7 +9,12 @@ import { AccessRights, type ChannelInfo } from '@iota/is-client'
 import { get } from 'svelte/store'
 import { authenticationData, channelClient, isAuthenticated } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
-import { DEFAULT_AUTHOR_FILTER_STATE, DEFAULT_REQUESTED_SUBSCRIPTION_STATE, DEFAULT_SUBSCRIBED_FILTER_STATE, FEED_INTERVAL_MS } from './constants/streams'
+import {
+    DEFAULT_AUTHOR_FILTER_STATE,
+    DEFAULT_REQUESTED_SUBSCRIPTION_STATE,
+    DEFAULT_SUBSCRIBED_FILTER_STATE,
+    FEED_INTERVAL_MS,
+} from './constants/streams'
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
 import { SubscriptionState, type SearchOptions } from './types/streams'
@@ -20,8 +25,8 @@ import { reset } from './stores'
 export const selectedChannelPageIndex: Reset<number> = reset(1)
 export const channelSearchQuery: Reset<string> = reset('')
 export const authorFilterState: Reset<boolean> = reset(DEFAULT_AUTHOR_FILTER_STATE)
-export const subscribedFilterState: Reset<boolean> = reset(DEFAULT_SUBSCRIBED_FILTER_STATE);
-export const requestedSubscriptionFilterState: Reset<boolean> = reset(DEFAULT_REQUESTED_SUBSCRIPTION_STATE);
+export const subscribedFilterState: Reset<boolean> = reset(DEFAULT_SUBSCRIBED_FILTER_STATE)
+export const requestedSubscriptionFilterState: Reset<boolean> = reset(DEFAULT_REQUESTED_SUBSCRIPTION_STATE)
 export const selectedChannel: Reset<ChannelInfo> = reset(null)
 export const searchChannelsResults: Reset<ChannelInfo[]> = reset([])
 export const selectedChannelData: Reset<ChannelData[]> = reset([])
@@ -56,21 +61,13 @@ export function resetStreamsState(): void {
 // stored in the searchChannelsResults store.
 let index = 0
 export async function searchAllChannels(query: string, options?: SearchOptions): Promise<void> {
-    const _search = async (
-        _searchAllHash: string,
-        query: string,
-        options?: SearchOptions
-    ): Promise<void> => {
+    const _search = async (_searchAllHash: string, query: string, options?: SearchOptions): Promise<void> => {
         const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:')
-        const newResults: ChannelInfo[] = await searchChannelsSingleRequest(
-            query,
-            _isAuthorId(query),
-            !_isAuthorId(query),
-            {
-                authorId: options?.authorId,
-                limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-                index,
-            })
+        const newResults: ChannelInfo[] = await searchChannelsSingleRequest(query, _isAuthorId(query), !_isAuthorId(query), {
+            authorId: options?.authorId,
+            limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+            index,
+        })
         // filter out old requests
         if (_searchAllHash === searchAllHash) {
             if (newResults?.length) {
@@ -113,7 +110,7 @@ export async function searchChannelsSingleRequest(
                 authorId: authorId ? authorId : authorIdQuery, // If set, authorId overrides searchByAuthorId
                 subscriberId: authorId ? authorId : authorIdQuery,
                 requestedSubscriptionId: authorId ? authorId : authorIdQuery,
-                topicSource: (searchBySource && query) ? query : undefined,
+                topicSource: searchBySource && query ? query : undefined,
                 limit: limit,
                 index: index,
                 ascending: false,
@@ -140,7 +137,20 @@ export function stopChannelsSearch(): void {
     isAsyncLoadingChannels.set(false)
 }
 
-export async function readChannelMessages(channelAddress: string): Promise<void> {
+/**
+ * Reads messages of a channel
+ * @param channelAddress
+ * @param fetchNewMessage true for new message polling, false for pagenation
+ * @param index page index
+ * @param limit limit on how many messages to load
+ * @returns
+ */
+export async function readChannelMessages(
+    channelAddress: string,
+    fetchNewMessage: boolean,
+    index: number,
+    limit?: number
+): Promise<void> {
     if (get(isAuthenticated)) {
         if (get(selectedChannelBusy)) {
             console.log('channel is busy..')
@@ -153,10 +163,18 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
 
             selectedChannelBusy.set(true)
             const newMessages = await channelClient.read(channelAddress, {
-                startDate,
-                endDate: get(selectedChannelData)?.length ? new Date() : null,
+                index,
+                asc: false,
+                limit: limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+                startDate: fetchNewMessage ? startDate : null,
+                endDate: get(selectedChannelData)?.length && fetchNewMessage ? new Date() : null,
             })
-            selectedChannelData.update((_chData) => [...newMessages, ..._chData])
+            // Append new messages infront and old messages (loaded in case of pagenation) in the back of the array to keep it sorted
+            if (fetchNewMessage) {
+                selectedChannelData.update((_chData) => [...newMessages, ..._chData])
+            } else {
+                selectedChannelData.update((_chData) => [..._chData, ...newMessages])
+            }
         } catch (e: any) {
             if (e?.message?.includes('Request failed with status code 423')) {
                 showNotification({
@@ -205,17 +223,17 @@ export async function readChannelHistory(channelAddress: string, presharedKey: s
 export async function startReadingChannel(channelAddress: string): Promise<void> {
     stopReadingChannel()
     if (!get(selectedChannelBusy)) {
-        await readChannelMessages(channelAddress)
+        await readChannelMessages(channelAddress, true, 0)
     }
     channelFeedInterval = setInterval(async () => {
-        await readChannelMessages(channelAddress)
+        await readChannelMessages(channelAddress, true, 0)
     }, FEED_INTERVAL_MS)
 }
 
-export function stopReadingChannel(): void {
+export function stopReadingChannel(resetChannelData = true): void {
     clearInterval(channelFeedInterval)
     channelFeedInterval = null
-    selectedChannelData.set([])
+    resetChannelData ?? selectedChannelData.set([])
 }
 
 export async function requestSubscription(channelAddress: string): Promise<RequestSubscriptionResponse> {
@@ -336,8 +354,8 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
             return !ownSuscription
                 ? SubscriptionState.NotSubscribed
                 : ownSuscription.isAuthorized
-                    ? SubscriptionState.Authorized
-                    : SubscriptionState.Requested
+                ? SubscriptionState.Authorized
+                : SubscriptionState.Requested
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -356,14 +374,14 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
 export async function writeMessage(
     address: string,
     payload?: string,
-    publicPayload?:string,
+    publicPayload?: string,
     metadata?: string,
     type?: string,
     triggerReadChannel = false
 ): Promise<ChannelData> {
     if (get(isAuthenticated)) {
         let channelDataResponse: ChannelData
-        stopReadingChannel()
+        stopReadingChannel(false)
         selectedChannelBusy.set(true)
 
         try {
