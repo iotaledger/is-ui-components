@@ -20,7 +20,7 @@
         getSubscriptionStatus,
         getChannelInfo,
         stopReadingChannel,
-        onChannelSearch,
+        searchChannelsResults,
     } from '$lib/app/streams'
     import { goto } from '$app/navigation'
     import { ChannelType, SubscriptionState } from '$lib/app/types/streams'
@@ -28,7 +28,8 @@
     import { page } from '$app/stores'
     import type { ActionButton } from '$lib/app/types'
 
-    $: $subscriptionStatus, onChannelSearch()
+    let currentSubscriptionStatus: SubscriptionState
+    $: $subscriptionStatus, updateChannelList()
     let isWriteMesageModalOpen: boolean = false
     let subscriptionTimeout: number
     const messageFeedButtons = [
@@ -46,6 +47,7 @@
             selectedChannel.set(channel)
         }
         const status = await getSubscriptionStatus($selectedChannel?.channelAddress)
+        currentSubscriptionStatus = status
         subscriptionStatus.set(status)
 
         const subscriptions = await getSubscriptions($selectedChannel?.channelAddress)
@@ -55,6 +57,18 @@
     async function handleBackClick(): Promise<void> {
         goto('/streams-manager')
     }
+
+    async function updateChannelList(): Promise<void> {
+    if (get(subscriptionStatus) !== currentSubscriptionStatus) {
+        const channelInfo = await getChannelInfo(get(selectedChannel).channelAddress)
+        if (channelInfo) {
+            const searchResults = get(searchChannelsResults)
+            const index = searchResults.indexOf($selectedChannel)
+            searchResults.splice(index, 1, channelInfo)
+            searchChannelsResults.set(searchResults)
+        }
+    }
+}
 
     async function handleAcceptSubscription(subscriptionId: string): Promise<void> {
         loadingChannel.set(true)
