@@ -19,7 +19,6 @@
         loadingChannel,
         onChannelSearch,
         getChannelSearchOptions,
-        subscriptionStatus,
     } from '$lib/app/streams'
     import { get } from 'svelte/store'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'

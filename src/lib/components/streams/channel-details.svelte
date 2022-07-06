@@ -13,9 +13,11 @@
     import type { ActionButton } from '$lib/app/types/layout'
     import { ChannelType, SubscriptionState } from '$lib/app/types/streams'
     import { ChannelInfo, ChannelMessages, ChannelSubscriptions } from '$lib/components'
-    import type { ChannelInfo as ChannelInfoType, Subscription } from '@iota/is-client'
+    import type { ChannelData, ChannelInfo as ChannelInfoType, Subscription } from '@iota/is-client'
+    import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from '$lib/app/constants/base'
 
     export let channel: ChannelInfoType
+    export let channelData: ChannelData[] = []
     export let loading: boolean = false
     export let subscriptionStatusValue: SubscriptionState
     export let subscriptions: Subscription[] = undefined
@@ -23,14 +25,21 @@
     export let onSubscriptionAction: (channel: ChannelInfoType) => void
     export let handleAcceptSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
     export let handleRejectSubscription: (subscriptionId: string) => Promise<void> = () => Promise.resolve()
-    $: isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
     $: subscriptionStatusValue, manageChannelData()
+    $: isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
+
+    onMount(async () => {
+        await manageChannelData()
+    })
+    onDestroy(() => {
+        stopReadingChannel()
+    })
 
     async function manageChannelData(): Promise<void> {
         if (subscriptionStatusValue === SubscriptionState.Authorized && channel === $selectedChannel) {
             if (channel.type === ChannelType.public) {
                 // only request data once for public channel since it will be requested directly from the tangle
-                await readChannelMessages(channel.channelAddress)
+                await readChannelMessages(channel.channelAddress, 0)
                 return
             }
 
@@ -41,11 +50,9 @@
         }
     }
 
-    onDestroy(() => {
-        stopReadingChannel()
-        selectedChannel.reset()
-        subscriptionStatus.reset()
-    })
+    async function loadMore(entries: number): Promise<void> {
+        await readChannelMessages(channel.channelAddress, false, Math.ceil(entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT))
+    }
 </script>
 
 <div class="w-full">
@@ -59,8 +66,9 @@
         <div class="mb-4">
             <ChannelMessages
                 actionButtons={!isUserOwner && channel.type === ChannelType.public ? [] : messageFeedButtons}
-                isSpinnerVisible={channel?.type !== ChannelType.public}
-                channelData={$selectedChannelData}
+                isSpinnerVisible={channel.type !== ChannelType.public}
+                {loadMore}
+                {channelData}
             />
         </div>
     {/if}

@@ -156,7 +156,20 @@ export async function getChannelInfo(channelAddress: string): Promise<ChannelInf
     }
 }
 
-export async function readChannelMessages(channelAddress: string): Promise<void> {
+/**
+ * Reads messages of a channel
+ * @param channelAddress
+ * @param fetchNewMessage true for new message polling, false for pagenation
+ * @param index page index
+ * @param limit limit on how many messages to load
+ * @returns
+ */
+export async function readChannelMessages(
+    channelAddress: string,
+    fetchNewMessage: boolean,
+    index: number,
+    limit?: number
+): Promise<void> {
     if (get(isAuthenticated)) {
         if (get(selectedChannelBusy)) {
             console.log('channel is busy..')
@@ -169,10 +182,18 @@ export async function readChannelMessages(channelAddress: string): Promise<void>
 
             selectedChannelBusy.set(true)
             const newMessages = await channelClient.read(channelAddress, {
-                startDate,
-                endDate: get(selectedChannelData)?.length ? new Date() : null,
+                index,
+                asc: false,
+                limit: limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+                startDate: fetchNewMessage ? startDate : null,
+                endDate: get(selectedChannelData)?.length && fetchNewMessage ? new Date() : null,
             })
-            selectedChannelData.update((_chData) => [...newMessages, ..._chData])
+            // Append new messages infront and old messages (loaded in case of pagenation) in the back of the array to keep it sorted
+            if (fetchNewMessage) {
+                selectedChannelData.update((_chData) => [...newMessages, ..._chData])
+            } else {
+                selectedChannelData.update((_chData) => [..._chData, ...newMessages])
+            }
         } catch (e: any) {
             if (e?.message?.includes('Request failed with status code 423')) {
                 showNotification({
@@ -221,17 +242,17 @@ export async function readChannelHistory(channelAddress: string, presharedKey: s
 export async function startReadingChannel(channelAddress: string): Promise<void> {
     stopReadingChannel()
     if (!get(selectedChannelBusy)) {
-        await readChannelMessages(channelAddress)
+        await readChannelMessages(channelAddress, true, 0)
     }
     channelFeedInterval = setInterval(async () => {
-        await readChannelMessages(channelAddress)
+        await readChannelMessages(channelAddress, true, 0)
     }, FEED_INTERVAL_MS)
 }
 
-export function stopReadingChannel(): void {
+export function stopReadingChannel(resetChannelData = true): void {
     clearInterval(channelFeedInterval)
     channelFeedInterval = null
-    selectedChannelData.set([])
+    resetChannelData ?? selectedChannelData.set([])
 }
 
 export async function requestSubscription(channelAddress: string): Promise<RequestSubscriptionResponse> {
@@ -379,7 +400,7 @@ export async function writeMessage(
 ): Promise<ChannelData> {
     if (get(isAuthenticated)) {
         let channelDataResponse: ChannelData
-        stopReadingChannel()
+        stopReadingChannel(false)
         selectedChannelBusy.set(true)
 
         try {
