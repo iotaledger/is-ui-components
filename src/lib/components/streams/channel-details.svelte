@@ -31,7 +31,7 @@
         if (subscriptionStatus === SubscriptionState.Authorized) {
             if (channel.type === ChannelType.public) {
                 // only request data once for public channel since it will be requested directly from the tangle
-                await readChannelMessages(channel.channelAddress, 0)
+                await readChannelMessages(channel.channelAddress, true, 0)
                 return
             }
 
