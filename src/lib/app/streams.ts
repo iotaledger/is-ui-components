@@ -58,8 +58,6 @@ export function resetStreamsState(): void {
     selectedChannelSubscriptions.reset()
     isAsyncLoadingChannels.reset()
     loadingChannel.reset()
-    stopReadingChannel()
-    stopChannelsSearch()
 }
 
 // Note: this is an async function that returns nothing, but fills the searchChannelsResults store.

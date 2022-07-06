@@ -6,9 +6,9 @@
         startReadingChannel,
         stopReadingChannel,
         readChannelMessages,
-        selectedChannelData,
         selectedChannel,
         subscriptionStatus,
+selectedChannelData,
     } from '$lib/app/streams'
     import type { ActionButton } from '$lib/app/types/layout'
     import { ChannelType, SubscriptionState } from '$lib/app/types/streams'
@@ -17,7 +17,6 @@
     import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from '$lib/app/constants/base'
 
     export let channel: ChannelInfoType
-    export let channelData: ChannelData[] = []
     export let loading: boolean = false
     export let subscriptionStatusValue: SubscriptionState
     export let subscriptions: Subscription[] = undefined
@@ -28,18 +27,18 @@
     $: subscriptionStatusValue, manageChannelData()
     $: isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
 
-    onMount(async () => {
-        await manageChannelData()
-    })
     onDestroy(() => {
         stopReadingChannel()
+        selectedChannel.reset()
+        subscriptionStatus.reset()
+        selectedChannelData.reset()
     })
 
     async function manageChannelData(): Promise<void> {
         if (subscriptionStatusValue === SubscriptionState.Authorized && channel === $selectedChannel) {
             if (channel.type === ChannelType.public) {
                 // only request data once for public channel since it will be requested directly from the tangle
-                await readChannelMessages(channel.channelAddress, 0)
+                await readChannelMessages(channel.channelAddress, true, 0)
                 return
             }
 
@@ -68,7 +67,7 @@
                 actionButtons={!isUserOwner && channel.type === ChannelType.public ? [] : messageFeedButtons}
                 isSpinnerVisible={channel.type !== ChannelType.public}
                 {loadMore}
-                {channelData}
+                channelData={$selectedChannelData}
             />
         </div>
     {/if}
