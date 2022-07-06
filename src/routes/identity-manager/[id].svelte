@@ -50,7 +50,6 @@
     }
 
     function handleBackClick(): void {
-        //selectedIdentity.set(null)
         goto('/identity-manager')
     }
 

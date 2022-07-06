@@ -97,11 +97,11 @@
         }),
     } as TableData
 
-    onMount(async () => {
+    onMount(() => {
         const results = get(searchChannelsResults)
         // Fetch data if cached data is empty
         if (!results || results?.length === 0) {
-            await searchAllChannels('', getChannelSearchOptions(true))
+            searchAllChannels('', getChannelSearchOptions(true))
         }
     })
 
