@@ -12,7 +12,7 @@
     }
 
     function onPresharedKey(event: any) {
-        isEqual = presharedKey == event.target.value
+        isEqual = presharedKey === event.target.value
     }
 </script>
 
