@@ -418,7 +418,7 @@ export async function createChannel(
     description: string,
     type: ChannelType,
     topics: { type: string; source: string }[],
-    hasPresharedKey:boolean
+    hasPresharedKey: boolean
 ): Promise<CreateChannelResponse> {
     if (get(isAuthenticated)) {
         try {
@@ -427,7 +427,7 @@ export async function createChannel(
                 description,
                 topics,
                 type,
-                hasPresharedKey
+                hasPresharedKey,
             })
             return channel
         } catch (e) {

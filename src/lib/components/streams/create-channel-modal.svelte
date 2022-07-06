@@ -25,7 +25,6 @@
         },
     ]
 
-
     let name: string = ''
     let description: string = ''
     let unsubscribe: any
@@ -218,5 +217,5 @@
     </form>
 </Modal>
 {#if presharedKey}
-    <PresharedkeyModal bind:presharedKey={presharedKey} />
+    <PresharedkeyModal bind:presharedKey />
 {/if}
