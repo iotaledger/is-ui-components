@@ -1,7 +1,7 @@
 <script lang="ts">
     import { authenticatedUserDID } from '$lib/app/base'
     import { BoxColor } from '$lib/app/constants/colors'
-    import { isUserOwnerOfChannel} from '$lib/app/streams'
+    import { isUserOwnerOfChannel } from '$lib/app/streams'
     import { SubscriptionState } from '$lib/app/types/streams'
     import { Icon } from '$lib/components'
     import type { ChannelInfo } from '@iota/is-client'
@@ -56,7 +56,9 @@
                     color="dark"
                     on:click={onSubscriptionAction}
                     class="mt-3 mt-lg-0  d-flex align-items-center"
-                    disabled={loading || subscriptionStatus === SubscriptionState.Subscribed || subscriptionStatus === SubscriptionState.Requested }
+                    disabled={loading ||
+                        subscriptionStatus === SubscriptionState.Subscribed ||
+                        subscriptionStatus === SubscriptionState.Requested}
                 >
                     {#if subscriptionStatus != SubscriptionState.Subscribed}
                         <div class="me-1">

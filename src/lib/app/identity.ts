@@ -371,15 +371,14 @@ export function getIdentitySearchOptions(firstLoad = false): { limit: number; cr
 }
 
 export async function getIdentitiy(id: string): Promise<User> {
-    try{
-        const identity = await identityClient.find(id);
-        if(!identity) throw new Error()
+    try {
+        const identity = await identityClient.find(id)
+        if (!identity) throw new Error()
         return identity
-    } catch(e:any) {
+    } catch (e: any) {
         showNotification({
             type: NotificationType.Error,
             message: `Did not find identity with id: ${id}`,
         })
     }
-    
 }

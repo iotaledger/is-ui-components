@@ -79,9 +79,8 @@
             const id = await getIdentitiy($page.params.id)
             selectedIdentity.set(id)
         }
-        if(get(selectedIdentity))await loadIdentityDetails()
+        if (get(selectedIdentity)) await loadIdentityDetails()
     })
-
 </script>
 
 <svelte:head>
