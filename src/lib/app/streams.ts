@@ -23,6 +23,7 @@ import type { Reset } from './types/stores'
 import { reset } from './stores'
 
 export const selectedChannelPageIndex: Reset<number> = reset(1)
+export const selectedMessagePageIndex: Reset<number> = reset(1)
 export const channelSearchQuery: Reset<string> = reset('')
 export const authorFilterState: Reset<boolean> = reset(DEFAULT_AUTHOR_FILTER_STATE)
 export const subscribedFilterState: Reset<boolean> = reset(DEFAULT_SUBSCRIBED_FILTER_STATE)
