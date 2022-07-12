@@ -475,6 +475,8 @@ export async function addChannelToSearchResults(channelAddress: string): Promise
             if (channel) {
                 searchChannelsResults?.update((_searchChannelsResults) => {
                     return [..._searchChannelsResults, channel]
+                    .sort((a, b) => new Date(a?.created)?.getTime() - new Date(b?.created)?.getTime())
+                    .reverse()
                 })
             }
         } catch (e) {

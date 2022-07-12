@@ -281,7 +281,7 @@ export async function addIdentityToSortedSearchResults(id: string): Promise<void
             searchIdentitiesResults?.update((_searchIdentitiesResults) => {
                 return [..._searchIdentitiesResults, identity].sort(
                     (a, b) => new Date(a?.registrationDate)?.getTime() - new Date(b?.registrationDate)?.getTime()
-                )
+                ).reverse()
             })
         }
     } else {
