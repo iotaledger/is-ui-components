@@ -1,12 +1,12 @@
 <script lang="ts">
     import { CREDENTIAL_ICON, USER_ICONS } from '$lib/app/constants/identity'
-    import { getVerifiableCredentials, revokeVC } from '$lib/app/identity'
-    import type { ExtendedUser, UserRoles } from '$lib/app/types/identity'
+    import { getVerifiableCredentials, revokeVC, updateIdentity } from '$lib/app/identity'
+    import { UserRoles, type ExtendedUser } from '$lib/app/types/identity'
     import type { ActionButton } from '$lib/app/types/layout'
     import { createJsonDataUrl, formatDate } from '$lib/app/utils'
     import { Credential, Icon, JSONViewer } from '$lib/components'
     import type { VerifiableCredentialInternal } from '@iota/is-client'
-    import { Accordion, AccordionItem, Button, Spinner } from 'sveltestrap'
+    import { Accordion, AccordionItem, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Spinner } from 'sveltestrap'
     import { BoxColor } from '$lib/app'
 
     export let identity: ExtendedUser
@@ -16,6 +16,7 @@
     export let actionButtons: ActionButton[] = []
 
     let revoking: boolean = false
+    let caret: boolean = true
 
     $: type = identity?.claim?.type
 
@@ -28,6 +29,15 @@
             onRevokeSuccess(identity)
         }
         revoking = false
+    }
+
+    async function handleRoleChange(role: UserRoles): Promise<void> {
+        identity.role = role
+        loading = true
+        caret = false
+        await updateIdentity(identity)
+        loading = false
+        caret=true
     }
 </script>
 
@@ -45,6 +55,26 @@
                 <div class="fs-4 fw-bold">{identity?.username}</div>
                 <div class="text-secondary fw-bolder mt-1 text-break">{identity?.id}</div>
             </div>
+            <div class="d-flex flex-row justify-content-end role-padding">
+                <div class="pb-5">
+                    {#if userRole === UserRoles.Admin}
+                    <Dropdown size="sm">
+                        <DropdownToggle {caret}>
+                            {#if loading}
+                            <div class="ms-2 flex align-items-center">Updating role<Spinner size="sm" type="border" /></div>
+                            {:else}
+                            {identity?.role}
+                            {/if}
+                        </DropdownToggle>
+                        <DropdownMenu>
+                            {#each [UserRoles.Admin, UserRoles.Manager, UserRoles.User] as role}
+                                <DropdownItem on:click={() => handleRoleChange(role)}>{role}</DropdownItem>
+                            {/each}
+                        </DropdownMenu>
+                    </Dropdown>
+                {/if}
+                </div>
+            </div>
         </div>
         <div class="d-xl-flex align-items-center justify-content-between">
             <div class="ms-12 me-12">
@@ -57,30 +87,31 @@
                 <div class="text-secondary text-break">
                     <span class="fw-bold">Creator: </span><span class="text-break ">{identity?.creator || 'unknown'}</span>
                 </div>
+                <div class="text-secondary text-break">
+                    <span class="fw-bold">Role: </span><span class="text-break ">{identity?.role || 'unknown'}</span>
+                </div>
             </div>
             <div class="d-flex flex-column align-items-start">
                 {#if actionButtons}
                     {#each actionButtons as { label, onClick, icon, color, loading, disabled, hidden }}
-                        {#if !hidden}
-                            <Button
-                                size="sm"
-                                outline
-                                color={color ?? 'dark'}
-                                on:click={onClick}
-                                {disabled}
-                                class="d-flex align-items-center mt-3"
-                            >
-                                {#if icon}
-                                    <div class="me-1">
-                                        <Icon type={icon} size={16} />
-                                    </div>
-                                {/if}
-                                <span class="ms-1">{label}</span>
-                                {#if loading}
-                                    <div class="ms-2 flex align-items-center"><Spinner size="sm" type="border" /></div>
-                                {/if}
-                            </Button>
-                        {/if}
+                        <Button
+                            size="sm"
+                            outline
+                            color={color ?? 'dark'}
+                            on:click={onClick}
+                            {disabled}
+                            class="d-flex align-items-center mt-3"
+                        >
+                            {#if icon}
+                                <div class="me-1">
+                                    <Icon type={icon} size={16} />
+                                </div>
+                            {/if}
+                            <span class="ms-1">{label}</span>
+                            {#if loading}
+                                <div class="ms-2 flex align-items-center"><Spinner size="sm" type="border" /></div>
+                            {/if}
+                        </Button>
                     {/each}
                 {/if}
             </div>
@@ -141,5 +172,8 @@
 <style lang="scss">
     .label {
         font-size: 12px;
+    }
+    .role-padding {
+        padding-left: 22.5%;
     }
 </style>

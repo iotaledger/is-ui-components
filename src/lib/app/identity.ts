@@ -1,5 +1,6 @@
 import type {
     CredentialTypes,
+    IdentityInternal,
     IdentityJson,
     RevokeVerificationBody,
     User,
@@ -379,6 +380,25 @@ export async function getIdentitiy(id: string): Promise<User> {
         showNotification({
             type: NotificationType.Error,
             message: `Did not find identity with id: ${id}`,
+        })
+    }
+}
+
+export async function updateIdentity(identity: IdentityInternal): Promise<void>{
+    if(get(isAuthenticated)){
+        try{
+            await identityClient.update(identity);
+        }catch(e: any){
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error updating identity',
+            })
+            console.error(Error, e)
+        }     
+    }else{
+        showNotification({
+            type: NotificationType.Error,
+            message: 'Cant perform action, user not authenticated',
         })
     }
 }
