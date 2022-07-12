@@ -39,7 +39,7 @@
                 {#if channel?.type}
                     <Badge color="dark" class="me-1">{channel?.type}</Badge>
                 {/if}
-                {#if channel?.topics && channel.topics.length > 0}
+                {#if channel?.topics && channel?.topics.length > 0}
                     {#each channel?.topics as { type, source }}
                         <Badge color="primary" class="me-1">{type}</Badge>
                         <Badge color="secondary" class="me-2">{source}</Badge>

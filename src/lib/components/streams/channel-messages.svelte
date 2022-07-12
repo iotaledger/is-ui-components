@@ -1,12 +1,13 @@
 <script lang="ts">
-    import { DEFAULT_TABLE_PAGE_SIZE } from '$lib/app/constants/base'
+    import { selectedMessagePageIndex } from '$lib/app'
+
     import { DEFAULT_MESSAGES_PAGE_SIZE } from '$lib/app/constants/streams'
 
     import type { ActionButton } from '$lib/app/types/layout'
     import { isAnArrayOfObjects, isAnObject, isJson } from '$lib/app/utils'
     import { Icon, JSONViewer } from '$lib/components'
     import type { ChannelData } from '@iota/is-client'
-    import { onMount } from 'svelte'
+    import { onDestroy, onMount } from 'svelte'
     import { Button, Spinner } from 'sveltestrap'
     import Paginator from '../paginator.svelte'
 
@@ -14,7 +15,6 @@
     export let actionButtons: ActionButton[] = []
     export let loadMore = (..._: any[]): void => {}
     export let isSpinnerVisible: boolean = true
-    let selectedPageIndex = 1
 
     // Pagination
     let startAt = 0
@@ -30,8 +30,8 @@
     })
 
     function pageChanged(page: number): void {
-        selectedPageIndex = page
-        if (channelData.length / selectedPageIndex <= pageSize) {
+        selectedMessagePageIndex.set(page)
+        if (channelData.length / $selectedMessagePageIndex <= pageSize) {
             showLoadMoreButton = true
         } else {
             showLoadMoreButton = false
@@ -41,7 +41,14 @@
     }
 
     function updateVisibleResults(): void {
-        startAt = (selectedPageIndex - 1) * pageSize
+        if (channelData.length > 0) {
+            //reduce the last page number to match the data length 
+            while (channelData.length < pageSize * $selectedMessagePageIndex - pageSize) {
+                let currentPage = $selectedMessagePageIndex 
+                selectedMessagePageIndex.set(currentPage- 1)
+            }
+        }
+        startAt = ($selectedMessagePageIndex - 1) * pageSize
         endAt = startAt + pageSize
         visibleChannelData = channelData.slice(startAt, endAt)
     }
@@ -154,7 +161,12 @@
     {/if}
     {#if channelData.length}
         <div class="d-flex justify-content-center align-items-center">
-            <Paginator onPageChange={pageChanged} totalCount={channelData.length} {pageSize} currentPage={selectedPageIndex} />
+            <Paginator
+                onPageChange={pageChanged}
+                totalCount={channelData.length}
+                {pageSize}
+                currentPage={$selectedMessagePageIndex}
+            />
         </div>
     {/if}
 </div>
