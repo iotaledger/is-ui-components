@@ -120,13 +120,14 @@
         <ModalBody class="px-4 pb-4">
             <div class="my-4 p-4 bg-light ">
                 <Label class="mt-3">Channel Type</Label>
-                <Input required type="select" name="select" class="mb-4" bind:value={channelType}>
+                <Input required type="select" name="select" class="mb-2" bind:value={channelType}>
                     <option value={ChannelType.private}>Private Channel</option>
                     <option value={ChannelType.public}>Public Channel</option>
                 </Input>
                 {#if channelType === ChannelType.private}
-                    <Label class="mt-3">Use preshared key</Label>
-                    <Input type="switch" bind:checked={hasPresharedKey} />
+                    <div class="mb-3">
+                        <Input type="switch" bind:checked={hasPresharedKey} label="Use preshared key" />
+                    </div>
                 {/if}
 
                 <Label>Name</Label>
@@ -145,16 +146,12 @@
 
                 <Label class="mt-3">Description</Label>
                 <Input
-                    placeholder={'Please, describe your channel here...'}
+                    placeholder={'Describe your channel here...'}
                     type="textarea"
                     minlength={MIN_LENGTH_INPUT}
                     maxlength={MAX_LENGTH_TEXTAREA}
                     bind:value={description}
                 />
-                <div class="invalid-feedback">
-                    This field is required and it needs to be more than {MIN_LENGTH_INPUT} characters and less than {MAX_LENGTH_TEXTAREA}
-                    characters.
-                </div>
             </div>
             {#each topics as topic, i}
                 <div class="my-4 p-4 bg-light ">
