@@ -1,46 +1,33 @@
 <script lang="ts">
-    import { BoxColor } from '$lib/app'
-
+    import { BoxColor, type ExtendedUser, type IdentityTemplate } from '$lib/app'
     import { UserType } from '@iota/is-client'
-    import {
-        DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-        DEFAULT_TABLE_CONFIGURATION,
-        WELCOME_LIST_RESULTS_NUMBER,
-    } from '$lib/app/constants/base'
-    import { DEFAULT_IDENTITIES_TEMPLATES, DEFAULT_VCS_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
+    import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, DEFAULT_TABLE_CONFIGURATION } from '$lib/app/constants/base'
+    import { DEFAULT_IDENTITIES_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import { get } from 'svelte/store'
     import {
         addIdentityToSortedSearchResults,
-        getIdentityClaim,
-        getVerifiableCredentials,
         isAsyncLoadingIdentities,
         searchAllIdentities,
         searchIdentitiesSingleRequest,
         searchIdentitiesResults,
-        searchIdentityByDID,
         selectedIdentityPageIndex,
         selectedIdentity,
         stopIdentitiesSearch,
-        updateIdentityInSearchResults,
         identitySearchQuery,
         creatorFilterState,
+        getIdentitySearchOptions,
+        onIdentitySearch,
+        loadingIdentity,
     } from '$lib/app/identity'
-    import {
-        UserRoles,
-        type ExtendedUser,
-        type IdentityTemplate,
-        type VerifiableCredentialTemplate,
-    } from '$lib/app/types/identity'
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
-    import { Box, CreateCredentialModal, CreateIdentityModal, Icon, IdentityDetails, ListManager } from '$lib/components'
+    import { Box, CreateIdentityModal, ListManager } from '$lib/components'
     import type { IdentityJson } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
-    import { authenticatedUserDID, authenticatedUserRole } from '../../app/base'
     import { formatDate } from '$lib/app/utils'
+    import { goto } from '$app/navigation'
 
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
-    export let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
     export let showSearch: boolean = true
     export let listViewButtons: ActionButton[] = [
         {
@@ -51,15 +38,6 @@
         },
     ]
     export let tableConfiguration: TableConfiguration = DEFAULT_TABLE_CONFIGURATION
-    export let detailViewButtons: ActionButton[] = [
-        {
-            label: 'Add credential',
-            onClick: openCreateCredentialModal,
-            icon: 'plus',
-            color: 'dark',
-            hidden: $authenticatedUserRole !== UserRoles.Admin,
-        },
-    ]
     $: identityFilter = [
         {
             label: 'Show own identities',
@@ -69,20 +47,11 @@
         },
     ] as FilterCheckbox[]
 
-    enum State {
-        ListIdentities = 'listIdentities',
-        IdentityDetail = 'identityDetail',
-    }
-    let state: State = State.ListIdentities
-    let loading: boolean = false
     let message: string
     let isCreateIdentityModalOpen = false
     let isNewIdentityCreated = false
-    let isCreateCredentialModalOpen = false
 
-    $: $selectedIdentity, updateState()
-    $: state, loadIdentityDetails()
-    $: message = $isAsyncLoadingIdentities || loading || $searchIdentitiesResults?.length ? null : 'No identities found'
+    $: message = $isAsyncLoadingIdentities || $loadingIdentity || $searchIdentitiesResults?.length ? null : 'No identities found'
     $: tableData = {
         headings: ['Identity', 'Type', 'Date Created', 'Credentials'],
         rows: $searchIdentitiesResults.map((identity) => ({
@@ -104,24 +73,13 @@
         const results = get(searchIdentitiesResults)
         // Fetch data if cached data is empty
         if (!results || results?.length === 0) {
-            searchAllIdentities('', getSearchOptions(true))
+            searchAllIdentities('', getIdentitySearchOptions(true))
         }
     })
 
     onDestroy(() => {
         stopIdentitiesSearch()
     })
-
-    async function onSearch(): Promise<void> {
-        selectedIdentityPageIndex.set(1) // reset index
-        await searchAllIdentities(get(identitySearchQuery), getSearchOptions())
-    }
-
-    function getSearchOptions(firstLoad = false): { limit: number; creator: string } {
-        const creator = get(creatorFilterState) ? get(authenticatedUserDID) : undefined
-        const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
-        return { limit, creator }
-    }
 
     function onPageChange(page: number) {
         selectedIdentityPageIndex.set(page)
@@ -140,66 +98,28 @@
         searchIdentitiesResults.update((results) => [...results, ...newIdentities])
     }
 
-    async function updateState(): Promise<void> {
-        if ($selectedIdentity) {
-            state = State.IdentityDetail
-        } else {
-            state = State.ListIdentities
-        }
-    }
-
-    async function loadIdentityDetails(): Promise<void> {
-        if (state === State.IdentityDetail) {
-            loading = true
-            const vc = await getVerifiableCredentials($selectedIdentity?.id)
-            const claim = (await getIdentityClaim($selectedIdentity?.id)) as {}
-            selectedIdentity.update((identity) => ({
-                ...identity,
-                vc,
-                claim: { ...claim, type: $selectedIdentity?.claim?.type },
-            }))
-            loading = false
-        }
-    }
-
     function handleSelectIdentity(identity: ExtendedUser): void {
         selectedIdentity.set(identity)
-    }
-
-    function handleBackClick(): void {
-        selectedIdentity.set(null)
+        goto(`/identity-manager/${$selectedIdentity.id}`)
     }
 
     // Add the newly created identity to the search results
     async function onCreateIdentitySuccess(identity: IdentityJson): Promise<void> {
-        loading = true
+        loadingIdentity.set(true)
         // If query is not empty, we need to search again to get the match results
         if (get(identitySearchQuery)?.length) {
-            await onSearch()
+            await onIdentitySearch()
         } else {
             // Add the identity to the search results directly, no need to search again
             await addIdentityToSortedSearchResults(identity?.doc?.id)
         }
-        loading = false
-    }
-
-    // Add the newly created credential to the selected identity
-    async function onCreateCredentialSuccess(): Promise<void> {
-        loading = true
-        let identity = await searchIdentityByDID($selectedIdentity?.id)
-        identity = { ...identity, numberOfCredentials: identity?.numberOfCredentials ?? 0 }
-        if (identity) {
-            updateIdentityInSearchResults(identity)
-        }
-        const vc = await getVerifiableCredentials($selectedIdentity?.id)
-        selectedIdentity.update((identity) => ({ ...identity, vc }))
-        loading = false
+        loadingIdentity.set(false)
     }
 
     function onOnlyOwnIdentities(): void {
         // Toggle authorFilterState
         creatorFilterState.set(!get(creatorFilterState))
-        onSearch()
+        onIdentitySearch()
     }
 
     function openCreateIdentityModal(): void {
@@ -210,49 +130,25 @@
         isCreateIdentityModalOpen = false
         isNewIdentityCreated = false
     }
-
-    function openCreateCredentialModal(): void {
-        isCreateCredentialModalOpen = true
-    }
-
-    function closeCreateCredentialModal(): void {
-        isCreateCredentialModalOpen = false
-    }
 </script>
 
 <Box>
-    {#if state === State.ListIdentities}
-        <ListManager
-            {showSearch}
-            {onSearch}
-            {loadMore}
-            {tableData}
-            {message}
-            {tableConfiguration}
-            selectedPageIndex={$selectedIdentityPageIndex}
-            {onPageChange}
-            title="Identities"
-            searchPlaceholder="Search identities"
-            loading={loading || $isAsyncLoadingIdentities}
-            actionButtons={listViewButtons}
-            filters={identityFilter}
-            bind:searchQuery={$identitySearchQuery}
-        />
-    {:else if state === State.IdentityDetail}
-        <div class="mb-4 align-self-start">
-            <button on:click={handleBackClick} class="btn d-flex align-items-center">
-                <Icon type="arrow-left" size={16} />
-                <span class="ms-2">Back</span>
-            </button>
-        </div>
-        <IdentityDetails
-            {loading}
-            actionButtons={detailViewButtons}
-            onRevokeSuccess={updateIdentityInSearchResults}
-            identity={$selectedIdentity}
-            userRole={$authenticatedUserRole}
-        />
-    {/if}
+    <ListManager
+        {showSearch}
+        onSearch={onIdentitySearch}
+        {loadMore}
+        {tableData}
+        {message}
+        {tableConfiguration}
+        selectedPageIndex={$selectedIdentityPageIndex}
+        {onPageChange}
+        title="Identities"
+        searchPlaceholder="Search identities"
+        loading={$loadingIdentity || $isAsyncLoadingIdentities}
+        actionButtons={listViewButtons}
+        filters={identityFilter}
+        bind:searchQuery={$identitySearchQuery}
+    />
 </Box>
 <CreateIdentityModal
     isOpen={isCreateIdentityModalOpen}
@@ -260,12 +156,4 @@
     onSuccess={onCreateIdentitySuccess}
     {identitiesTemplate}
     bind:isCreated={isNewIdentityCreated}
-/>
-<!-- TODO: add possility to not pass targetDid here -->
-<CreateCredentialModal
-    isOpen={isCreateCredentialModalOpen}
-    onModalClose={closeCreateCredentialModal}
-    targetDid={$selectedIdentity?.id}
-    onSuccess={onCreateCredentialSuccess}
-    {credentialsTemplate}
 />

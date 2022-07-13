@@ -7,8 +7,8 @@ import type {
 } from '@iota/is-client'
 import { AccessRights, type ChannelInfo } from '@iota/is-client'
 import { get } from 'svelte/store'
-import { authenticationData, channelClient, isAuthenticated } from './base'
-import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
+import { authenticatedUserDID, authenticationData, channelClient, isAuthenticated } from './base'
+import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
 import {
     DEFAULT_AUTHOR_FILTER_STATE,
     DEFAULT_REQUESTED_SUBSCRIPTION_STATE,
@@ -23,6 +23,7 @@ import type { Reset } from './types/stores'
 import { reset } from './stores'
 
 export const selectedChannelPageIndex: Reset<number> = reset(1)
+export const selectedMessagePageIndex: Reset<number> = reset(1)
 export const channelSearchQuery: Reset<string> = reset('')
 export const authorFilterState: Reset<boolean> = reset(DEFAULT_AUTHOR_FILTER_STATE)
 export const subscribedFilterState: Reset<boolean> = reset(DEFAULT_SUBSCRIBED_FILTER_STATE)
@@ -34,6 +35,9 @@ export const selectedChannelBusy: Reset<boolean> = reset(false)
 export const selectedChannelSubscriptions: Reset<Subscription[]> = reset(null)
 // used for the async search that makes N background queries to get the full list of channels
 export const isAsyncLoadingChannels: Reset<boolean> = reset(false)
+// used to determine the subscription status of the authenticated user on the current channel
+export const subscriptionStatus: Reset<SubscriptionState> = reset(undefined)
+export const loadingChannel: Reset<boolean> = reset(false)
 
 let haltSearchAll = false
 // used to keep track of the last search query
@@ -54,6 +58,7 @@ export function resetStreamsState(): void {
     selectedChannelBusy.reset()
     selectedChannelSubscriptions.reset()
     isAsyncLoadingChannels.reset()
+    loadingChannel.reset()
 }
 
 // Note: this is an async function that returns nothing, but fills the searchChannelsResults store.
@@ -135,6 +140,19 @@ export function stopChannelsSearch(): void {
     index = 0
     haltSearchAll = true
     isAsyncLoadingChannels.set(false)
+}
+
+export async function getChannelInfo(channelAddress: string): Promise<ChannelInfo> {
+    try {
+        const channelInfo = await channelClient.info(channelAddress)
+        if (!channelInfo) throw new Error()
+        return channelInfo
+    } catch (e: any) {
+        showNotification({
+            type: NotificationType.Error,
+            message: `Did not find any information for channel: ${channelAddress}`,
+        })
+    }
 }
 
 /**
@@ -354,8 +372,8 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
             return !ownSuscription
                 ? SubscriptionState.NotSubscribed
                 : ownSuscription.isAuthorized
-                ? SubscriptionState.Authorized
-                : SubscriptionState.Requested
+                    ? SubscriptionState.Authorized
+                    : SubscriptionState.Requested
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -486,4 +504,16 @@ export function isUserSubscribedToChannel(userDID: string, channel: ChannelInfo)
 
 export function hasUserRequestedSubscriptionToChannel(userDID: string, channel: ChannelInfo): boolean {
     return channel?.requestedSubscriptionIds?.includes(userDID) && channel?.authorId !== userDID
+}
+
+export async function onChannelSearch(): Promise<void> {
+    selectedChannelPageIndex.set(1) // reset index
+    searchChannelsResults.reset()
+    await searchAllChannels(get(channelSearchQuery), getChannelSearchOptions())
+}
+
+export function getChannelSearchOptions(firstLoad = false): SearchOptions {
+    const authorId = get(authorFilterState) ? get(authenticatedUserDID) : undefined
+    const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
+    return { limit, authorId }
 }
