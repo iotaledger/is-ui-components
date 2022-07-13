@@ -17,20 +17,20 @@
 </script>
 
 <div>
-    <Modal isOpen={open} toggle={onSubmit}>
+    <Modal isOpen={open} toggle={onSubmit} backdrop={false}>
         <ModalBody>
             <Alert color="warning">
                 <h4 class="alert-heading text-capitalize">Warning</h4>
-                This key is not stored anywhere and can't be recovered.
+                Keep this key in a safe place. This key is not stored by the service and can't be recovered.
             </Alert>
-
-            Preshared Key: <b>{presharedKey}</b>
-            <div class="pt-2">
+            <p>Share the preshared key with an auditor to grant access to the channel data.</p>
+            <span>Preshared Key: </span><b>{presharedKey}</b>
+            <div class="pt-3">
                 <Input
                     type="text"
                     name="text"
                     id="presharedKeyText"
-                    placeholder="Insert preshared key here"
+                    placeholder="Insert preshared key here to continue..."
                     on:input={onPresharedKey}
                 />
                 <div />

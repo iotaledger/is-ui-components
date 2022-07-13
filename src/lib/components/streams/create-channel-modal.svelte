@@ -124,12 +124,13 @@
                     <option value={ChannelType.private}>Private Channel</option>
                     <option value={ChannelType.public}>Public Channel</option>
                 </Input>
-                {#if channelType === ChannelType.private}
-                    <div class="mb-3">
-                        <Input type="switch" bind:checked={hasPresharedKey} label="Use preshared key" />
-                    </div>
-                {/if}
-
+                <Input
+                    class="mb-3"
+                    type="switch"
+                    bind:checked={hasPresharedKey}
+                    label="Use preshared key"
+                    disabled={channelType !== ChannelType.private}
+                />
                 <Label>Name</Label>
                 <Input
                     placeholder={'Channel name...'}
