@@ -3,18 +3,18 @@
 </script>
 
 <script lang="ts">
-    import { StreamsManager } from '$lib/components'
+    import { IdentityManager } from '$lib/components'
     import { Col, Container, Row } from 'sveltestrap'
 </script>
 
 <svelte:head>
-    <title>Login / Register</title>
+    <title>Identity Manager</title>
 </svelte:head>
 
 <Container class="my-5">
     <Row>
         <Col sm="12" md={{ size: 10, offset: 1 }}>
-            <StreamsManager />
+            <IdentityManager />
         </Col>
     </Row>
 </Container>
