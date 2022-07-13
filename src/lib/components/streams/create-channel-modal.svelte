@@ -7,6 +7,7 @@
     import { Button, FormGroup, Input, Label, ModalBody, ModalFooter, ModalHeader, Spinner } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
     import Modal from 'sveltestrap/src/Modal.svelte'
+    import PresharedkeyModal from './presharedkey-modal.svelte'
 
     export let isOpen: boolean = false
     export let onModalClose = (..._: any[]): void => {}
@@ -23,12 +24,15 @@
             source: '',
         },
     ]
-    let channelType = ChannelType.private
+
     let name: string = ''
     let description: string = ''
     let unsubscribe: any
     let formValidated = false
     let formContainer: HTMLFormElement
+    let channelType = ChannelType.private
+    let hasPresharedKey = false
+    let presharedKey: string
 
     $: formContainer, manageFormSubscription()
 
@@ -63,7 +67,7 @@
 
     async function handleCreateChannel() {
         loading = true
-        let channel = await createChannel(name, description, channelType, topics)
+        let channel = await createChannel(name, description, channelType, topics, hasPresharedKey)
         if (channel) {
             resetTopics()
             onSuccess(channel.channelAddress)
@@ -71,6 +75,8 @@
         }
         loading = false
         onClose()
+        // presharedKey is undefined if not selected -> presharedKey modal is not shown
+        presharedKey = channel.presharedKey
     }
 
     function handleAddTopic() {
@@ -102,6 +108,7 @@
     function onClose() {
         resetFields()
         formValidated = false
+        hasPresharedKey = false
         onModalClose()
     }
 </script>
@@ -113,10 +120,17 @@
         <ModalBody class="px-4 pb-4">
             <div class="my-4 p-4 bg-light ">
                 <Label class="mt-3">Channel Type</Label>
-                <Input required type="select" name="select" class="mb-4" bind:value={channelType}>
+                <Input required type="select" name="select" class="mb-2" bind:value={channelType}>
                     <option value={ChannelType.private}>Private Channel</option>
                     <option value={ChannelType.public}>Public Channel</option>
                 </Input>
+                <Input
+                    class="mb-3"
+                    type="switch"
+                    bind:checked={hasPresharedKey}
+                    label="Use preshared key"
+                    disabled={channelType !== ChannelType.private}
+                />
                 <Label>Name</Label>
                 <Input
                     placeholder={'Channel name...'}
@@ -133,16 +147,12 @@
 
                 <Label class="mt-3">Description</Label>
                 <Input
-                    placeholder={'Please, describe your channel here...'}
+                    placeholder={'Describe your channel here...'}
                     type="textarea"
                     minlength={MIN_LENGTH_INPUT}
                     maxlength={MAX_LENGTH_TEXTAREA}
                     bind:value={description}
                 />
-                <div class="invalid-feedback">
-                    This field is required and it needs to be more than {MIN_LENGTH_INPUT} characters and less than {MAX_LENGTH_TEXTAREA}
-                    characters.
-                </div>
             </div>
             {#each topics as topic, i}
                 <div class="my-4 p-4 bg-light ">
@@ -204,3 +214,6 @@
         </ModalFooter>
     </form>
 </Modal>
+{#if presharedKey}
+    <PresharedkeyModal bind:presharedKey />
+{/if}
