@@ -72,10 +72,10 @@ export function logout(): void {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types */
-export async function registerIdentity(username?: string, claimType = UserType.Person, claim?: any): Promise<IdentityJson> {
+export async function registerIdentity(username?: string, claimType = UserType.Person, claim?: any, hidden?: boolean): Promise<IdentityJson> {
     let registeredIdentity
     try {
-        registeredIdentity = await identityClient.create(username, claimType, claim)
+        registeredIdentity = await identityClient.create(username, claimType, claim, hidden)
     } catch (e) {
         if (e?.message?.includes(409)) {
             showNotification({

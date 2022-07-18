@@ -32,7 +32,7 @@
     ],
     "author": "Begoña Álvarez <balvarez@boxfish.studio>",
     "dependencies": {
-        "@iota/is-client": "^0.1.10",
+        "@iota/is-client": "^0.1.19",
         "bootstrap": "^5.1.3",
         "svelte-file-dropzone": "^1.0.0-dev.1",
         "sveltestrap": "^5.7.0"
