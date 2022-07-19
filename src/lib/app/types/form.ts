@@ -10,6 +10,8 @@ export interface SubmitButton {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Input = {
+    tooltip?: string
+    defaultState?: boolean
     disabled?: boolean
     id: string
     maxLength?: number

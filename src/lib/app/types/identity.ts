@@ -85,6 +85,8 @@ export type IdentityTemplate = {
         name: string
         required?: boolean
         type: FieldType
+        tooltip?: string
+        defaultState?: boolean,
         options?: {
             label: string
             value: string

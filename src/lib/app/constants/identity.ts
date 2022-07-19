@@ -11,6 +11,8 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
                 id: 'hidden',
                 name: 'Hidden Identity',
                 type: FieldType.Checkbox,
+                tooltip:  'All credentials are hidden to other users.',
+                defaultState: false
             },
             {
                 id: 'username',
@@ -69,6 +71,8 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
                 id: 'hidden',
                 name: 'Hidden Identity',
                 type: FieldType.Checkbox,
+                tooltip:  'All credentials are hidden to other users.',
+                defaultState: false
             },
             {
                 id: 'username',
@@ -121,6 +125,8 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
                 id: 'hidden',
                 name: 'Hidden Identity',
                 type: FieldType.Checkbox,
+                tooltip:  'All credentials are hidden to other users.',
+                defaultState: false
             },
             {
                 id: 'username',
@@ -163,6 +169,8 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
                 id: 'hidden',
                 name: 'Hidden Identity',
                 type: FieldType.Checkbox,
+                tooltip:  'All credentials are hidden to other users.',
+                defaultState: false
             },
             {
                 id: 'username',
@@ -207,6 +215,8 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
                 id: 'hidden',
                 name: 'Hidden Identity',
                 type: FieldType.Checkbox,
+                tooltip:  'All credentials are hidden to other users.',
+                defaultState: false
             },
             {
                 id: 'username',
@@ -279,6 +289,8 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
                 id: 'hidden',
                 name: 'Hidden Identity',
                 type: FieldType.Checkbox,
+                tooltip:  'All credentials are hidden to other users.',
+                defaultState: false
             },
             {
                 id: 'username',

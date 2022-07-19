@@ -12,9 +12,7 @@
     let unsubscribe
     let formValidated: boolean = false
     let formContainer: HTMLFormElement
-    let hidden: boolean = false
-    let isOpen: boolean = false
-    let inputFields = { hidden }
+    let inputFields = {}
 
     // In case of an input that allows multiple values in a same text input area, we need a separator to split the values.
     const STRING_ARRAY_SEPARATOR: string = ','
@@ -80,17 +78,15 @@
                             id={`input-${input?.id}`}
                             class="ms-1"
                             type={getHTMLInputType(input?.type)}
-                            bind:checked={hidden}
+                            bind:checked={input.defaultState}
                             on:change={() => {
-                                inputFields[input?.id] = !hidden
-                                isOpen = !hidden
+                                inputFields[input?.id] = !input?.defaultState
                             }}
                             label={input?.name}
-                            on:blur={() => (isOpen = false)}
                         />
                     </div>
-                    <Tooltip bind:isOpen placement="right" target={`input-container-hidden`}>
-                        All credentials are hidden to other users.
+                    <Tooltip placement="right" target={`input-container-${input?.id}`}>
+                        {input?.tooltip}
                     </Tooltip>
                 {:else}
                     <Label class="mb-2">{input?.name}</Label>
