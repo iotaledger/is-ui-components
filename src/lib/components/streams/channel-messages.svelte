@@ -1,13 +1,57 @@
 <script lang="ts">
+    import { selectedMessagePageIndex } from '$lib/app'
+
+    import { DEFAULT_MESSAGES_PAGE_SIZE } from '$lib/app/constants/streams'
+
     import type { ActionButton } from '$lib/app/types/layout'
     import { isAnArrayOfObjects, isAnObject, isJson } from '$lib/app/utils'
     import { Icon, JSONViewer } from '$lib/components'
     import type { ChannelData } from '@iota/is-client'
+    import { onDestroy, onMount } from 'svelte'
     import { Button, Spinner } from 'sveltestrap'
+    import Paginator from '../paginator.svelte'
 
     export let channelData: ChannelData[] = []
     export let actionButtons: ActionButton[] = []
+    export let loadMore = (..._: any[]): void => {}
     export let isSpinnerVisible: boolean = true
+
+    // Pagination
+    let startAt = 0
+    let pageSize = DEFAULT_MESSAGES_PAGE_SIZE
+    let endAt = pageSize
+    let visibleChannelData: ChannelData[] = []
+    let showLoadMoreButton = false
+
+    $: channelData, updateVisibleResults()
+
+    onMount(() => {
+        updateVisibleResults()
+    })
+
+    function pageChanged(page: number): void {
+        selectedMessagePageIndex.set(page)
+        if (channelData.length / $selectedMessagePageIndex <= pageSize) {
+            showLoadMoreButton = true
+        } else {
+            showLoadMoreButton = false
+        }
+
+        updateVisibleResults()
+    }
+
+    function updateVisibleResults(): void {
+        if (channelData.length > 0) {
+            //reduce the last page number to match the data length 
+            while (channelData.length < pageSize * $selectedMessagePageIndex - pageSize) {
+                let currentPage = $selectedMessagePageIndex 
+                selectedMessagePageIndex.set(currentPage- 1)
+            }
+        }
+        startAt = ($selectedMessagePageIndex - 1) * pageSize
+        endAt = startAt + pageSize
+        visibleChannelData = channelData.slice(startAt, endAt)
+    }
 </script>
 
 <div class="w-full">
@@ -43,7 +87,7 @@
             <div class="fw-bold">Waiting for channel data...</div>
         </div>
     {/if}
-    {#each channelData as msg}
+    {#each visibleChannelData as msg}
         <div class="p-4 bg-light my-4">
             <div class="d-lg-flex justify-content-between mb-lg-4">
                 <div class="info-box mb-4 mb-lg-0 me-lg-4">
@@ -102,4 +146,27 @@
             {/if}
         </div>
     {/each}
+    {#if showLoadMoreButton}
+        <Button
+            size="sm"
+            outline
+            block
+            class="mb-4"
+            on:click={async () => {
+                await loadMore(channelData.length)
+                showLoadMoreButton = false
+            }}
+            >load more...
+        </Button>
+    {/if}
+    {#if channelData.length}
+        <div class="d-flex justify-content-center align-items-center">
+            <Paginator
+                onPageChange={pageChanged}
+                totalCount={channelData.length}
+                {pageSize}
+                currentPage={$selectedMessagePageIndex}
+            />
+        </div>
+    {/if}
 </div>

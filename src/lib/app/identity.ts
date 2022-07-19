@@ -2,13 +2,14 @@ import type {
     CredentialTypes,
     IdentityJson,
     RevokeVerificationBody,
+    User,
     VerifiableCredentialInternal,
     VerifiableCredentialJson,
 } from '@iota/is-client'
 import { UserType } from '@iota/is-client'
 import { get } from 'svelte/store'
-import { authenticationData, channelClient, identityClient, isAuthenticated } from './base'
-import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT } from './constants/base'
+import { authenticatedUserDID, authenticationData, channelClient, identityClient, isAuthenticated } from './base'
+import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
 import { DEFAULT_CREATOR_FILTER_STATE } from './constants/identity'
 import { showNotification } from './notification'
 import { reset } from './stores'
@@ -24,6 +25,7 @@ export const searchIdentitiesResults: Reset<ExtendedUser[]> = reset([])
 export const selectedIdentity: Reset<ExtendedUser> = reset(null)
 // used for the async search that makes N background queries to get the full list of identities
 export const isAsyncLoadingIdentities: Reset<boolean> = reset(false)
+export const loadingIdentity: Reset<boolean> = reset(false)
 
 let haltSearchAll = false
 // used to keep track of the last search query
@@ -39,6 +41,7 @@ function resetIdentityState(): void {
     searchIdentitiesResults.reset()
     selectedIdentity.reset()
     isAsyncLoadingIdentities.reset()
+    loadingIdentity.reset()
 }
 
 /**
@@ -354,4 +357,28 @@ export async function getIdentityClaim(identityId: string): Promise<unknown> {
         })
     }
     return claim
+}
+
+export async function onIdentitySearch(): Promise<void> {
+    selectedIdentityPageIndex.set(1) // reset index
+    await searchAllIdentities(get(identitySearchQuery), getIdentitySearchOptions())
+}
+
+export function getIdentitySearchOptions(firstLoad = false): { limit: number; creator: string } {
+    const creator = get(creatorFilterState) ? get(authenticatedUserDID) : undefined
+    const limit = firstLoad ? WELCOME_LIST_RESULTS_NUMBER : DEFAULT_SDK_CLIENT_REQUEST_LIMIT
+    return { limit, creator }
+}
+
+export async function getIdentitiy(id: string): Promise<User> {
+    try {
+        const identity = await identityClient.find(id)
+        if (!identity) throw new Error()
+        return identity
+    } catch (e: any) {
+        showNotification({
+            type: NotificationType.Error,
+            message: `Did not find identity with id: ${id}`,
+        })
+    }
 }
