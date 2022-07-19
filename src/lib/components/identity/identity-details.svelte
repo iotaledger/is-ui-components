@@ -16,7 +16,6 @@
     export let actionButtons: ActionButton[] = []
 
     let revoking: boolean = false
-    let caret: boolean = true
 
     $: type = identity?.claim?.type
 
@@ -32,12 +31,12 @@
     }
 
     async function handleRoleChange(role: UserRoles): Promise<void> {
-        identity.role = role
-        loading = true
-        caret = false
-        await updateIdentity(identity)
-        loading = false
-        caret = true
+        if (identity.role !== role) {
+            loading = true
+            await updateIdentity(identity)
+            identity.role = role
+            loading = false
+        }
     }
 </script>
 
@@ -58,8 +57,8 @@
             <div class="d-flex flex-row justify-content-end role-padding">
                 <div class="pb-5">
                     {#if userRole === UserRoles.Admin}
-                        <Dropdown size="sm">
-                            <DropdownToggle {caret}>
+                        <Dropdown size="sx">
+                            <DropdownToggle caret={!loading}>
                                 {#if loading}
                                     <div class="ms-2 flex align-items-center">
                                         Updating role<Spinner size="sm" type="border" />
@@ -96,24 +95,26 @@
             <div class="d-flex flex-column align-items-start">
                 {#if actionButtons}
                     {#each actionButtons as { label, onClick, icon, color, loading, disabled, hidden }}
-                        <Button
-                            size="sm"
-                            outline
-                            color={color ?? 'dark'}
-                            on:click={onClick}
-                            {disabled}
-                            class="d-flex align-items-center mt-3"
-                        >
-                            {#if icon}
-                                <div class="me-1">
-                                    <Icon type={icon} size={16} />
-                                </div>
-                            {/if}
-                            <span class="ms-1">{label}</span>
-                            {#if loading}
-                                <div class="ms-2 flex align-items-center"><Spinner size="sm" type="border" /></div>
-                            {/if}
-                        </Button>
+                        {#if !hidden}
+                            <Button
+                                size="sm"
+                                outline
+                                color={color ?? 'dark'}
+                                on:click={onClick}
+                                {disabled}
+                                class="d-flex align-items-center mt-3"
+                            >
+                                {#if icon}
+                                    <div class="me-1">
+                                        <Icon type={icon} size={16} />
+                                    </div>
+                                {/if}
+                                <span class="ms-1">{label}</span>
+                                {#if loading}
+                                    <div class="ms-2 flex align-items-center"><Spinner size="sm" type="border" /></div>
+                                {/if}
+                            </Button>
+                        {/if}
                     {/each}
                 {/if}
             </div>
@@ -176,6 +177,8 @@
         font-size: 12px;
     }
     .role-padding {
-        padding-left: 22.5%;
+        @media (min-width: 700px) {
+            padding-left: 22.5%;
+        }
     }
 </style>
