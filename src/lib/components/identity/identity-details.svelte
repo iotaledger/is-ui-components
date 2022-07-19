@@ -37,7 +37,7 @@
         caret = false
         await updateIdentity(identity)
         loading = false
-        caret=true
+        caret = true
     }
 </script>
 
@@ -58,21 +58,23 @@
             <div class="d-flex flex-row justify-content-end role-padding">
                 <div class="pb-5">
                     {#if userRole === UserRoles.Admin}
-                    <Dropdown size="sm">
-                        <DropdownToggle {caret}>
-                            {#if loading}
-                            <div class="ms-2 flex align-items-center">Updating role<Spinner size="sm" type="border" /></div>
-                            {:else}
-                            {identity?.role}
-                            {/if}
-                        </DropdownToggle>
-                        <DropdownMenu>
-                            {#each [UserRoles.Admin, UserRoles.Manager, UserRoles.User] as role}
-                                <DropdownItem on:click={() => handleRoleChange(role)}>{role}</DropdownItem>
-                            {/each}
-                        </DropdownMenu>
-                    </Dropdown>
-                {/if}
+                        <Dropdown size="sm">
+                            <DropdownToggle {caret}>
+                                {#if loading}
+                                    <div class="ms-2 flex align-items-center">
+                                        Updating role<Spinner size="sm" type="border" />
+                                    </div>
+                                {:else}
+                                    {identity?.role}
+                                {/if}
+                            </DropdownToggle>
+                            <DropdownMenu>
+                                {#each [UserRoles.Admin, UserRoles.Manager, UserRoles.User] as role}
+                                    <DropdownItem on:click={() => handleRoleChange(role)}>{role}</DropdownItem>
+                                {/each}
+                            </DropdownMenu>
+                        </Dropdown>
+                    {/if}
                 </div>
             </div>
         </div>

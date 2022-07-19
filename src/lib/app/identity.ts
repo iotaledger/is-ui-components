@@ -384,18 +384,18 @@ export async function getIdentitiy(id: string): Promise<User> {
     }
 }
 
-export async function updateIdentity(identity: IdentityInternal): Promise<void>{
-    if(get(isAuthenticated)){
-        try{
-            await identityClient.update(identity);
-        }catch(e: any){
+export async function updateIdentity(identity: IdentityInternal): Promise<void> {
+    if (get(isAuthenticated)) {
+        try {
+            await identityClient.update(identity)
+        } catch (e: any) {
             showNotification({
                 type: NotificationType.Error,
                 message: 'There was an error updating identity',
             })
             console.error(Error, e)
-        }     
-    }else{
+        }
+    } else {
         showNotification({
             type: NotificationType.Error,
             message: 'Cant perform action, user not authenticated',
