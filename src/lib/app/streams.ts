@@ -372,8 +372,8 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
             return !ownSuscription
                 ? SubscriptionState.NotSubscribed
                 : ownSuscription.isAuthorized
-                    ? SubscriptionState.Authorized
-                    : SubscriptionState.Requested
+                ? SubscriptionState.Authorized
+                : SubscriptionState.Requested
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -436,7 +436,8 @@ export async function createChannel(
     description: string,
     type: ChannelType,
     topics: { type: string; source: string }[],
-    hasPresharedKey: boolean
+    hasPresharedKey: boolean,
+    hidden: boolean
 ): Promise<CreateChannelResponse> {
     if (get(isAuthenticated)) {
         try {
@@ -446,6 +447,7 @@ export async function createChannel(
                 topics,
                 type,
                 hasPresharedKey,
+                hidden,
             })
             return channel
         } catch (e) {
