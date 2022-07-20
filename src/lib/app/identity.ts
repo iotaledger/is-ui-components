@@ -75,7 +75,12 @@ export function logout(): void {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types */
-export async function registerIdentity( hidden = false, username?: string, claimType = UserType.Person, claim?: any): Promise<IdentityJson> {
+export async function registerIdentity(
+    hidden = false,
+    username?: string,
+    claimType = UserType.Person,
+    claim?: any
+): Promise<IdentityJson> {
     let registeredIdentity
     try {
         registeredIdentity = await identityClient.create(username, claimType, claim, hidden)
@@ -279,9 +284,9 @@ export async function addIdentityToSortedSearchResults(id: string): Promise<void
         const identity = await searchIdentityByDID(id)
         if (identity) {
             searchIdentitiesResults?.update((_searchIdentitiesResults) => {
-                return [..._searchIdentitiesResults, identity].sort(
-                    (a, b) => new Date(a?.registrationDate)?.getTime() - new Date(b?.registrationDate)?.getTime()
-                ).reverse()
+                return [..._searchIdentitiesResults, identity]
+                    .sort((a, b) => new Date(a?.registrationDate)?.getTime() - new Date(b?.registrationDate)?.getTime())
+                    .reverse()
             })
         }
     } else {
