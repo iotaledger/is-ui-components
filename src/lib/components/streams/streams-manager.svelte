@@ -112,15 +112,10 @@
     async function loadMore(entries: number): Promise<void> {
         const _isAuthorId = (q: string): boolean => q?.startsWith('did:iota:')
 
-        const newChannels = await searchChannelsSingleRequest(
-            get(channelSearchQuery),
-            _isAuthorId(get(channelSearchQuery)),
-            !_isAuthorId(get(channelSearchQuery)),
-            {
-                limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-                index: Math.ceil(entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT),
-            }
-        )
+        const newChannels = await searchChannelsSingleRequest(get(channelSearchQuery), _isAuthorId(get(channelSearchQuery)), {
+            limit: DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+            index: Math.ceil(entries / DEFAULT_SDK_CLIENT_REQUEST_LIMIT),
+        })
         searchChannelsResults.update((results) => [...results, ...newChannels])
     }
 
