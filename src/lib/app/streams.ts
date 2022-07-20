@@ -373,8 +373,8 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
             return !ownSuscription
                 ? SubscriptionState.NotSubscribed
                 : ownSuscription.isAuthorized
-                    ? SubscriptionState.Authorized
-                    : SubscriptionState.Requested
+                ? SubscriptionState.Authorized
+                : SubscriptionState.Requested
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -477,9 +477,7 @@ export async function addChannelToSearchResults(channelAddress: string): Promise
             const channel: ChannelInfo = await channelClient.info(channelAddress)
             if (channel) {
                 searchChannelsResults?.update((_searchChannelsResults) => {
-                    return [..._searchChannelsResults, channel]
-                    .sort((a, b) => new Date(a?.created)?.getTime() - new Date(b?.created)?.getTime())
-                    .reverse()
+                    return [channel, ..._searchChannelsResults]
                 })
             }
         } catch (e) {

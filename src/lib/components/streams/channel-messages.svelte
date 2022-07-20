@@ -42,10 +42,10 @@
 
     function updateVisibleResults(): void {
         if (channelData.length > 0) {
-            //reduce the last page number to match the data length 
+            //reduce the last page number to match the data length
             while (channelData.length < pageSize * $selectedMessagePageIndex - pageSize) {
-                let currentPage = $selectedMessagePageIndex 
-                selectedMessagePageIndex.set(currentPage- 1)
+                let currentPage = $selectedMessagePageIndex
+                selectedMessagePageIndex.set(currentPage - 1)
             }
         }
         startAt = ($selectedMessagePageIndex - 1) * pageSize
