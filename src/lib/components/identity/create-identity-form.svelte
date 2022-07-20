@@ -27,9 +27,10 @@
 
     async function handleRegister(formFieldsValues): Promise<void> {
         formLoading = true
-        registeredIdentity = await registerIdentity(formFieldsValues['username'], selectedTemplate?.type, formFieldsValues)
+        const {username, hidden, ...claim} = formFieldsValues
+        registeredIdentity = await registerIdentity( hidden, username, selectedTemplate?.type, claim)
         if (registeredIdentity) {
-            onSuccess(registeredIdentity, selectedTemplate?.type, formFieldsValues['username'])
+            onSuccess(registeredIdentity, selectedTemplate?.type, username)
             onSubmitButton = {
                 ...onSubmitButton,
                 visible: false,
@@ -56,7 +57,7 @@
 
 <!-- Template selector -->
 <Label class="mb-2">Identity template</Label>
-<Input required type="select" name="select" class="mb-4" bind:value={selectedTemplate}>
+<Input required type="select" name="select" class="mb-1" bind:value={selectedTemplate}>
     {#each identitiesTemplate as _user}
         <option value={_user}>
             {_user.type}
