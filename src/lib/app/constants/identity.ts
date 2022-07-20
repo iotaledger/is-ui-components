@@ -8,6 +8,13 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Person,
         fields: [
             {
+                id: 'hidden',
+                name: 'Hidden Identity',
+                type: FieldType.Checkbox,
+                tooltip: 'All credentials are hidden to other users.',
+                defaultState: false,
+            },
+            {
                 id: 'username',
                 name: 'Username',
                 required: true,
@@ -51,7 +58,7 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
                 type: FieldType.Email,
             },
             {
-                id: 'bithdate',
+                id: 'birthdate',
                 name: 'Birth date',
                 type: FieldType.Date,
             },
@@ -61,8 +68,15 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Organization,
         fields: [
             {
+                id: 'hidden',
+                name: 'Hidden Identity',
+                type: FieldType.Checkbox,
+                tooltip: 'All credentials are hidden to other users.',
+                defaultState: false,
+            },
+            {
                 id: 'username',
-                name: 'username',
+                name: 'Username',
                 type: FieldType.Text,
                 required: true,
             },
@@ -108,8 +122,15 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Service,
         fields: [
             {
+                id: 'hidden',
+                name: 'Hidden Identity',
+                type: FieldType.Checkbox,
+                tooltip: 'All credentials are hidden to other users.',
+                defaultState: false,
+            },
+            {
                 id: 'username',
-                name: 'username',
+                name: 'Username',
                 type: FieldType.Text,
                 required: true,
             },
@@ -145,14 +166,21 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Device,
         fields: [
             {
+                id: 'hidden',
+                name: 'Hidden Identity',
+                type: FieldType.Checkbox,
+                tooltip: 'All credentials are hidden to other users.',
+                defaultState: false,
+            },
+            {
                 id: 'username',
-                name: 'username',
+                name: 'Username',
                 type: FieldType.Text,
                 required: true,
             },
             {
                 id: 'name',
-                name: 'name',
+                name: 'Name',
                 type: FieldType.Text,
                 required: true,
             },
@@ -184,14 +212,21 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Product,
         fields: [
             {
+                id: 'hidden',
+                name: 'Hidden Identity',
+                type: FieldType.Checkbox,
+                tooltip: 'All credentials are hidden to other users.',
+                defaultState: false,
+            },
+            {
                 id: 'username',
-                name: 'username',
+                name: 'Username',
                 type: FieldType.Text,
                 required: true,
             },
             {
                 id: 'name',
-                name: 'name',
+                name: 'Name',
                 type: FieldType.Text,
                 required: true,
             },
@@ -251,14 +286,21 @@ export const DEFAULT_IDENTITIES_TEMPLATES: IdentityTemplate[] = [
         type: UserType.Unknown,
         fields: [
             {
+                id: 'hidden',
+                name: 'Hidden Identity',
+                type: FieldType.Checkbox,
+                tooltip: 'All credentials are hidden to other users.',
+                defaultState: false,
+            },
+            {
                 id: 'username',
-                name: 'username',
+                name: 'Username',
                 type: FieldType.Text,
                 required: true,
             },
             {
                 id: 'name',
-                name: 'name',
+                name: 'Name',
                 type: FieldType.Text,
                 required: true,
             },
