@@ -9,7 +9,14 @@ import type {
 } from '@iota/is-client'
 import { UserType } from '@iota/is-client'
 import { get } from 'svelte/store'
-import { authenticatedUserDID, authenticatedUserRole, authenticationData, channelClient, identityClient, isAuthenticated } from './base'
+import {
+    authenticatedUserDID,
+    authenticatedUserRole,
+    authenticationData,
+    channelClient,
+    identityClient,
+    isAuthenticated,
+} from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
 import { DEFAULT_CREATOR_FILTER_STATE } from './constants/identity'
 import { showNotification } from './notification'

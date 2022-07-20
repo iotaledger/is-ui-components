@@ -1,6 +1,6 @@
 <script lang="ts">
     import { CREDENTIAL_ICON, USER_ICONS } from '$lib/app/constants/identity'
-    import { getVerifiableCredentials, revokeVC, updateIdentity } from '$lib/app/identity'
+    import { getVerifiableCredentials, revokeVC, searchIdentitiesResults, updateIdentity } from '$lib/app/identity'
     import { UserRoles, type ExtendedUser } from '$lib/app/types/identity'
     import type { ActionButton } from '$lib/app/types/layout'
     import { createJsonDataUrl, formatDate } from '$lib/app/utils'
@@ -18,6 +18,7 @@
     let revoking: boolean = false
 
     $: type = identity?.claim?.type
+    $: innerWidth = 0
 
     async function handleRevoke(vc: VerifiableCredentialInternal): Promise<void> {
         revoking = true
@@ -30,15 +31,26 @@
         revoking = false
     }
 
-    async function handleRoleChange(role: UserRoles): Promise<void> {
-        if (identity.role !== role) {
+    async function handleRoleChange(userRole: UserRoles): Promise<void> {
+        if (identity.role !== userRole) {
             loading = true
-            await updateIdentity(identity)
-            identity.role = role
+            const updateDid = identity
+            updateDid.role = userRole
+            await updateIdentity(updateDid)
+            identity = updateDid
+            searchIdentitiesResults.update(() => {
+                return $searchIdentitiesResults.map((did) => {
+                    if (did.id === identity.id) did = identity
+                    return did
+                })
+            })
+            console.log(innerWidth)
             loading = false
         }
     }
 </script>
+
+<svelte:window bind:innerWidth />
 
 <div class="identity-details w-100">
     <div class="d-xl-flex flex-column bg-light rounded p-4">
@@ -54,27 +66,26 @@
                 <div class="fs-4 fw-bold">{identity?.username}</div>
                 <div class="text-secondary fw-bolder mt-1 text-break">{identity?.id}</div>
             </div>
-            <div class="d-flex flex-row justify-content-end role-padding">
-                <div class="pb-5">
-                    {#if userRole === UserRoles.Admin}
-                        <Dropdown size="sx">
-                            <DropdownToggle caret={!loading}>
-                                {#if loading}
-                                    <div class="ms-2 flex align-items-center">
-                                        Updating role<Spinner size="sm" type="border" />
-                                    </div>
-                                {:else}
-                                    {identity?.role}
-                                {/if}
-                            </DropdownToggle>
-                            <DropdownMenu>
-                                {#each [UserRoles.Admin, UserRoles.Manager, UserRoles.User] as role}
-                                    <DropdownItem on:click={() => handleRoleChange(role)}>{role}</DropdownItem>
-                                {/each}
-                            </DropdownMenu>
-                        </Dropdown>
-                    {/if}
-                </div>
+            <div class="pb-5 role-padding">
+                {#if userRole === UserRoles.Admin}
+                    <Dropdown size="sx">
+                        <DropdownToggle caret={!loading}>
+                            {#if loading}
+                                <div class="ms-2 flex align-items-center">
+                                    Updating role<Spinner size="sm" type="border" />
+                                </div>
+                            {/if}
+                            {#if innerWidth >= 400}
+                                {identity?.role}
+                            {/if}
+                        </DropdownToggle>
+                        <DropdownMenu>
+                            {#each [UserRoles.Admin, UserRoles.Manager, UserRoles.User] as role}
+                                <DropdownItem on:click={() => handleRoleChange(role)}>{role}</DropdownItem>
+                            {/each}
+                        </DropdownMenu>
+                    </Dropdown>
+                {/if}
             </div>
         </div>
         <div class="d-xl-flex align-items-center justify-content-between">
@@ -178,7 +189,7 @@
     }
     .role-padding {
         @media (min-width: 700px) {
-            padding-left: 22.5%;
+            padding-left: 23%;
         }
     }
 </style>
