@@ -10,7 +10,7 @@ export enum FieldType {
     StringArray = 'stringArray',
     Text = 'text',
     TextArea = 'textarea',
-    Checkbox = 'checkbox'
+    Checkbox = 'checkbox',
 }
 
 export enum ProductEnum {
@@ -86,7 +86,7 @@ export type IdentityTemplate = {
         required?: boolean
         type: FieldType
         tooltip?: string
-        defaultState?: boolean,
+        defaultState?: boolean
         options?: {
             label: string
             value: string

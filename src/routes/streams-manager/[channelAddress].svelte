@@ -59,16 +59,16 @@
     }
 
     async function updateChannelList(): Promise<void> {
-    if (get(subscriptionStatus) !== currentSubscriptionStatus) {
-        const channelInfo = await getChannelInfo(get(selectedChannel).channelAddress)
-        if (channelInfo) {
-            const searchResults = get(searchChannelsResults)
-            const index = searchResults.indexOf($selectedChannel)
-            searchResults.splice(index, 1, channelInfo)
-            searchChannelsResults.set(searchResults)
+        if (get(subscriptionStatus) !== currentSubscriptionStatus) {
+            const channelInfo = await getChannelInfo(get(selectedChannel).channelAddress)
+            if (channelInfo) {
+                const searchResults = get(searchChannelsResults)
+                const index = searchResults.indexOf($selectedChannel)
+                searchResults.splice(index, 1, channelInfo)
+                searchChannelsResults.set(searchResults)
+            }
         }
     }
-}
 
     async function handleAcceptSubscription(subscriptionId: string): Promise<void> {
         loadingChannel.set(true)

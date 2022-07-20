@@ -8,7 +8,7 @@
         readChannelMessages,
         selectedChannel,
         subscriptionStatus,
-selectedChannelData,
+        selectedChannelData,
     } from '$lib/app/streams'
     import type { ActionButton } from '$lib/app/types/layout'
     import { ChannelType, SubscriptionState } from '$lib/app/types/streams'

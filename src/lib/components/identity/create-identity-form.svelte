@@ -27,8 +27,8 @@
 
     async function handleRegister(formFieldsValues): Promise<void> {
         formLoading = true
-        const {username, hidden, ...claim} = formFieldsValues
-        registeredIdentity = await registerIdentity( hidden, username, selectedTemplate?.type, claim)
+        const { username, hidden, ...claim } = formFieldsValues
+        registeredIdentity = await registerIdentity(hidden, username, selectedTemplate?.type, claim)
         if (registeredIdentity) {
             onSuccess(registeredIdentity, selectedTemplate?.type, username)
             onSubmitButton = {
