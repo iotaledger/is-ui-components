@@ -33,6 +33,7 @@
     async function handleRoleChange(userRole: UserRoles): Promise<void> {
         if (identity.role !== userRole) {
             loading = true
+            // creating a deep copy to not alter the original identity
             const updateDid = JSON.parse(JSON.stringify(identity))
             updateDid.role = userRole
             await updateIdentity(updateDid)
