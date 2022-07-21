@@ -18,7 +18,6 @@
     let revoking: boolean = false
 
     $: type = identity?.claim?.type
-    $: innerWidth = 0
 
     async function handleRevoke(vc: VerifiableCredentialInternal): Promise<void> {
         revoking = true
@@ -34,23 +33,19 @@
     async function handleRoleChange(userRole: UserRoles): Promise<void> {
         if (identity.role !== userRole) {
             loading = true
-            const updateDid = identity
+            const updateDid = JSON.parse(JSON.stringify(identity))
             updateDid.role = userRole
             await updateIdentity(updateDid)
-            identity = updateDid
+            identity.role = userRole
             searchIdentitiesResults.update(() => {
                 return $searchIdentitiesResults.map((did) => {
-                    if (did.id === identity.id) did = identity
-                    return did
+                    return did.id === identity.id ? identity : did
                 })
             })
-            console.log(innerWidth)
             loading = false
         }
     }
 </script>
-
-<svelte:window bind:innerWidth />
 
 <div class="identity-details w-100">
     <div class="d-xl-flex flex-column bg-light rounded p-4">
@@ -68,16 +63,16 @@
             </div>
             <div class="pb-5 role-padding">
                 {#if userRole === UserRoles.Admin}
-                    <Dropdown size="sx">
+                    <Dropdown>
                         <DropdownToggle caret={!loading}>
                             {#if loading}
-                                <div class="ms-2 flex align-items-center">
+                                <div class="ms-2 flex align-items-center dropdown-toggle-label">
                                     Updating role<Spinner size="sm" type="border" />
                                 </div>
                             {/if}
-                            {#if innerWidth >= 400}
+                            <span class="dropdown-toggle-label">
                                 {identity?.role}
-                            {/if}
+                            </span>
                         </DropdownToggle>
                         <DropdownMenu>
                             {#each [UserRoles.Admin, UserRoles.Manager, UserRoles.User] as role}
@@ -189,7 +184,12 @@
     }
     .role-padding {
         @media (min-width: 700px) {
-            padding-left: 23%;
+            padding-left: 23.2%;
+        }
+    }
+    .dropdown-toggle-label {
+        @media (max-width: 400px) {
+            display: none;
         }
     }
 </style>
