@@ -68,7 +68,7 @@ let index = 0
 export async function searchAllChannels(query: string, options?: SearchOptions): Promise<void> {
     const _search = async (_searchAllHash: string, query: string, options?: SearchOptions): Promise<void> => {
         const _isAuthorId = (query: string): boolean => query.startsWith('did:iota:')
-        const newResults: ChannelInfo[] = await searchChannelsSingleRequest(query, _isAuthorId(query), !_isAuthorId(query), {
+        const newResults: ChannelInfo[] = await searchChannelsSingleRequest(query, _isAuthorId(query), {
             authorId: options?.authorId,
             limit: options?.limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
             index,
@@ -103,7 +103,6 @@ export async function searchAllChannels(query: string, options?: SearchOptions):
 export async function searchChannelsSingleRequest(
     query: string,
     searchByAuthorId: boolean,
-    searchBySource: boolean,
     options: SearchOptions
 ): Promise<ChannelInfo[]> {
     let partialResults = []
@@ -115,7 +114,9 @@ export async function searchChannelsSingleRequest(
                 authorId: authorId ? authorId : authorIdQuery, // If set, authorId overrides searchByAuthorId
                 subscriberId: authorId ? authorId : authorIdQuery,
                 requestedSubscriptionId: authorId ? authorId : authorIdQuery,
-                topicSource: searchBySource && query ? query : undefined,
+                topicSource: !authorIdQuery && query ? query : undefined,
+                topicType: !authorIdQuery ? query : undefined,
+                name: !authorIdQuery && query ? query : undefined,
                 limit: limit,
                 index: index,
                 ascending: false,
@@ -478,7 +479,7 @@ export async function addChannelToSearchResults(channelAddress: string): Promise
             const channel: ChannelInfo = await channelClient.info(channelAddress)
             if (channel) {
                 searchChannelsResults?.update((_searchChannelsResults) => {
-                    return [..._searchChannelsResults, channel]
+                    return [channel, ..._searchChannelsResults]
                 })
             }
         } catch (e) {

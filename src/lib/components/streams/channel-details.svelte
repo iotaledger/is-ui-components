@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount, onDestroy } from 'svelte'
+    import { onDestroy } from 'svelte'
     import { authenticatedUserDID } from '$lib/app/base'
     import {
         isUserOwnerOfChannel,
