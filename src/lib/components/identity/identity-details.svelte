@@ -1,12 +1,12 @@
 <script lang="ts">
     import { CREDENTIAL_ICON, USER_ICONS } from '$lib/app/constants/identity'
-    import { getVerifiableCredentials, revokeVC } from '$lib/app/identity'
-    import type { ExtendedUser, UserRoles } from '$lib/app/types/identity'
+    import { getVerifiableCredentials, revokeVC, searchIdentitiesResults, updateIdentity } from '$lib/app/identity'
+    import { UserRoles, type ExtendedUser } from '$lib/app/types/identity'
     import type { ActionButton } from '$lib/app/types/layout'
     import { createJsonDataUrl, formatDate } from '$lib/app/utils'
     import { Credential, Icon, JSONViewer } from '$lib/components'
     import type { VerifiableCredentialInternal } from '@iota/is-client'
-    import { Accordion, AccordionItem, Button, Spinner } from 'sveltestrap'
+    import { Accordion, AccordionItem, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Spinner } from 'sveltestrap'
     import { BoxColor } from '$lib/app'
 
     export let identity: ExtendedUser
@@ -29,6 +29,23 @@
         }
         revoking = false
     }
+
+    async function handleRoleChange(userRole: UserRoles): Promise<void> {
+        if (identity.role !== userRole) {
+            loading = true
+            // creating a deep copy to not alter the original identity
+            const updateDid = JSON.parse(JSON.stringify(identity))
+            updateDid.role = userRole
+            await updateIdentity(updateDid)
+            identity.role = userRole
+            searchIdentitiesResults.update(() => {
+                return $searchIdentitiesResults.map((did) => {
+                    return did.id === identity.id ? identity : did
+                })
+            })
+            loading = false
+        }
+    }
 </script>
 
 <div class="identity-details w-100">
@@ -45,6 +62,27 @@
                 <div class="fs-4 fw-bold">{identity?.username}</div>
                 <div class="text-secondary fw-bolder mt-1 text-break">{identity?.id}</div>
             </div>
+            <div class="pb-5 role-padding">
+                {#if userRole === UserRoles.Admin}
+                    <Dropdown>
+                        <DropdownToggle caret={!loading}>
+                            {#if loading}
+                                <div class="ms-2 flex align-items-center dropdown-toggle-label">
+                                    Updating role<Spinner size="sm" type="border" />
+                                </div>
+                            {/if}
+                            <span class="dropdown-toggle-label">
+                                {identity?.role}
+                            </span>
+                        </DropdownToggle>
+                        <DropdownMenu>
+                            {#each [UserRoles.Admin, UserRoles.Manager, UserRoles.User] as role}
+                                <DropdownItem on:click={() => handleRoleChange(role)}>{role}</DropdownItem>
+                            {/each}
+                        </DropdownMenu>
+                    </Dropdown>
+                {/if}
+            </div>
         </div>
         <div class="d-xl-flex align-items-center justify-content-between">
             <div class="ms-12 me-12">
@@ -56,6 +94,9 @@
                 </div>
                 <div class="text-secondary text-break">
                     <span class="fw-bold">Creator: </span><span class="text-break ">{identity?.creator || 'unknown'}</span>
+                </div>
+                <div class="text-secondary text-break">
+                    <span class="fw-bold">Role: </span><span class="text-break ">{identity?.role || 'unknown'}</span>
                 </div>
             </div>
             <div class="d-flex flex-column align-items-start">
@@ -141,5 +182,15 @@
 <style lang="scss">
     .label {
         font-size: 12px;
+    }
+    .role-padding {
+        @media (min-width: 700px) {
+            padding-left: 23.2%;
+        }
+    }
+    .dropdown-toggle-label {
+        @media (max-width: 400px) {
+            display: none;
+        }
     }
 </style>

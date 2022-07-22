@@ -1,5 +1,6 @@
 import type {
     CredentialTypes,
+    IdentityInternal,
     IdentityJson,
     RevokeVerificationBody,
     User,
@@ -8,13 +9,20 @@ import type {
 } from '@iota/is-client'
 import { UserType } from '@iota/is-client'
 import { get } from 'svelte/store'
-import { authenticatedUserDID, authenticationData, channelClient, identityClient, isAuthenticated } from './base'
+import {
+    authenticatedUserDID,
+    authenticatedUserRole,
+    authenticationData,
+    channelClient,
+    identityClient,
+    isAuthenticated,
+} from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
 import { DEFAULT_CREATOR_FILTER_STATE } from './constants/identity'
 import { showNotification } from './notification'
 import { reset } from './stores'
 import { resetStreamsState } from './streams'
-import type { ExtendedUser } from './types/identity'
+import { UserRoles, type ExtendedUser } from './types/identity'
 import { NotificationType } from './types/notification'
 import type { Reset } from './types/stores'
 
@@ -384,6 +392,25 @@ export async function getIdentitiy(id: string): Promise<User> {
         showNotification({
             type: NotificationType.Error,
             message: `Did not find identity with id: ${id}`,
+        })
+    }
+}
+
+export async function updateIdentity(identity: IdentityInternal): Promise<void> {
+    if (get(isAuthenticated) && get(authenticatedUserRole) === UserRoles.Admin) {
+        try {
+            await identityClient.update(identity)
+        } catch (e: any) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'There was an error updating identity',
+            })
+            console.error(Error, e)
+        }
+    } else {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'Cant perform action, user not authenticated',
         })
     }
 }
