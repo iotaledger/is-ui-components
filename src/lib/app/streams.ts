@@ -5,7 +5,7 @@ import type {
     RequestSubscriptionResponse,
     Subscription,
 } from '@iota/is-client'
-import { AccessRights, type ChannelInfo } from '@iota/is-client'
+import { AccessRights, type ChannelInfo, type ChannelType } from '@iota/is-client'
 import { get } from 'svelte/store'
 import { authenticatedUserDID, authenticationData, channelClient, isAuthenticated } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
@@ -18,7 +18,6 @@ import {
 import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
 import { SubscriptionState, type SearchOptions } from './types/streams'
-import type { ChannelType } from '@iota/is-shared-modules/lib/models/schemas/channel-info'
 import type { Reset } from './types/stores'
 import { reset } from './stores'
 
