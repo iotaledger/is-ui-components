@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.0.59 (2022-07-25)
+
+- Fixed scss imports
+
 ### 0.0.58 (2022-07-25)
 
 - Updated `@iota/is-client` to version 0.1.21
