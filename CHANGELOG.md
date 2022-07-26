@@ -1,8 +1,8 @@
 # Changelog
 
-### 0.0.59 (2022-07-25)
+### 0.0.59 (2022-07-26)
 
-- Fixed scss imports
+- Changed scss imports back to css imports
 
 ### 0.0.58 (2022-07-25)
 
