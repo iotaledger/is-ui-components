@@ -5,7 +5,7 @@
     "description": "Svelte UI components for IOTA Integration Services",
     "scripts": {
         "dev": "svelte-kit dev --port ${PORT:-3044}",
-        "build": "svelte-kit build",
+        "build": "npm run build-css && svelte-kit build",
         "package": "svelte-kit package",
         "build-css": "sass src/lib/scss/index.scss:src/lib/css/index.css",
         "dist": "run-s build-css package",

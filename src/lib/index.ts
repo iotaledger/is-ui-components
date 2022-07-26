@@ -3,4 +3,4 @@ export * from './components'
 
 // Styles
 import 'bootstrap/dist/css/bootstrap.min.css'
-import './scss/index.scss'
+import './css/index.css'
