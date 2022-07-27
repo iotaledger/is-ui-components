@@ -9,7 +9,7 @@
     import { Icon } from '$lib/components'
     import { createJsonDataUrl } from '$lib/app/utils'
 
-    export let title = 'Create identity'
+    export let title = 'Create Identity'
     export let isOpen: boolean = false
     export let isCreated: boolean = false
     export let onModalClose = (..._: any[]): void => {}
