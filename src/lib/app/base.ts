@@ -54,19 +54,23 @@ export const isJwtExpired = (token: string): boolean => {
 let jwtExpirationCheckInterval: NodeJS.Timeout
 export function startPollExpirationCheckJWT(): void {
     clearInterval(jwtExpirationCheckInterval)
-    jwtExpirationCheckInterval = setInterval(() => {
-        const jwt = get(authenticationData)?.jwt
-        if (jwt) {
-            const isJWTExpired = isJwtExpired(jwt)
-            if (isJWTExpired) {
-                logout()
-                showNotification({
-                    type: NotificationType.Error,
-                    message: 'JWT expired. Please login again.',
-                })
-            }
-        }
-    }, 60000)
+    // Check jwt expiration on pageload and every 60s
+    checkExpiration()
+    jwtExpirationCheckInterval = setInterval(checkExpiration, 60000)
+}
+
+function checkExpiration(): void {
+    const jwt = get(authenticationData)?.jwt
+    if (!jwt) return
+
+    const isJWTExpired = isJwtExpired(jwt)
+    if (isJWTExpired) {
+        logout()
+        showNotification({
+            type: NotificationType.Error,
+            message: 'JWT expired. Please login again.',
+        })
+    }
 }
 
 export function stopPollExpirationCheckJWT(): void {
