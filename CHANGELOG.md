@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.0.60 (TBD)
+
+-   Fixed automated logout after JWT expiration
+
 ### 0.0.59 (2022-07-26)
 
 -   Changed scss imports back to css imports
