@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.0-alpha.0
+
+-   Updated `is-client` to version `0.2.0-alpha.1`
+
 ### 0.0.60 (TBD)
 
 -   Fixed automated logout after JWT expiration

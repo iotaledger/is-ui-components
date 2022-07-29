@@ -73,9 +73,8 @@ export enum DeviceControlledProperty {
 }
 
 export interface ExtendedUser extends User {
-    type?: UserType | string
     numberOfCredentials?: number
-    vc?: VerifiableCredentialInternal[]
+    verifiableCredentials?: VerifiableCredentialInternal[]
 }
 
 export type IdentityTemplate = {

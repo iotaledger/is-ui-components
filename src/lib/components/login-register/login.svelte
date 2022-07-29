@@ -1,7 +1,7 @@
 <script lang="ts">
     import { authenticate } from '$lib/app/identity'
     import { Box, Icon } from '$lib/components'
-    import type { IdentityJson } from '@iota/is-client'
+    import type { IdentityKeys } from '@iota/is-shared-modules'
     import { onMount } from 'svelte'
     import Dropzone from 'svelte-file-dropzone'
     import { Button, Spinner } from 'sveltestrap'
@@ -10,7 +10,7 @@
     export let onSuccess = (..._: any[]): void => {}
 
     let fileReader: FileReader
-    let json: IdentityJson
+    let json: IdentityKeys
     let file: File
     let loading: boolean = false
     let invalidJsonFile: boolean = false
@@ -25,8 +25,8 @@
 
     async function handleLogin(): Promise<void> {
         loading = true
-        if (!invalidJsonFile && json?.doc?.id) {
-            const success = await authenticate(json?.doc?.id, json?.key?.secret)
+        if (!invalidJsonFile && json?.id) {
+            const success = await authenticate(json?.id, json?.keys?.sign?.private)
             if (success) {
                 onSuccess()
             }
