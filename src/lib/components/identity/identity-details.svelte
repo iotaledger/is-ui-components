@@ -159,8 +159,8 @@
                 </AccordionItem>
             </Accordion>
         {/if}
-        {#if identity?.vc}
-            {#each identity?.vc as vc}
+        {#if identity?.verifiableCredentials}
+            {#each identity?.verifiableCredentials as vc}
                 <div class="credential mt-4">
                     {#key vc}
                         <Credential {userRole} {vc} {revoking} onRevoke={handleRevoke} />
