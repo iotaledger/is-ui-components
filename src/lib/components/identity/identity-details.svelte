@@ -24,7 +24,7 @@
         const success = await revokeVC({ signatureValue: vc.proof.signatureValue })
         if (success) {
             let credentials = await getVerifiableCredentials(identity?.id)
-            identity = { ...identity, vc: credentials, numberOfCredentials: credentials?.length ?? 0 }
+            identity = { ...identity, verifiableCredentials: credentials, numberOfCredentials: credentials?.length ?? 0 }
             onRevokeSuccess(identity)
         }
         revoking = false
@@ -88,9 +88,6 @@
             <div class="ms-12 me-12">
                 <div class="text-secondary text-break">
                     <span class="fw-bold">Date: </span><span class="text-break ">{formatDate(identity?.registrationDate)}</span>
-                </div>
-                <div class="text-secondary">
-                    <span class="fw-bold">Public Key: </span><span class="text-break ">{identity?.publicKey}</span>
                 </div>
                 <div class="text-secondary text-break">
                     <span class="fw-bold">Creator: </span><span class="text-break ">{identity?.creator || 'unknown'}</span>
@@ -162,8 +159,8 @@
                 </AccordionItem>
             </Accordion>
         {/if}
-        {#if identity?.vc}
-            {#each identity?.vc as vc}
+        {#if identity?.verifiableCredentials}
+            {#each identity?.verifiableCredentials as vc}
                 <div class="credential mt-4">
                     {#key vc}
                         <Credential {userRole} {vc} {revoking} onRevoke={handleRevoke} />

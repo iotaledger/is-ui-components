@@ -1,11 +1,11 @@
 import type {
     CredentialTypes,
     IdentityInternal,
-    IdentityJson,
     RevokeVerificationBody,
     User,
+    IdentityKeys,
     VerifiableCredentialInternal,
-    VerifiableCredentialJson,
+    VerifiableCredential,
 } from '@iota/is-client'
 import { UserType } from '@iota/is-client'
 import { get } from 'svelte/store'
@@ -88,7 +88,7 @@ export async function registerIdentity(
     username?: string,
     claimType = UserType.Person,
     claim?: any
-): Promise<IdentityJson> {
+): Promise<IdentityKeys> {
     let registeredIdentity
     try {
         registeredIdentity = await identityClient.create(username, claimType, claim, hidden)
@@ -233,7 +233,7 @@ export async function createVC(
     credentialType: CredentialTypes,
     claimType: UserType,
     claim?: unknown
-): Promise<VerifiableCredentialJson> {
+): Promise<VerifiableCredential> {
     let credential
     if (get(isAuthenticated)) {
         try {

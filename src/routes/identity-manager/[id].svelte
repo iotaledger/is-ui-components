@@ -44,8 +44,8 @@
         if (identity) {
             updateIdentityInSearchResults(identity)
         }
-        const vc = await getVerifiableCredentials($selectedIdentity?.id)
-        selectedIdentity.update((identity) => ({ ...identity, vc }))
+        const verifiableCredentials = await getVerifiableCredentials($selectedIdentity?.id)
+        selectedIdentity.update((identity) => ({ ...identity, verifiableCredentials }))
         loadingIdentity.set(false)
     }
 
@@ -63,11 +63,11 @@
 
     async function loadIdentityDetails(): Promise<void> {
         loadingIdentity.set(true)
-        const vc = await getVerifiableCredentials($selectedIdentity?.id)
+        const verifiableCredentials = await getVerifiableCredentials($selectedIdentity?.id)
         const claim = (await getIdentityClaim($selectedIdentity?.id)) as {}
         selectedIdentity.update((identity) => ({
             ...identity,
-            vc,
+            verifiableCredentials,
             claim: { ...claim, type: $selectedIdentity?.claim?.type },
         }))
         loadingIdentity.set(false)

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { BoxColor, type ExtendedUser, type IdentityTemplate } from '$lib/app'
     import { UserType } from '@iota/is-client'
+    import type { IdentityKeys } from '@iota/is-shared-modules'
     import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, DEFAULT_TABLE_CONFIGURATION } from '$lib/app/constants/base'
     import { DEFAULT_IDENTITIES_TEMPLATES, USER_ICONS } from '$lib/app/constants/identity'
     import { get } from 'svelte/store'
@@ -22,7 +23,6 @@
     import type { ActionButton, FilterCheckbox } from '$lib/app/types/layout'
     import type { TableConfiguration, TableData } from '$lib/app/types/table'
     import { Box, CreateIdentityModal, ListManager } from '$lib/components'
-    import type { IdentityJson } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
     import { formatDate } from '$lib/app/utils'
     import { goto } from '$app/navigation'
@@ -104,14 +104,14 @@
     }
 
     // Add the newly created identity to the search results
-    async function onCreateIdentitySuccess(identity: IdentityJson): Promise<void> {
+    async function onCreateIdentitySuccess(identity: IdentityKeys): Promise<void> {
         loadingIdentity.set(true)
         // If query is not empty, we need to search again to get the match results
         if (get(identitySearchQuery)?.length) {
             await onIdentitySearch()
         } else {
             // Add the identity to the search results directly, no need to search again
-            await addIdentityToSortedSearchResults(identity?.doc?.id)
+            await addIdentityToSortedSearchResults(identity?.id)
         }
         loadingIdentity.set(false)
     }
