@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { NotificationType, showNotification } from '$lib/app'
+
     import { authenticate } from '$lib/app/identity'
     import { Box, Icon } from '$lib/components'
     import type { IdentityKeys } from '@iota/is-shared-modules'
@@ -25,7 +27,12 @@
 
     async function handleLogin(): Promise<void> {
         loading = true
-        if (!invalidJsonFile && json?.id) {
+        if (invalidJsonFile || !json?.id || !json?.keys?.sign?.private) {
+            showNotification({
+                type: NotificationType.Error,
+                message: 'Wrong identity json content. You might use an old identity trying to login.',
+            })
+        } else {
             const success = await authenticate(json?.id, json?.keys?.sign?.private)
             if (success) {
                 onSuccess()
