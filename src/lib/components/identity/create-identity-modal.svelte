@@ -27,18 +27,6 @@
 <Modal bind:isOpen toggle={onModalClose}>
     <ModalHeader toggle={onModalClose} class="px-4 pt-3">{title}</ModalHeader>
     <ModalBody class="px-4 pb-3" style="overflow-y: hidden">
-        <CreateIdentityForm onSuccess={onCreateIdentitySuccess} {identitiesTemplate} />
-        {#if isCreated}
-            <a
-                class="d-flex align-items-center justify-content-center mt-4 btn btn-primary btn-block w-100 btn-lg"
-                href={createJsonDataUrl(identity)}
-                role="button"
-                download="identity.json"
-                on:click={onModalClose}
-            >
-                <Icon type="download" />
-                <span class="ms-2">Save identity</span>
-            </a>
-        {/if}
+        <CreateIdentityForm onSuccess={onCreateIdentitySuccess} {identitiesTemplate} {onModalClose} />
     </ModalBody>
 </Modal>

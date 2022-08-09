@@ -8,6 +8,13 @@ export interface SubmitButton {
     labelWhileLoading?: string
 }
 
+export interface DownloadButton {
+    onDownload: (..._any) => void
+    visible: boolean
+    label: string
+    fileName: string
+}
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Input = {
     tooltip?: string

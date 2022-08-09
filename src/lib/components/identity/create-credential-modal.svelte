@@ -1,7 +1,7 @@
 <script lang="ts">
     import { DEFAULT_VCS_TEMPLATES } from '$lib/app/constants/identity'
     import { createVC } from '$lib/app/identity'
-    import type { Input as InputType, SubmitButton } from '$lib/app/types/form'
+    import type { DownloadButton, Input as InputType, SubmitButton } from '$lib/app/types/form'
     import type { VerifiableCredentialTemplate } from '$lib/app/types/identity'
     import { createJsonDataUrl } from '$lib/app/utils'
     import { Form } from '$lib/components'
@@ -34,6 +34,13 @@
         labelWhileLoading: 'Creating credential...',
     }
 
+    let downloadButton: DownloadButton = {
+        fileName: 'vc.json',
+        label: 'Save credential',
+        visible: false,
+        onDownload: onClose,
+    }
+
     async function handleCreateVC(formFieldsValues): Promise<void> {
         formLoading = true
         verifiableCredential = await createVC(
@@ -45,11 +52,15 @@
         )
         if (verifiableCredential) {
             onSuccess()
+            onSubmitButton.visible = false
+            downloadButton.visible = true
         }
         formLoading = false
     }
 
     function onClose(): void {
+        onSubmitButton.visible = true
+        downloadButton.visible = false
         onModalClose()
     }
 
@@ -83,16 +94,7 @@
 
         <!-- Selected template fields form -->
         {#key selectedTemplate}
-            <Form enableValidation inputs={formInputs} {onSubmitButton} />
+            <Form enableValidation inputs={formInputs} {onSubmitButton} {downloadButton} downloadData={verifiableCredential} />
         {/key}
     </ModalBody>
-
-    {#if verifiableCredential}
-        <ModalFooter>
-            <div class="mt-4">
-                <span>Verifiable credential created. </span>
-                <a href={createJsonDataUrl(verifiableCredential)} download="vc.json">Download</a>
-            </div>
-        </ModalFooter>
-    {/if}
 </Modal>

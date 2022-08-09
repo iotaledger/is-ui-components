@@ -1,7 +1,7 @@
 <script lang="ts">
     import { DEFAULT_IDENTITIES_TEMPLATES } from '$lib/app/constants/identity'
     import { registerIdentity } from '$lib/app/identity'
-    import type { Input as InputType, SubmitButton } from '$lib/app/types/form'
+    import type { DownloadButton, Input as InputType, SubmitButton } from '$lib/app/types/form'
     import type { IdentityTemplate } from '$lib/app/types/identity'
     import { Form } from '$lib/components'
     import type { IdentityJson, UserType } from '@iota/is-client'
@@ -9,6 +9,7 @@
 
     export let onSuccess = (identity: IdentityJson, username: string, userType?: UserType): void => {}
     export let identitiesTemplate: IdentityTemplate[] = DEFAULT_IDENTITIES_TEMPLATES
+    export let onModalClose = (..._: any[]): void => {}
 
     let registeredIdentity: IdentityJson
     let selectedTemplate: IdentityTemplate = identitiesTemplate?.[0]
@@ -25,6 +26,13 @@
         labelWhileLoading: 'Creating identity...',
     }
 
+    let downloadButton: DownloadButton = {
+        fileName: 'identity.json',
+        label: 'Save identity',
+        visible: false,
+        onDownload: onModalClose,
+    }
+
     async function handleRegister(formFieldsValues): Promise<void> {
         formLoading = true
         const { username, hidden, ...claim } = formFieldsValues
@@ -35,6 +43,7 @@
                 ...onSubmitButton,
                 visible: false,
             }
+            downloadButton.visible = true
         }
         formLoading = false
     }
@@ -67,5 +76,5 @@
 
 <!-- Selected template fields form -->
 {#key selectedTemplate}
-    <Form enableValidation inputs={formInputs} {onSubmitButton} />
+    <Form enableValidation inputs={formInputs} {onSubmitButton} {downloadButton} downloadData={registeredIdentity} />
 {/key}

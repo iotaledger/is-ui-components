@@ -1,13 +1,15 @@
 <script lang="ts">
-    import { FieldType } from '$lib/app'
-    import type { Input as InputType, SubmitButton } from '$lib/app/types/form'
-    import { Multiselect } from '$lib/components'
+    import { createJsonDataUrl, FieldType } from '$lib/app'
+    import type { DownloadButton, Input as InputType, SubmitButton } from '$lib/app/types/form'
+    import { Icon, Multiselect } from '$lib/components'
     import { Button, FormGroup, Label, Spinner, Tooltip } from 'sveltestrap'
     import Input from 'sveltestrap/src/Input.svelte'
 
     export let enableValidation: boolean = false
     export let inputs: InputType[]
     export let onSubmitButton: SubmitButton
+    export let downloadButton: DownloadButton = undefined
+    export let downloadData: any = undefined
 
     let unsubscribe
     let formValidated: boolean = false
@@ -142,6 +144,7 @@
             </FormGroup>
         {/each}
     </div>
+    <hr />
     {#if onSubmitButton.visible}
         <Button size="lg" color="primary" block class="mt-4" disabled={onSubmitButton?.loading} type="submit"
             ><div class="d-flex justify-content-center align-items-center">
@@ -151,6 +154,18 @@
                 {/if}
             </div>
         </Button>
+    {/if}
+    {#if downloadButton?.visible}
+        <a
+            class="d-flex align-items-center justify-content-center mt-4 btn btn-primary btn-block w-100 btn-lg"
+            href={createJsonDataUrl(downloadData)}
+            role="button"
+            download={downloadButton?.fileName}
+            on:click={downloadButton?.onDownload}
+        >
+            <Icon type="download" />
+            <span class="ms-2">{downloadButton.label}</span>
+        </a>
     {/if}
 </form>
 
