@@ -29,11 +29,7 @@ jobs:
                 npm ci
                 npm run build
                 npm run dist 
-            - run: |
-                cd package
-                echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
-                cat ./package.json >> $GITHUB_ENV
-                echo 'EOF' >> $GITHUB_ENV  
+            - run:  jq -r '"PACKAGE_JSON=\(.version)"' package.json >> $GITHUB_ENV 
             - name: Stable version
               if: ${{ !env.PRE_RELEASE }}
               run: cd package && npm publish --access=public
