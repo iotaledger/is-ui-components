@@ -28,11 +28,10 @@ jobs:
             - run: |
                 echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
                 cat ./package.json >> $GITHUB_ENV
-                echo 'EOF' >> $GITHUB_ENV
-            - run: |
+                echo 'EOF' >> $GITHUB_ENV  
                 npm ci
                 npm run build
-                npm run dist   
+                npm run dist 
             - name: Stable version
               if: ${{ !env.PRE_RELEASE }}
               run: cd package && npm publish --access=public
