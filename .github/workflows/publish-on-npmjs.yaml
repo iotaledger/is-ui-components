@@ -16,6 +16,8 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
+        env:
+            PRE_RELEASE: contains(fromJson(env.PACKAGE_JSON).version, 'alpha')
         steps:
             - uses: actions/checkout@v2
             # Setup .npmrc file to publish to npm
@@ -23,9 +25,21 @@ jobs:
               with:
                   node-version: '16.x'
                   registry-url: 'https://registry.npmjs.org'
-            - run: npm ci
-            - run: npm run build
-            - run: npm run dist
-            - run: cd package && npm publish --access=public
+            - run: |
+                echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
+                cat ./package.json >> $GITHUB_ENV
+                echo 'EOF' >> $GITHUB_ENV
+            - run: |
+                npm ci
+                npm run build
+                npm run dist   
+            - name: Stable version
+              if: ${{ !env.PRE_RELEASE }}
+              run: cd package && npm publish --access=public
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+                 NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - name: Pre-release version
+              if: ${{ env.PRE_RELEASE }}
+              run: cd package && npm publish --tag next --access=public
+              env:
+                 NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
