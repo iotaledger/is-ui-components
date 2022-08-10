@@ -26,13 +26,14 @@ jobs:
                   node-version: '16.x'
                   registry-url: 'https://registry.npmjs.org'
             - run: |
-                echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
-                cat ./package.json >> $GITHUB_ENV
-                echo 'EOF' >> $GITHUB_ENV
-            - run: |
                 npm ci
                 npm run build
-                npm run dist   
+                npm run dist 
+            - run: |
+                cd package
+                echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
+                cat ./package.json >> $GITHUB_ENV
+                echo 'EOF' >> $GITHUB_ENV  
             - name: Stable version
               if: ${{ !env.PRE_RELEASE }}
               run: cd package && npm publish --access=public
