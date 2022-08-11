@@ -1,5 +1,5 @@
 import type { ClientConfig } from '@iota/is-client'
-import { ApiVersion, ChannelClient, IdentityClient } from '@iota/is-client'
+import { ChannelClient, IdentityClient } from '@iota/is-client'
 import { derived, get } from 'svelte/store'
 import { logout } from './identity'
 import { showNotification } from './notification'
@@ -10,7 +10,6 @@ import { persistent } from './stores'
 const config: ClientConfig = {
     apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
     isGatewayUrl: import.meta.env.VITE_IOTA_IS_SDK_GATEWAY_URL as string,
-    apiVersion: ApiVersion.v01,
 }
 
 export const identityClient = new IdentityClient(config)

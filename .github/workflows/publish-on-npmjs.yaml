@@ -16,8 +16,6 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
-        env:
-            PRE_RELEASE: contains(fromJson(env.PACKAGE_JSON).version, 'alpha')
         steps:
             - uses: actions/checkout@v2
             # Setup .npmrc file to publish to npm
@@ -31,12 +29,12 @@ jobs:
                 npm run dist 
             - run:  jq -r '"PACKAGE_JSON=\(.version)"' package.json >> $GITHUB_ENV 
             - name: Stable version
-              if: ${{ !env.PRE_RELEASE }}
+              if: ${{ !contains(env.PACKAGE_JSON, 'alpha') }}
               run: cd package && npm publish --access=public
               env:
                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             - name: Pre-release version
-              if: ${{ env.PRE_RELEASE }}
+              if: ${{ contains(env.PACKAGE_JSON, 'alpha') }}
               run: cd package && npm publish --tag next --access=public
               env:
                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.2.0
+
+- Update `is-client` version to 0.2.0 and adjusted github worklfow
+
 ### 0.1.0-alpha.0
 
 -   Updated `is-client` to version `0.2.0-alpha.1`
