@@ -10,6 +10,8 @@ import { persistent } from './stores'
 const config: ClientConfig = {
     apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
     isGatewayUrl: import.meta.env.VITE_IOTA_IS_SDK_GATEWAY_URL as string,
+    apiVersionAuditTrail: 'v0.1',
+    apiVersionSsiBridge: 'v0.2'
 }
 
 export const identityClient = new IdentityClient(config)
