@@ -24,17 +24,17 @@ jobs:
                   node-version: '16.x'
                   registry-url: 'https://registry.npmjs.org'
             - run: |
-                npm ci
-                npm run build
-                npm run dist 
-            - run:  jq -r '"PACKAGE_JSON=\(.version)"' package.json >> $GITHUB_ENV 
+                  npm ci
+                  npm run build
+                  npm run dist
+            - run: jq -r '"PACKAGE_JSON=\(.version)"' package.json >> $GITHUB_ENV
             - name: Stable version
               if: ${{ !contains(env.PACKAGE_JSON, 'alpha') }}
               run: cd package && npm publish --access=public
               env:
-                 NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             - name: Pre-release version
               if: ${{ contains(env.PACKAGE_JSON, 'alpha') }}
               run: cd package && npm publish --tag next --access=public
               env:
-                 NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
