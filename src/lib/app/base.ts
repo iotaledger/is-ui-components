@@ -11,7 +11,7 @@ const config: ClientConfig = {
     apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
     isGatewayUrl: import.meta.env.VITE_IOTA_IS_SDK_GATEWAY_URL as string,
     apiVersionAuditTrail: ApiVersion.v0_1,
-    apiVersionSsiBridge: ApiVersion.v0_2
+    apiVersionSsiBridge: ApiVersion.v0_2,
 }
 
 export const identityClient = new IdentityClient(config)

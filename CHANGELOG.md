@@ -2,11 +2,11 @@
 
 ### 0.2.1
 
-- Update `is-client` version to 0.2.1 and added api version properties in ClientConfig in base.ts
+-   Update `is-client` version to 0.2.1 and added api version properties in ClientConfig in base.ts
 
 ### 0.2.0
 
-- Update `is-client` version to 0.2.0 and adjusted github worklfow
+-   Update `is-client` version to 0.2.0 and adjusted github worklfow
 
 ### 0.1.0-alpha.0
 
