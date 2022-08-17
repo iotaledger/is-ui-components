@@ -2,15 +2,15 @@
 
 ### 0.2.1
 
--   Update `is-client` version to 0.2.1 and added api version properties in ClientConfig in base.ts
+-   Update `@iota/is-client` version to `0.2.2` and added api version properties in ClientConfig in base.ts
 
 ### 0.2.0
 
--   Update `is-client` version to 0.2.0 and adjusted github worklfow
+-   Update `@iota/is-client` version to 0.2.0 and adjusted github worklfow
 
 ### 0.1.0-alpha.0
 
--   Updated `is-client` to version `0.2.0-alpha.1`
+-   Updated `@iota/is-client` to version `0.2.0-alpha.1`
 
 ### 0.0.60 (TBD)
 
