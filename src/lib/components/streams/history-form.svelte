@@ -49,9 +49,10 @@
                 bind:value={channelAddress}
             />
             <div class="invalid-feedback">This field is required and requires a valid channel address.</div>
-            <Label class="mt-3">Preshared Key</Label>
-            <Input placeholder={'Preshared key...'} type="textarea" minlength={MIN_LENGTH_INPUT} bind:value={presharedKey} />
-
+            {#if channelType === ChannelType.private}
+                <Label class="mt-3">Preshared Key</Label>
+                <Input placeholder={'Preshared key...'} type="textarea" minlength={MIN_LENGTH_INPUT} bind:value={presharedKey} />
+            {/if}
             <Button size="lg" block class="mt-4" color="primary" on:click={onSubmit}>
                 <div class="d-flex justify-content-center align-items-center">Read history</div>
             </Button>
