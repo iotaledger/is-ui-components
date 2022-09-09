@@ -1,7 +1,7 @@
 <script lang="ts">
     import { selectedMessagePageIndex } from '$lib/app'
 
-    import { DEFAULT_MESSAGES_PAGE_SIZE, MESSAGE_EXPLORER } from '$lib/app/constants/streams'
+    import { DEFAULT_MESSAGES_PAGE_SIZE, NETWORK_EXPLORER } from '$lib/app/constants/streams'
 
     import type { ActionButton } from '$lib/app/types/layout'
     import { isAnArrayOfObjects, isAnObject, isJson } from '$lib/app/utils'
@@ -106,7 +106,7 @@
             <div class="mb-4">
                 <div class="text-secondary">Message id</div>
                 <div class="text-break">
-                    <a href={MESSAGE_EXPLORER + msg?.messageId} target="_blank" rel="noopener noreferrer">
+                    <a href={NETWORK_EXPLORER + msg?.messageId} target="_blank" rel="noopener noreferrer">
                         {msg?.messageId}
                     </a>
                 </div>
