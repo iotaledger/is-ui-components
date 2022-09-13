@@ -143,7 +143,7 @@
                             type="switch"
                             bind:checked={hasPresharedKey}
                             label="Use Preshared Key"
-                            disabled={channelType !== ChannelType.private}
+                            disabled={channelType === ChannelType.public}
                         />
                     </div>
                 </div>
