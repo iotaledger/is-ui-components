@@ -51,7 +51,7 @@
             <div class="invalid-feedback">This field is required and requires a valid channel address.</div>
             <Label class="mt-3">Preshared Key</Label>
             <Input
-                disabled={channelType !== ChannelType.private}
+                disabled={channelType === ChannelType.public}
                 placeholder={'Preshared key...'}
                 type="textarea"
                 minlength={MIN_LENGTH_INPUT}
