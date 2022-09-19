@@ -25,7 +25,7 @@
 
     let credentialsTemplate: VerifiableCredentialTemplate[] = DEFAULT_VCS_TEMPLATES
     let isCreateCredentialModalOpen = false
-
+    $: $page.params.id, setIdentity($page.params.id)
     const detailViewButtons: ActionButton[] = [
         {
             label: 'Add credential',
@@ -35,6 +35,15 @@
             hidden: $authenticatedUserRole !== UserRoles.Admin,
         },
     ]
+    async function setIdentity(id: string): Promise<void> {
+        const identity = await getIdentitiy(id)
+        selectedIdentity.set(identity)
+    }
+
+    async function onCreatorClick(id: string): Promise<void> {
+        setIdentity(id)
+        goto('/identity-manager/' + id)
+    }
 
     // Add the newly created credential to the selected identity
     async function onCreateCredentialSuccess(): Promise<void> {
@@ -75,8 +84,7 @@
 
     onMount(async () => {
         if (!get(selectedIdentity)) {
-            const id = await getIdentitiy($page.params.id)
-            selectedIdentity.set(id)
+            await setIdentity($page.params.id)
         }
         if (get(selectedIdentity)) await loadIdentityDetails()
     })
@@ -92,11 +100,12 @@
             <div class="mb-4 align-self-start">
                 <button on:click={handleBackClick} class="btn d-flex align-items-center">
                     <Icon type="arrow-left" size={16} />
-                    <span class="ms-2">Back</span>
+                    <span class="ms-2">Back to List</span>
                 </button>
             </div>
             {#if $authenticatedUserRole && $selectedIdentity}
                 <IdentityDetails
+                    {onCreatorClick}
                     loading={$loadingIdentity}
                     actionButtons={detailViewButtons}
                     onRevokeSuccess={updateIdentityInSearchResults}

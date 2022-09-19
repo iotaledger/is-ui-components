@@ -12,6 +12,7 @@
     export let identity: ExtendedUser
     export let userRole: UserRoles
     export let loading: boolean = false
+    export let onCreatorClick = async (identityId: string): Promise<void> => {}
     export let onRevokeSuccess = (identity: ExtendedUser): void => {}
     export let actionButtons: ActionButton[] = []
 
@@ -57,7 +58,7 @@
                 boxColor={USER_ICONS[type]?.boxColor ?? BoxColor.Purple}
                 type={USER_ICONS[type]?.icon ?? 'gear'}
             />
-            <div class="ms-4 me-4">
+            <div class="ms-3 me-3">
                 <div class="text-secondary fst-italic">{type}</div>
                 <div class="fs-4 fw-bold">{identity?.username}</div>
                 <div class="text-secondary fw-bolder mt-1 text-break">{identity?.id}</div>
@@ -90,7 +91,16 @@
                     <span class="fw-bold">Date: </span><span class="text-break ">{formatDate(identity?.registrationDate)}</span>
                 </div>
                 <div class="text-secondary text-break">
-                    <span class="fw-bold">Creator: </span><span class="text-break ">{identity?.creator || 'unknown'}</span>
+                    <span class="fw-bold">Creator: </span>
+                    {#if identity.creator}
+                        <span on:click={() => onCreatorClick(identity?.creator)} class="link-primary cursor-pointer"
+                            >{identity?.creator}</span
+                        >
+                    {/if}
+
+                    {#if !identity.creator}
+                        <span class="text-break ">Unknown</span>
+                    {/if}
                 </div>
                 <div class="text-secondary text-break">
                     <span class="fw-bold">Role: </span><span class="text-break ">{identity?.role || 'unknown'}</span>
