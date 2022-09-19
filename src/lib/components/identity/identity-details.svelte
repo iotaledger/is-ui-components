@@ -12,7 +12,6 @@
     export let identity: ExtendedUser
     export let userRole: UserRoles
     export let loading: boolean = false
-    export let onCreatorClick = async (identityId: string): Promise<void> => {}
     export let onRevokeSuccess = (identity: ExtendedUser): void => {}
     export let actionButtons: ActionButton[] = []
 
@@ -93,11 +92,10 @@
                 <div class="text-secondary text-break">
                     <span class="fw-bold">Creator: </span>
                     {#if identity.creator}
-                        <span on:click={() => onCreatorClick(identity?.creator)} class="link-primary cursor-pointer"
-                            >{identity?.creator}</span
-                        >
+                        <a href={'/identity-manager/' + identity?.creator}>
+                            {identity?.creator}
+                        </a>
                     {/if}
-
                     {#if !identity.creator}
                         <span class="text-break ">Unknown</span>
                     {/if}

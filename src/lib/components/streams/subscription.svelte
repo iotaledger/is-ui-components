@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { goto } from '$app/navigation'
     import type { Subscription } from '@iota/is-client'
     import { Button, Spinner, ModalBody, ModalFooter, ModalHeader } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
@@ -19,6 +20,9 @@
     let isAccepting: boolean = false
     let isRejecting: boolean = false
 
+    async function goToSubscription(id: string): Promise<void> {
+        goto('/identity-manager/' + id)
+    }
     async function handleAccept(): Promise<void> {
         isAccepting = true
         await handleAcceptSubscription(subscription.id)
@@ -35,7 +39,10 @@
     <div class="d-flex justify-content-between align-items-center my-3">
         <div>
             <div class="text-secondary mb-1">{label}</div>
-            <span class="text-break">{subscription?.id}</span>
+            <a href={'/identity-manager/' + subscription?.id}>
+                {subscription?.id}
+            </a>
+            <span on:click={() => goToSubscription(subscription?.id)} class="link-primary cursor-pointer" />
         </div>
         {#if allowAcceptAction || allowRejectAction}
             <div class="d-flex flex-column flex-lg-row ">
