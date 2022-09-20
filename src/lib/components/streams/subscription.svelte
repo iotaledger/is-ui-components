@@ -20,9 +20,6 @@
     let isAccepting: boolean = false
     let isRejecting: boolean = false
 
-    async function goToSubscription(id: string): Promise<void> {
-        goto('/identity-manager/' + id)
-    }
     async function handleAccept(): Promise<void> {
         isAccepting = true
         await handleAcceptSubscription(subscription.id)
@@ -42,7 +39,6 @@
             <a href={'/identity-manager/' + subscription?.id}>
                 {subscription?.id}
             </a>
-            <span on:click={() => goToSubscription(subscription?.id)} class="link-primary cursor-pointer" />
         </div>
         {#if allowAcceptAction || allowRejectAction}
             <div class="d-flex flex-column flex-lg-row ">
