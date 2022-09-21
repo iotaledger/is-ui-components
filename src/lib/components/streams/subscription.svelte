@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { goto } from '$app/navigation'
     import type { Subscription } from '@iota/is-client'
     import { Button, Spinner, ModalBody, ModalFooter, ModalHeader } from 'sveltestrap'
     // We have to import Modal this way, otherwise it shouts SSR issues.
@@ -35,7 +36,9 @@
     <div class="d-flex justify-content-between align-items-center my-3">
         <div>
             <div class="text-secondary mb-1">{label}</div>
-            <span class="text-break">{subscription?.id}</span>
+            <a href={'/identity-manager/' + subscription?.id}>
+                {subscription?.id}
+            </a>
         </div>
         {#if allowAcceptAction || allowRejectAction}
             <div class="d-flex flex-column flex-lg-row ">

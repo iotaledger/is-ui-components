@@ -1,5 +1,11 @@
 # Changelog
 
+### 0.2.2
+
+-   Add links to identity ids
+-   Add link to message explorer
+-   Disable preshared key input at history view for public channels
+
 ### 0.2.1
 
 -   Update `@iota/is-client` version to `0.2.2` and added api version properties in ClientConfig in base.ts
