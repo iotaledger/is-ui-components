@@ -89,31 +89,43 @@
     {/if}
     {#each visibleChannelData as msg}
         <div class="p-4 bg-light my-4">
-            <div class="d-lg-flex justify-content-between mb-lg-4">
-                <div class="info-box mb-4 mb-lg-0 me-lg-4">
+            <div class="d-lg-flex justify-content-between mb-lg-2">
+                <div class="info-box mb-2 mb-lg-0 me-lg-4">
                     <div class="text-secondary">Timestamp</div>
                     <div class="text-break">{msg?.log?.created || '-'}</div>
                 </div>
-                <div class="info-box mb-4 mb-lg-0 me-lg-4">
+                <div class="info-box mb-2 mb-lg-0 me-lg-4">
                     <div class="text-secondary">Cached</div>
                     <div class="text-break">{msg?.log?.created || '-'}</div>
                 </div>
-                <div class="info-box mb-4 mb-lg-0 me-lg-4">
+                <div class="info-box mb-2 mb-lg-0 me-lg-4">
                     <div class="text-secondary">Type</div>
                     <div>{msg?.log?.type || '-'}</div>
                 </div>
             </div>
+            <div class="mb-2">
+                {#if msg?.source?.id}
+                    <div class="mb-2">
+                        <span class="text-secondary">Identity: </span>
+                        <a href={'/identity-manager/' + msg.source.id}>
+                            <span class="text-break">{msg.source.id}</span>
+                        </a>
+                    </div>
+                {/if}
+                {#if msg?.source?.publicKey}
+                    <div>
+                        <span class="text-secondary">Signature Key: </span>
+                        <span class="text-break">{msg?.source?.publicKey}</span>
+                    </div>
+                {/if}
+            </div>
             <div class="mb-4">
-                <div class="text-secondary">Message id</div>
-                <div class="text-break">
+                <span class="text-secondary">Message:</span>
+                <span class="text-break">
                     <a href={NETWORK_EXPLORER + msg?.messageId} target="_blank" rel="noopener noreferrer">
                         {msg?.messageId}
                     </a>
-                </div>
-            </div>
-            <div class="mb-4">
-                <div class="text-secondary">Link</div>
-                <div class="text-break">{msg?.link}</div>
+                </span>
             </div>
 
             {#if msg?.log?.publicPayload}
