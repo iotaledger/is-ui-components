@@ -1,8 +1,7 @@
-import { writable, type Unsubscriber, type Writable } from 'svelte/store'
+import { writable } from 'svelte/store'
 import { browser } from '$app/env'
 import type { Reset } from './types/stores'
-import type { ActionButton } from './types'
-import type { ChannelData, ChannelInfo, Subscription } from '@iota/is-client'
+
 /**
  * Writable store with reset to initial value functionality
  * @param initialValue - initial value

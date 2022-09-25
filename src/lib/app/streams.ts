@@ -5,7 +5,7 @@ import type {
     RequestSubscriptionResponse,
     Subscription,
 } from '@iota/is-client'
-import { AccessRights, type ChannelInfo, type ChannelType } from '@iota/is-client'
+import { AccessRights, ChannelType, type ChannelInfo } from '@iota/is-client'
 import { get } from 'svelte/store'
 import { authenticatedUserDID, authenticationData, channelClient, isAuthenticated } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
@@ -37,6 +37,7 @@ export const isAsyncLoadingChannels: Reset<boolean> = reset(false)
 // used to determine the subscription status of the authenticated user on the current channel
 export const subscriptionStatus: Reset<SubscriptionState> = reset(undefined)
 export const loadingChannel: Reset<boolean> = reset(false)
+export const channelAsymSharedKeys: Reset<Map<string, string>> = reset(new Map())
 
 let haltSearchAll = false
 // used to keep track of the last search query
@@ -167,7 +168,8 @@ export async function readChannelMessages(
     channelAddress: string,
     fetchNewMessage: boolean,
     index: number,
-    limit?: number
+    limit?: number,
+    asymSharedKey?: string
 ): Promise<void> {
     if (get(isAuthenticated)) {
         if (get(selectedChannelBusy)) {
@@ -186,7 +188,8 @@ export async function readChannelMessages(
                 limit: limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
                 startDate: fetchNewMessage ? startDate : null,
                 endDate: get(selectedChannelData)?.length && fetchNewMessage ? new Date() : null,
-            })
+            },
+                asymSharedKey)
             // Append new messages infront and old messages (loaded in case of pagenation) in the back of the array to keep it sorted
             if (fetchNewMessage) {
                 selectedChannelData.update((_chData) => [...newMessages, ..._chData])
@@ -238,13 +241,13 @@ export async function readChannelHistory(channelAddress: string, presharedKey: s
     }
 }
 
-export async function startReadingChannel(channelAddress: string): Promise<void> {
+export async function startReadingChannel(channelAddress: string, asymSharedKey?: string): Promise<void> {
     stopReadingChannel()
     if (!get(selectedChannelBusy)) {
-        await readChannelMessages(channelAddress, true, 0)
+        await readChannelMessages(channelAddress, true, 0, undefined, asymSharedKey)
     }
     channelFeedInterval = setInterval(async () => {
-        await readChannelMessages(channelAddress, true, 0)
+        await readChannelMessages(channelAddress, true, 0, undefined, asymSharedKey)
     }, FEED_INTERVAL_MS)
 }
 
@@ -372,8 +375,8 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
             return !ownSuscription
                 ? SubscriptionState.NotSubscribed
                 : ownSuscription.isAuthorized
-                ? SubscriptionState.Authorized
-                : SubscriptionState.Requested
+                    ? SubscriptionState.Authorized
+                    : SubscriptionState.Requested
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,

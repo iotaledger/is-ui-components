@@ -4,7 +4,6 @@ import type {
     RevokeVerificationBody,
     User,
     IdentityKeys,
-    VerifiableCredentialInternal,
     VerifiableCredential,
 } from '@iota/is-client'
 import { UserType } from '@iota/is-client'
@@ -228,7 +227,7 @@ export function stopIdentitiesSearch(): void {
 }
 
 export async function createVC(
-    initiatorVC: VerifiableCredentialInternal | undefined,
+    initiatorVC: VerifiableCredential | undefined,
     targetDid: string,
     credentialType: CredentialTypes,
     claimType: UserType,
@@ -303,11 +302,11 @@ export async function addIdentityToSortedSearchResults(id: string): Promise<void
     }
 }
 
-export async function verifyVC(json: VerifiableCredentialInternal): Promise<boolean> {
+export async function verifyVC(json: VerifiableCredential): Promise<boolean> {
     let _isVerified
     if (get(isAuthenticated)) {
         try {
-            const { isVerified } = await identityClient.checkCredential(json as VerifiableCredentialInternal)
+            const { isVerified } = await identityClient.checkCredential(json as VerifiableCredential)
             _isVerified = isVerified
         } catch (e) {
             showNotification({
@@ -326,7 +325,7 @@ export async function verifyVC(json: VerifiableCredentialInternal): Promise<bool
     return _isVerified
 }
 
-export async function getVerifiableCredentials(identityId: string): Promise<VerifiableCredentialInternal[]> {
+export async function getVerifiableCredentials(identityId: string): Promise<VerifiableCredential[]> {
     let credentials = []
     if (get(isAuthenticated)) {
         try {

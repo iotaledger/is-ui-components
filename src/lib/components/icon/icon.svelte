@@ -2,7 +2,7 @@
     import { BoxColor } from '$lib/app/constants/colors'
     import { CustomIcon } from '$lib/components'
     import { Icon } from 'sveltestrap'
-    import { Close, Credential, Identity, IotaLogo } from './icons'
+    import { Close, Credential, Identity, IotaLogo, Lock } from './icons'
 
     export let size: number = 24
     export let type: string = undefined
@@ -15,6 +15,7 @@
         identity: Identity,
         credential: Credential,
         'iota-logo': IotaLogo,
+        lock: Lock
     }
 
     $: customIcon = TYPES?.[type]

@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.2.5
+
+- Added input field for unlocking privatePlus channels
+
 ### 0.2.2
 
 -   Add links to identity ids
