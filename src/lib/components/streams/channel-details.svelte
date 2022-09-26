@@ -68,7 +68,7 @@
                 })
             } else {
                 asymSharedKey = getAsymSharedKey(identity.keys.encrypt.private, channel.peerPublicKey)
-                channelAsymSharedKeys.update(map => map.set(channel.channelAddress, asymSharedKey))
+                $channelAsymSharedKeys.set(channel.channelAddress, asymSharedKey)
                 manageChannelData()
             }
         } catch {
@@ -128,7 +128,7 @@
     {/if}
     {#if channel.type === ChannelType.privatePlus && !asymSharedKey}
         <Box>
-            <div class="d-flex flex-column align-items-center align-content-end justify-content-center">
+            <div class="d-flex flex-column align-items-center justify-content-center">
                 <div class="icon">
                     <Icon type="lock" size={140} />
                 </div>
