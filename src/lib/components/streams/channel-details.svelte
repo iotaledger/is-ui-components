@@ -135,7 +135,7 @@
                 <h1 class="mt-3 mb-4">Unlock Channel Data</h1>
             </div>
             <div class="w-100 mb-2">
-                <Dropzone autocomplete="on" on:drop={handleFilesSelect} accept="application/json"
+                <Dropzone on:drop={handleFilesSelect} accept="application/json"
                     ><p>Upload JSON files or drag and drop</p></Dropzone
                 >
             </div>
