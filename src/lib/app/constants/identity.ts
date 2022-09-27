@@ -381,4 +381,9 @@ export const CREDENTIAL_ICON = {
     boxColor: BoxColor.Purple,
 }
 
+export const IOTA_ICON = {
+    icon: 'iota-logo',
+    boxColor: BoxColor.Purple,
+}
+
 export const DEFAULT_CREATOR_FILTER_STATE = true
