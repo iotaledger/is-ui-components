@@ -42,7 +42,7 @@
                     </div>
                     <div class="label mt-4">
                         Issuer
-                        <div class="text-break text-secondary">{vc?.id}</div>
+                        <div class="text-break text-secondary">{vc?.issuer}</div>
                     </div>
                     <div class="label mt-4">
                         Issuance date
