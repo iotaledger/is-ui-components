@@ -92,11 +92,11 @@
             <div class="d-lg-flex justify-content-between mb-lg-2">
                 <div class="info-box mb-2 mb-lg-0 me-lg-4 small">
                     <div class="text-secondary">Timestamp</div>
-                    <div class="text-break">{formatDateAndTime(msg?.log?.created) || '-'}</div>
+                    <div class="text-break">{msg?.log?.created ? formatDateAndTime(msg?.log?.created) : '-'}</div>
                 </div>
                 <div class="info-box mb-2 mb-lg-0 me-lg-4 small">
                     <div class="text-secondary">Cached</div>
-                    <div class="text-break">{formatDateAndTime(msg?.log?.created) || '-'}</div>
+                    <div class="text-break">{msg?.imported ? formatDateAndTime(msg?.imported) : '-'}</div>
                 </div>
                 <div class="info-box mb-2 mb-lg-0 me-lg-4 small">
                     <div class="text-secondary">Type</div>
