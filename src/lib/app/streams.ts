@@ -10,6 +10,7 @@ import { get } from 'svelte/store'
 import { authenticatedUserDID, authenticationData, channelClient, isAuthenticated } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
 import {
+    ASYM_SHARED_KEYS,
     DEFAULT_AUTHOR_FILTER_STATE,
     DEFAULT_REQUESTED_SUBSCRIPTION_STATE,
     DEFAULT_SUBSCRIBED_FILTER_STATE,
@@ -19,7 +20,7 @@ import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
 import { SubscriptionState, type SearchOptions } from './types/streams'
 import type { Reset } from './types/stores'
-import { reset } from './stores'
+import { persistent, reset } from './stores'
 
 export const selectedChannelPageIndex: Reset<number> = reset(1)
 export const selectedMessagePageIndex: Reset<number> = reset(1)
@@ -37,7 +38,7 @@ export const isAsyncLoadingChannels: Reset<boolean> = reset(false)
 // used to determine the subscription status of the authenticated user on the current channel
 export const subscriptionStatus: Reset<SubscriptionState> = reset(undefined)
 export const loadingChannel: Reset<boolean> = reset(false)
-export const channelAsymSharedKeys: Reset<Map<string, string>> = reset(new Map())
+export const asymSharedKeysStorage: Reset<Map<string, string>> = persistent(ASYM_SHARED_KEYS, new Map())
 
 let haltSearchAll = false
 // used to keep track of the last search query
@@ -398,7 +399,8 @@ export async function writeMessage(
     publicPayload?: string,
     metadata?: string,
     type?: string,
-    triggerReadChannel = false
+    triggerReadChannel = false,
+    asymSharedKey?: string
 ): Promise<ChannelData> {
     if (get(isAuthenticated)) {
         let channelDataResponse: ChannelData
@@ -411,7 +413,8 @@ export async function writeMessage(
                 publicPayload,
                 metadata,
                 type,
-            })
+            },
+                asymSharedKey)
             channelDataResponse = response
         } catch (e) {
             showNotification({

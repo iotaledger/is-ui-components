@@ -1,8 +1,9 @@
 <script lang="ts">
     import { FieldType, type WriteMessageForm } from '$lib/app'
-    import { selectedChannelBusy, writeMessage } from '$lib/app/streams'
+    import { selectedChannelBusy, writeMessage, asymSharedKeysStorage } from '$lib/app/streams'
     import type { Input as InputType, SubmitButton } from '$lib/app/types/form'
     import { Form } from '$lib/components'
+    import { ChannelType } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
     import { ModalBody, ModalHeader } from 'sveltestrap'
 
@@ -70,8 +71,12 @@
 
         const { payload, metadata, type } = formFieldsValues
 
-        if (channelType === 'private') {
+        if (channelType === ChannelType.private) {
             message = await writeMessage(address, payload, undefined, metadata, type, true)
+        }
+        if (channelType === ChannelType.privatePlus) {
+            const asymSharedKey = new Map($asymSharedKeysStorage).get(address)
+            message = await writeMessage(address, payload, undefined, metadata, type, true, asymSharedKey)
         } else {
             message = await writeMessage(address, undefined, payload, metadata, type, true)
         }

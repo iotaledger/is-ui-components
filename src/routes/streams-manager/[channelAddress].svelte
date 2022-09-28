@@ -173,6 +173,7 @@
                     isOpen={isWriteMesageModalOpen}
                     onModalClose={closeWriteMessageModal}
                     address={$selectedChannel?.channelAddress}
+                    channelType={$selectedChannel?.type}
                 />
             {/if}
         </Col>

@@ -19,7 +19,7 @@
     import type { IdentityKeys } from '@iota/is-client'
     import { onMount } from 'svelte'
     import Dropzone from 'svelte-file-dropzone'
-    import { NotificationType, showNotification, channelAsymSharedKeys } from '$lib/app'
+    import { NotificationType, showNotification, asymSharedKeysStorage, ASYM_SHARED_KEYS } from '$lib/app'
     import { getAsymSharedKey } from '$lib/app/utils'
 
     export let channel: ChannelInfoType
@@ -40,9 +40,9 @@
     let asymSharedKey: string = undefined
 
     onMount(() => {
-        const channeAsymSharedKey = $channelAsymSharedKeys.get(channel.channelAddress)
-        if (channeAsymSharedKey) {
-            asymSharedKey = channeAsymSharedKey
+        const channelAsymSharedKey: string = $asymSharedKeysStorage.get(channel.channelAddress)
+        if (channelAsymSharedKey) {
+            asymSharedKey = channelAsymSharedKey
             manageChannelData()
         } else {
             fileReader = new FileReader()
@@ -68,7 +68,7 @@
                 })
             } else {
                 asymSharedKey = getAsymSharedKey(identity.keys.encrypt.private, channel.peerPublicKey)
-                $channelAsymSharedKeys.set(channel.channelAddress, asymSharedKey)
+                asymSharedKeysStorage.set(new Map().set(channel.channelAddress, asymSharedKey))
                 manageChannelData()
             }
         } catch {
