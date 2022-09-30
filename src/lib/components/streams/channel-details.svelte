@@ -130,7 +130,7 @@
     {#if channel.type === ChannelType.privatePlus && !asymSharedKey}
         <Box>
             <div class="d-flex flex-column align-items-center justify-content-center">
-                <div class="icon">
+                <div class="icon ">
                     <Icon type="lock" size={140} />
                 </div>
                 <h1 class="mt-3 mb-4">Unlock Channel Data</h1>
@@ -153,5 +153,6 @@
 <style>
     .icon {
         height: 70px;
+        width: 70px;
     }
 </style>
