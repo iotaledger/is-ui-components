@@ -75,7 +75,7 @@
             message = await writeMessage(address, payload, undefined, metadata, type, true)
         }
         if (channelType === ChannelType.privatePlus) {
-            const asymSharedKey = $asymSharedKeysStorage.get(`${authenticatedUserDID}-${address}`)
+            const asymSharedKey = $asymSharedKeysStorage.get(`${$authenticatedUserDID}-${address}`)
             message = await writeMessage(address, payload, undefined, metadata, type, true, asymSharedKey)
         } else {
             message = await writeMessage(address, undefined, payload, metadata, type, true)

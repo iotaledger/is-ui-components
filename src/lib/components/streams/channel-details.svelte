@@ -40,7 +40,7 @@
     let asymSharedKey: string = undefined
 
     onMount(() => {
-        asymSharedKey = $asymSharedKeysStorage.get(`${authenticatedUserDID}-${channel.channelAddress}`)
+        asymSharedKey = $asymSharedKeysStorage.get(`${$authenticatedUserDID}-${channel.channelAddress}`)
         if (asymSharedKey) {
             manageChannelData()
         } else {
@@ -68,7 +68,7 @@
             } else {
                 asymSharedKey = getAsymSharedKey(identity.keys.encrypt.private, channel.peerPublicKey)
                 asymSharedKeysStorage.set(
-                    $asymSharedKeysStorage.set(`${authenticatedUserDID}-${channel.channelAddress}`, asymSharedKey)
+                    $asymSharedKeysStorage.set(`${$authenticatedUserDID}-${channel.channelAddress}`, asymSharedKey)
                 )
                 manageChannelData()
             }
@@ -127,7 +127,7 @@
             />
         </div>
     {/if}
-    {#if channel.type === ChannelType.privatePlus && !asymSharedKey}
+    {#if channel.type === ChannelType.privatePlus && !asymSharedKey && subscriptionStatusValue === SubscriptionState.Authorized}
         <Box>
             <div class="d-flex flex-column align-items-center justify-content-center">
                 <div class="icon ">
