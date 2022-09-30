@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { selectedMessagePageIndex } from '$lib/app'
+    import { BoxColor, CREDENTIAL_ICON, IOTA_ICON, selectedMessagePageIndex } from '$lib/app'
 
     import { DEFAULT_MESSAGES_PAGE_SIZE, NETWORK_EXPLORER } from '$lib/app/constants/streams'
 
     import type { ActionButton } from '$lib/app/types/layout'
-    import { isAnArrayOfObjects, isAnObject, isJson } from '$lib/app/utils'
+    import { formatDateAndTime, isAnArrayOfObjects, isAnObject, isJson } from '$lib/app/utils'
     import { Icon, JSONViewer } from '$lib/components'
     import type { ChannelData } from '@iota/is-client'
     import { onDestroy, onMount } from 'svelte'
@@ -90,47 +90,46 @@
     {#each visibleChannelData as msg}
         <div class="p-4 bg-light my-4">
             <div class="d-lg-flex justify-content-between mb-lg-2">
-                <div class="info-box mb-2 mb-lg-0 me-lg-4">
+                <div class="info-box mb-2 mb-lg-0 me-lg-4 small">
                     <div class="text-secondary">Timestamp</div>
-                    <div class="text-break">{msg?.log?.created || '-'}</div>
+                    <div class="text-break">{msg?.log?.created ? formatDateAndTime(msg?.log?.created) : '-'}</div>
                 </div>
-                <div class="info-box mb-2 mb-lg-0 me-lg-4">
+                <div class="info-box mb-2 mb-lg-0 me-lg-4 small">
                     <div class="text-secondary">Cached</div>
-                    <div class="text-break">{msg?.log?.created || '-'}</div>
+                    <div class="text-break">{msg?.imported ? formatDateAndTime(msg?.imported) : '-'}</div>
                 </div>
-                <div class="info-box mb-2 mb-lg-0 me-lg-4">
+                <div class="info-box mb-2 mb-lg-0 me-lg-4 small">
                     <div class="text-secondary">Type</div>
                     <div>{msg?.log?.type || '-'}</div>
                 </div>
             </div>
-            <div class="mb-2">
-                {#if msg?.source?.id}
-                    <div class="mb-2">
-                        <span class="text-secondary">Identity: </span>
-                        <a href={'/identity-manager/' + msg.source.id}>
-                            <span class="text-break">{msg.source.id}</span>
-                        </a>
-                    </div>
-                {/if}
-                {#if msg?.source?.publicKey}
-                    <div>
-                        <span class="text-secondary">Signature Key: </span>
-                        <span class="text-break">{msg?.source?.publicKey}</span>
-                    </div>
-                {/if}
-            </div>
-            <div class="mb-4">
-                <span class="text-secondary">Message:</span>
-                <span class="text-break">
+            <div class="mb-2 d-flex justify-content-between">
+                <div>
+                    {#if msg?.source?.id}
+                        <div class="mb-1">
+                            <span class="text-secondary small">Identity: </span>
+                            <a href={'/identity-manager/' + msg.source.id}>
+                                <span class="text-break small">{msg.source.id}</span>
+                            </a>
+                        </div>
+                    {/if}
+                    {#if msg?.source?.publicKey}
+                        <div>
+                            <span class="text-secondary small">Signature Key: </span>
+                            <span class="text-break small">{msg?.source?.publicKey}</span>
+                        </div>
+                    {/if}
+                </div>
+                <div class="mb-4 d-flex me-lg-4">
                     <a href={NETWORK_EXPLORER + msg?.messageId} target="_blank" rel="noopener noreferrer">
-                        {msg?.messageId}
+                        <Icon type={IOTA_ICON.icon} size={32} boxed={true} boxColor={BoxColor.Blue} />
                     </a>
-                </span>
+                </div>
             </div>
 
             {#if msg?.log?.publicPayload}
                 <div class="mb-4">
-                    <div class="text-secondary">Public data</div>
+                    <div class="text-secondary small">Public data:</div>
                     {#if isJson(msg?.log?.publicPayload) || isAnArrayOfObjects(msg?.log?.publicPayload) || isAnObject(msg?.log?.publicPayload)}
                         <JSONViewer json={JSON.stringify(msg?.log?.publicPayload, null, '\t')} />
                     {:else}
@@ -141,7 +140,7 @@
 
             {#if msg?.log?.payload}
                 <div class="mb-4">
-                    <div class="text-secondary">Encrypted data</div>
+                    <div class="text-secondary small">Encrypted data:</div>
                     {#if isJson(msg?.log?.payload) || isAnArrayOfObjects(msg?.log?.payload) || isAnObject(msg?.log?.payload)}
                         <JSONViewer json={JSON.stringify(msg?.log?.payload, null, '\t')} />
                     {:else if msg?.log?.payload}
@@ -152,7 +151,7 @@
 
             {#if msg?.log?.metadata}
                 <div class="mb-4">
-                    <div class="text-secondary">Metadata</div>
+                    <div class="text-secondary small">Metadata:</div>
                     {#if isJson(msg?.log?.metadata) || isAnArrayOfObjects(msg?.log?.metadata) || isAnObject(msg?.log?.metadata)}
                         <JSONViewer json={JSON.stringify(msg?.log?.metadata, null, ' \t')} />
                     {:else if msg?.log?.metadata}

@@ -42,7 +42,11 @@
                     </div>
                     <div class="label mt-4">
                         Issuer
-                        <div class="text-break text-secondary">{vc?.id}</div>
+                        <div class="text-break text-secondary">
+                            <a href={'/identity-manager/' + vc?.issuer}>
+                                {vc?.issuer}
+                            </a>
+                        </div>
                     </div>
                     <div class="label mt-4">
                         Issuance date
