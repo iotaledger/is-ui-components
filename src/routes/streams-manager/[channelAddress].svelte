@@ -4,7 +4,7 @@
 
 <script lang="ts">
     import { Box, ChannelDetails, Icon, WriteMessageModal } from '$lib/components'
-    import { Col, Container, Modal, ModalBody, ModalHeader, Row } from 'sveltestrap'
+    import { Col, Container, Row } from 'sveltestrap'
     import { onMount } from 'svelte'
     import {
         selectedChannel,
@@ -27,21 +27,11 @@
     import { get } from 'svelte/store'
     import { page } from '$app/stores'
     import type { ActionButton } from '$lib/app/types'
-    import { getAsymSharedKey } from '$lib'
-    import type { IdentityKeys } from '@iota/is-client'
-    import { NotificationType, showNotification, asymSharedKeysStorage, authenticatedUserDID } from '$lib/app'
-    import Dropzone from 'svelte-file-dropzone'
 
     let currentSubscriptionStatus: SubscriptionState
     $: $subscriptionStatus, updateChannelList()
     let isWriteMesageModalOpen: boolean = false
     let subscriptionTimeout: number
-    let fileReader: FileReader
-    let identity: IdentityKeys
-    let file: File
-    let invalidJsonFile: boolean = false
-    let asymSharedKey: string = undefined
-    let isPrivatePlusModalOpen = false
     const messageFeedButtons = [
         {
             label: 'Write a message',
@@ -62,40 +52,7 @@
 
         const subscriptions = await getSubscriptions($selectedChannel?.channelAddress)
         selectedChannelSubscriptions.set(subscriptions)
-
-        asymSharedKey = $asymSharedKeysStorage.get(`${$authenticatedUserDID}-${$selectedChannel.channelAddress}`)
-        fileReader = new FileReader()
-        fileReader.addEventListener('load', loadJson)
-        return () => {
-            fileReader.removeEventListener('load', loadJson)
-        }
     })
-
-    function handleFilesSelect(event: CustomEvent): void {
-        file = event?.detail?.acceptedFiles[0]
-        fileReader.readAsText(file)
-    }
-
-    async function loadJson(): Promise<void> {
-        try {
-            identity = JSON.parse(fileReader?.result?.toString())
-            isPrivatePlusModalOpen = false
-            if (!identity?.id || !identity?.keys?.encrypt?.private) {
-                showNotification({
-                    type: NotificationType.Error,
-                    message: 'Wrong identity json content. You might use an old identity trying to unlock.',
-                })
-            } else {
-                asymSharedKey = getAsymSharedKey(identity.keys.encrypt.private, $selectedChannel.peerPublicKey)
-                asymSharedKeysStorage.set(
-                    $asymSharedKeysStorage.set(`${$authenticatedUserDID}-${$selectedChannel.channelAddress}`, asymSharedKey)
-                )
-                subscribe()
-            }
-        } catch {
-            invalidJsonFile = true
-        }
-    }
 
     async function handleBackClick(): Promise<void> {
         goto('/streams-manager')
@@ -124,7 +81,7 @@
             return
         }
         // ----------------------------------------------------------
-        await acceptSubscription($selectedChannel?.channelAddress, subscriptionId, true, asymSharedKey)
+        await acceptSubscription($selectedChannel?.channelAddress, subscriptionId, true)
         await updateSubscriptions()
         loadingChannel.set(false)
     }
@@ -158,19 +115,15 @@
         if (!get(selectedChannel)) {
             return
         }
-        if ($selectedChannel.type === ChannelType.privatePlus && !asymSharedKey) {
-            isPrivatePlusModalOpen = true
-        } else {
-            loadingChannel.set(true)
-            const response = await requestSubscription($selectedChannel?.channelAddress, asymSharedKey)
-            if (response) {
-                $selectedChannel.type === ChannelType.private || $selectedChannel.type === ChannelType.privatePlus
-                    ? subscriptionStatus.set(SubscriptionState.Requested)
-                    : subscriptionStatus.set(SubscriptionState.Authorized)
-                await updateSubscriptions()
-            }
-            loadingChannel.set(false)
+        loadingChannel.set(true)
+        const response = await requestSubscription($selectedChannel?.channelAddress)
+        if (response) {
+            $selectedChannel.type === ChannelType.private || $selectedChannel.type === ChannelType.privatePlus
+                ? subscriptionStatus.set(SubscriptionState.Requested)
+                : subscriptionStatus.set(SubscriptionState.Authorized)
+            await updateSubscriptions()
         }
+        loadingChannel.set(false)
     }
 
     async function unsubscribe(): Promise<void> {
@@ -189,9 +142,6 @@
     }
     function closeWriteMessageModal(): void {
         isWriteMesageModalOpen = false
-    }
-    function togglePrivatePlusModal(): void {
-        isPrivatePlusModalOpen = !isPrivatePlusModalOpen
     }
 </script>
 
@@ -229,34 +179,3 @@
         </Col>
     </Row>
 </Container>
-<Modal isOpen={isPrivatePlusModalOpen} toggle={togglePrivatePlusModal}>
-    <ModalHeader toggle={togglePrivatePlusModal} class="px-4 pt-3">Subscribe for privatePlus channel</ModalHeader>
-    <ModalBody class="px-1 pb-1">
-        <Box>
-            <div class="d-flex flex-column align-items-center justify-content-center">
-                <div class="icon">
-                    <Icon type="lock" size={140} />
-                </div>
-                <h5 class="mb-4">Request subscription for privatePlus channel</h5>
-            </div>
-            <div class="w-100 m-2">
-                <Dropzone on:drop={handleFilesSelect} accept="application/json"
-                    ><p>Upload JSON files or drag and drop</p></Dropzone
-                >
-            </div>
-            {#if invalidJsonFile}
-                <div class="d-flex justify-content-between w-100 mt-4">
-                    <div>{file?.name}</div>
-                    <div class="text-danger ms-4">Invalid JSON file</div>
-                </div>
-            {/if}
-        </Box>
-    </ModalBody>
-</Modal>
-
-<style>
-    .icon {
-        height: 70px;
-        padding-left: 10%;
-    }
-</style>
