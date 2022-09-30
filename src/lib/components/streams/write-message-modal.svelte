@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { FieldType, type WriteMessageForm } from '$lib/app'
+    import { authenticatedUserDID, FieldType, type WriteMessageForm } from '$lib/app'
     import { selectedChannelBusy, writeMessage, asymSharedKeysStorage } from '$lib/app/streams'
     import type { Input as InputType, SubmitButton } from '$lib/app/types/form'
     import { Form } from '$lib/components'
@@ -75,7 +75,7 @@
             message = await writeMessage(address, payload, undefined, metadata, type, true)
         }
         if (channelType === ChannelType.privatePlus) {
-            const asymSharedKey = new Map($asymSharedKeysStorage).get(address)
+            const asymSharedKey = $asymSharedKeysStorage.get(`${authenticatedUserDID}-${address}`)
             message = await writeMessage(address, payload, undefined, metadata, type, true, asymSharedKey)
         } else {
             message = await writeMessage(address, undefined, payload, metadata, type, true)

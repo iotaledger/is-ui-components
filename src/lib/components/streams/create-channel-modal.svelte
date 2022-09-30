@@ -77,7 +77,7 @@
         loading = false
         onClose()
         // presharedKey is undefined if not selected -> presharedKey modal is not shown
-        presharedKey = channel.presharedKey
+        presharedKey = channel?.presharedKey
     }
 
     function handleAddTopic() {
@@ -126,6 +126,7 @@
                 <Input required type="select" name="select" class="mb-2" bind:value={channelType}>
                     <option value={ChannelType.private}>Private Channel</option>
                     <option value={ChannelType.public}>Public Channel</option>
+                    <option value={ChannelType.privatePlus}>PrivatePlus Channel</option>
                 </Input>
 
                 <div class="d-flex ps-1">
