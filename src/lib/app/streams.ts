@@ -182,14 +182,17 @@ export async function readChannelMessages(
             const startDate = lastMessageDate ? new Date(lastMessageDate.setSeconds(lastMessageDate.getSeconds() + 1)) : null
 
             selectedChannelBusy.set(true)
-            const newMessages = await channelClient.read(channelAddress, {
-                index,
-                asc: false,
-                limit: limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-                startDate: fetchNewMessage ? startDate : null,
-                endDate: get(selectedChannelData)?.length && fetchNewMessage ? new Date() : null,
-            },
-                asymSharedKey)
+            const newMessages = await channelClient.read(
+                channelAddress,
+                {
+                    index,
+                    asc: false,
+                    limit: limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+                    startDate: fetchNewMessage ? startDate : null,
+                    endDate: get(selectedChannelData)?.length && fetchNewMessage ? new Date() : null,
+                },
+                asymSharedKey
+            )
             // Append new messages infront and old messages (loaded in case of pagenation) in the back of the array to keep it sorted
             if (fetchNewMessage) {
                 selectedChannelData.update((_chData) => [...newMessages, ..._chData])
@@ -260,9 +263,13 @@ export function stopReadingChannel(resetChannelData = true): void {
 export async function requestSubscription(channelAddress: string, asymSharedKey?: string): Promise<RequestSubscriptionResponse> {
     if (get(isAuthenticated)) {
         try {
-            const response: RequestSubscriptionResponse = await channelClient.requestSubscription(channelAddress, {
-                accessRights: AccessRights.ReadAndWrite,
-            }, asymSharedKey)
+            const response: RequestSubscriptionResponse = await channelClient.requestSubscription(
+                channelAddress,
+                {
+                    accessRights: AccessRights.ReadAndWrite,
+                },
+                asymSharedKey
+            )
             return response
         } catch (e) {
             showNotification({
@@ -309,10 +316,13 @@ export async function acceptSubscription(
     let authorizedResponse: AuthorizeSubscriptionResponse
     stopReadingChannel()
     try {
-        const response: AuthorizeSubscriptionResponse = await channelClient.authorizeSubscription(channelAddress, {
-            id,
-        },
-        asymSharedKey)
+        const response: AuthorizeSubscriptionResponse = await channelClient.authorizeSubscription(
+            channelAddress,
+            {
+                id,
+            },
+            asymSharedKey
+        )
         authorizedResponse = response
     } catch (e) {
         showNotification({
@@ -377,8 +387,8 @@ export async function getSubscriptionStatus(channelAddress: string): Promise<Sub
             return !ownSuscription
                 ? SubscriptionState.NotSubscribed
                 : ownSuscription.isAuthorized
-                    ? SubscriptionState.Authorized
-                    : SubscriptionState.Requested
+                ? SubscriptionState.Authorized
+                : SubscriptionState.Requested
         } catch (e) {
             showNotification({
                 type: NotificationType.Error,
@@ -409,13 +419,16 @@ export async function writeMessage(
         selectedChannelBusy.set(true)
 
         try {
-            const response: ChannelData = await channelClient.write(address, {
-                payload,
-                publicPayload,
-                metadata,
-                type,
-            },
-                asymSharedKey)
+            const response: ChannelData = await channelClient.write(
+                address,
+                {
+                    payload,
+                    publicPayload,
+                    metadata,
+                    type,
+                },
+                asymSharedKey
+            )
             channelDataResponse = response
         } catch (e) {
             showNotification({

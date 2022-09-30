@@ -15,7 +15,7 @@
         identity: Identity,
         credential: Credential,
         'iota-logo': IotaLogo,
-        lock: Lock
+        lock: Lock,
     }
 
     $: customIcon = TYPES?.[type]

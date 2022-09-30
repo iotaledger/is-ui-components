@@ -67,7 +67,9 @@
                 })
             } else {
                 asymSharedKey = getAsymSharedKey(identity.keys.encrypt.private, channel.peerPublicKey)
-                asymSharedKeysStorage.set($asymSharedKeysStorage.set(`${authenticatedUserDID}-${channel.channelAddress}`, asymSharedKey))
+                asymSharedKeysStorage.set(
+                    $asymSharedKeysStorage.set(`${authenticatedUserDID}-${channel.channelAddress}`, asymSharedKey)
+                )
                 manageChannelData()
             }
         } catch {

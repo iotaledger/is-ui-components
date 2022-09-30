@@ -2,7 +2,7 @@
 
 ### 0.2.7
 
-- Added input field for unlocking privatePlus channels
+-   Added input field for unlocking privatePlus channels
 
 ### 0.2.2
 

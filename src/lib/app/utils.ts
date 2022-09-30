@@ -1,5 +1,5 @@
 import * as bs58 from 'bs58'
-import nacl from 'tweetnacl';
+import nacl from 'tweetnacl'
 
 function toUTF8Array(str) {
     const utf8 = []
@@ -115,6 +115,6 @@ export function formatDateAndTime(date: string): string {
 }
 
 export function getAsymSharedKey(privateKey: string, peerPublicKey: string): string {
-   const asymSharedKey = nacl.scalarMult(bs58.decode(privateKey), bs58.decode(peerPublicKey));
-   return bs58.encode(asymSharedKey);
+    const asymSharedKey = nacl.scalarMult(bs58.decode(privateKey), bs58.decode(peerPublicKey))
+    return bs58.encode(asymSharedKey)
 }

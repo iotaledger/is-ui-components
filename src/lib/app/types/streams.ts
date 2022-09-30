@@ -8,7 +8,7 @@ export enum SubscriptionState {
 export enum ChannelType {
     public = 'public',
     private = 'private',
-    privatePlus = 'privatePlus'
+    privatePlus = 'privatePlus',
 }
 
 export type WriteMessageForm = {
