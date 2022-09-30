@@ -1,6 +1,6 @@
 # Changelog
 
-### 0.2.5
+### 0.2.7
 
 - Added input field for unlocking privatePlus channels
 
