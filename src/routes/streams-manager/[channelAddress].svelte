@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-    import { ChannelDetails, Icon, WriteMessageModal } from '$lib/components'
+    import { Box, ChannelDetails, Icon, WriteMessageModal } from '$lib/components'
     import { Col, Container, Row } from 'sveltestrap'
     import { onMount } from 'svelte'
     import {
@@ -60,7 +60,7 @@
 
     async function updateChannelList(): Promise<void> {
         if (get(subscriptionStatus) !== currentSubscriptionStatus) {
-            const channelInfo = await getChannelInfo(get(selectedChannel).channelAddress)
+            const channelInfo = await getChannelInfo(get(selectedChannel)?.channelAddress)
             if (channelInfo) {
                 const searchResults = get(searchChannelsResults)
                 const index = searchResults.indexOf($selectedChannel)
@@ -118,7 +118,7 @@
         loadingChannel.set(true)
         const response = await requestSubscription($selectedChannel?.channelAddress)
         if (response) {
-            $selectedChannel.type === ChannelType.private
+            $selectedChannel.type === ChannelType.private || $selectedChannel.type === ChannelType.privatePlus
                 ? subscriptionStatus.set(SubscriptionState.Requested)
                 : subscriptionStatus.set(SubscriptionState.Authorized)
             await updateSubscriptions()
@@ -173,6 +173,7 @@
                     isOpen={isWriteMesageModalOpen}
                     onModalClose={closeWriteMessageModal}
                     address={$selectedChannel?.channelAddress}
+                    channelType={$selectedChannel?.type}
                 />
             {/if}
         </Col>

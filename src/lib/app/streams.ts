@@ -5,7 +5,7 @@ import type {
     RequestSubscriptionResponse,
     Subscription,
 } from '@iota/is-client'
-import { AccessRights, type ChannelInfo, type ChannelType } from '@iota/is-client'
+import { AccessRights, ChannelType, type ChannelInfo } from '@iota/is-client'
 import { get } from 'svelte/store'
 import { authenticatedUserDID, authenticationData, channelClient, isAuthenticated } from './base'
 import { DEFAULT_SDK_CLIENT_REQUEST_LIMIT, WELCOME_LIST_RESULTS_NUMBER } from './constants/base'
@@ -19,7 +19,7 @@ import { showNotification } from './notification'
 import { NotificationType } from './types/notification'
 import { SubscriptionState, type SearchOptions } from './types/streams'
 import type { Reset } from './types/stores'
-import { reset } from './stores'
+import { persistKeyValueData, reset } from './stores'
 
 export const selectedChannelPageIndex: Reset<number> = reset(1)
 export const selectedMessagePageIndex: Reset<number> = reset(1)
@@ -37,6 +37,7 @@ export const isAsyncLoadingChannels: Reset<boolean> = reset(false)
 // used to determine the subscription status of the authenticated user on the current channel
 export const subscriptionStatus: Reset<SubscriptionState> = reset(undefined)
 export const loadingChannel: Reset<boolean> = reset(false)
+export const asymSharedKeysStorage: Reset<Map<string, string>> = persistKeyValueData('asymSharedKeys', new Map<string, string>())
 
 let haltSearchAll = false
 // used to keep track of the last search query
@@ -58,6 +59,7 @@ export function resetStreamsState(): void {
     selectedChannelSubscriptions.reset()
     isAsyncLoadingChannels.reset()
     loadingChannel.reset()
+    asymSharedKeysStorage.reset()
 }
 
 // Note: this is an async function that returns nothing, but fills the searchChannelsResults store.
@@ -167,7 +169,8 @@ export async function readChannelMessages(
     channelAddress: string,
     fetchNewMessage: boolean,
     index: number,
-    limit?: number
+    limit?: number,
+    asymSharedKey?: string
 ): Promise<void> {
     if (get(isAuthenticated)) {
         if (get(selectedChannelBusy)) {
@@ -180,13 +183,17 @@ export async function readChannelMessages(
             const startDate = lastMessageDate ? new Date(lastMessageDate.setSeconds(lastMessageDate.getSeconds() + 1)) : null
 
             selectedChannelBusy.set(true)
-            const newMessages = await channelClient.read(channelAddress, {
-                index,
-                asc: false,
-                limit: limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
-                startDate: fetchNewMessage ? startDate : null,
-                endDate: get(selectedChannelData)?.length && fetchNewMessage ? new Date() : null,
-            })
+            const newMessages = await channelClient.read(
+                channelAddress,
+                {
+                    index,
+                    asc: false,
+                    limit: limit ?? DEFAULT_SDK_CLIENT_REQUEST_LIMIT,
+                    startDate: fetchNewMessage ? startDate : null,
+                    endDate: get(selectedChannelData)?.length && fetchNewMessage ? new Date() : null,
+                },
+                asymSharedKey
+            )
             // Append new messages infront and old messages (loaded in case of pagenation) in the back of the array to keep it sorted
             if (fetchNewMessage) {
                 selectedChannelData.update((_chData) => [...newMessages, ..._chData])
@@ -238,13 +245,13 @@ export async function readChannelHistory(channelAddress: string, presharedKey: s
     }
 }
 
-export async function startReadingChannel(channelAddress: string): Promise<void> {
+export async function startReadingChannel(channelAddress: string, asymSharedKey?: string): Promise<void> {
     stopReadingChannel()
     if (!get(selectedChannelBusy)) {
-        await readChannelMessages(channelAddress, true, 0)
+        await readChannelMessages(channelAddress, true, 0, undefined, asymSharedKey)
     }
     channelFeedInterval = setInterval(async () => {
-        await readChannelMessages(channelAddress, true, 0)
+        await readChannelMessages(channelAddress, true, 0, undefined, asymSharedKey)
     }, FEED_INTERVAL_MS)
 }
 
@@ -254,12 +261,16 @@ export function stopReadingChannel(resetChannelData = true): void {
     resetChannelData ?? selectedChannelData.set([])
 }
 
-export async function requestSubscription(channelAddress: string): Promise<RequestSubscriptionResponse> {
+export async function requestSubscription(channelAddress: string, asymSharedKey?: string): Promise<RequestSubscriptionResponse> {
     if (get(isAuthenticated)) {
         try {
-            const response: RequestSubscriptionResponse = await channelClient.requestSubscription(channelAddress, {
-                accessRights: AccessRights.ReadAndWrite,
-            })
+            const response: RequestSubscriptionResponse = await channelClient.requestSubscription(
+                channelAddress,
+                {
+                    accessRights: AccessRights.ReadAndWrite,
+                },
+                asymSharedKey
+            )
             return response
         } catch (e) {
             showNotification({
@@ -300,14 +311,19 @@ export async function requestUnsubscription(channelAddress: string): Promise<boo
 export async function acceptSubscription(
     channelAddress: string,
     id: string,
-    triggerReadChannel = false
+    triggerReadChannel = false,
+    asymSharedKey?: string
 ): Promise<AuthorizeSubscriptionResponse> {
     let authorizedResponse: AuthorizeSubscriptionResponse
     stopReadingChannel()
     try {
-        const response: AuthorizeSubscriptionResponse = await channelClient.authorizeSubscription(channelAddress, {
-            id,
-        })
+        const response: AuthorizeSubscriptionResponse = await channelClient.authorizeSubscription(
+            channelAddress,
+            {
+                id,
+            },
+            asymSharedKey
+        )
         authorizedResponse = response
     } catch (e) {
         showNotification({
@@ -395,7 +411,8 @@ export async function writeMessage(
     publicPayload?: string,
     metadata?: string,
     type?: string,
-    triggerReadChannel = false
+    triggerReadChannel = false,
+    asymSharedKey?: string
 ): Promise<ChannelData> {
     if (get(isAuthenticated)) {
         let channelDataResponse: ChannelData
@@ -403,12 +420,16 @@ export async function writeMessage(
         selectedChannelBusy.set(true)
 
         try {
-            const response: ChannelData = await channelClient.write(address, {
-                payload,
-                publicPayload,
-                metadata,
-                type,
-            })
+            const response: ChannelData = await channelClient.write(
+                address,
+                {
+                    payload,
+                    publicPayload,
+                    metadata,
+                    type,
+                },
+                asymSharedKey
+            )
             channelDataResponse = response
         } catch (e) {
             showNotification({
@@ -420,7 +441,7 @@ export async function writeMessage(
             selectedChannelBusy.set(false)
         }
         if (triggerReadChannel) {
-            startReadingChannel(address)
+            startReadingChannel(address, asymSharedKey)
         }
         return channelDataResponse
     } else {

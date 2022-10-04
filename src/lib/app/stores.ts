@@ -1,8 +1,7 @@
-import { writable, type Unsubscriber, type Writable } from 'svelte/store'
+import { writable } from 'svelte/store'
 import { browser } from '$app/env'
 import type { Reset } from './types/stores'
-import type { ActionButton } from './types'
-import type { ChannelData, ChannelInfo, Subscription } from '@iota/is-client'
+
 /**
  * Writable store with reset to initial value functionality
  * @param initialValue - initial value
@@ -45,6 +44,34 @@ export const persistent = <T>(key: string, initialValue: T): Reset<T> => {
             }
         })
 
+        return state
+    }
+}
+
+/**
+ * Persist key-value data to local storage
+ */
+export const persistKeyValueData = <T>(key: string, initialValue: Map<T, T>): Reset<Map<T, T>> => {
+    if (browser) {
+        let value: Map<T, T>
+        const state = reset(initialValue)
+        try {
+            const json = localStorage.getItem(key)
+            if (json) {
+                value = JSON.parse(json)
+                state.set(new Map(value))
+            }
+        } catch (err) {
+            console.error(err)
+        }
+
+        state.subscribe(($value): void => {
+            if ($value === undefined || $value === null) {
+                localStorage.removeItem(key)
+            } else {
+                localStorage.setItem(key, JSON.stringify([...$value]))
+            }
+        })
         return state
     }
 }
