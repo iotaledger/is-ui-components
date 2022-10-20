@@ -287,11 +287,11 @@ export async function requestSubscription(channelAddress: string, asymSharedKey?
     }
 }
 
-export async function requestUnsubscription(channelAddress: string): Promise<boolean> {
+export async function requestUnsubscription(channelAddress: string, asymSharedKey?: string): Promise<boolean> {
     if (get(isAuthenticated)) {
         try {
             const subscription = await channelClient.findSubscription(channelAddress, get(authenticationData)?.did)
-            await channelClient.removeSubscription(channelAddress, subscription.id)
+            await channelClient.revokeSubscription(channelAddress, { id: subscription.id }, asymSharedKey)
             return true
         } catch (e) {
             showNotification({

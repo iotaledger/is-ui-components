@@ -4,7 +4,8 @@
     import { isUserOwnerOfChannel } from '$lib/app/streams'
     import { SubscriptionState } from '$lib/app/types/streams'
     import { Icon } from '$lib/components'
-    import type { ChannelInfo } from '@iota/is-client'
+    import { asymSharedKeysStorage } from '$lib/app'
+    import { ChannelType, type ChannelInfo } from '@iota/is-client'
     import { Badge, Button, Spinner } from 'sveltestrap'
 
     export let channel: ChannelInfo = undefined
@@ -13,6 +14,7 @@
     export let onSubscriptionAction: (...__any: any[]) => void = () => {}
 
     $: isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
+    let asymSharedKey = $asymSharedKeysStorage.get(`${$authenticatedUserDID}-${channel.channelAddress}`)
 
     const BUTTON_MESSAGE = {
         [SubscriptionState.NotSubscribed]: 'Subscribe',
@@ -54,11 +56,12 @@
                     size="sm"
                     outline
                     color="dark"
-                    on:click={onSubscriptionAction}
+                    on:click={() => onSubscriptionAction(asymSharedKey)}
                     class="mt-3 mt-lg-0  d-flex align-items-center"
                     disabled={loading ||
                         subscriptionStatus === SubscriptionState.Subscribed ||
-                        subscriptionStatus === SubscriptionState.Requested}
+                        subscriptionStatus === SubscriptionState.Requested ||
+                        (channel.type === ChannelType.privatePlus && !asymSharedKey)}
                 >
                     {#if subscriptionStatus != SubscriptionState.Subscribed}
                         <div class="me-1">

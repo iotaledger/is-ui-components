@@ -107,16 +107,16 @@
         selectedChannelSubscriptions.set(channelSubscriptions)
     }
 
-    function onSubscriptionAction() {
-        get(subscriptionStatus) === SubscriptionState.NotSubscribed ? subscribe() : unsubscribe()
+    function onSubscriptionAction(asymSharedKey?: string) {
+        get(subscriptionStatus) === SubscriptionState.NotSubscribed ? subscribe(asymSharedKey) : unsubscribe(asymSharedKey)
     }
 
-    async function subscribe(): Promise<void> {
+    async function subscribe(asymSharedKey?: string): Promise<void> {
         if (!get(selectedChannel)) {
             return
         }
         loadingChannel.set(true)
-        const response = await requestSubscription($selectedChannel?.channelAddress)
+        const response = await requestSubscription($selectedChannel?.channelAddress, asymSharedKey)
         if (response) {
             $selectedChannel.type === ChannelType.private || $selectedChannel.type === ChannelType.privatePlus
                 ? subscriptionStatus.set(SubscriptionState.Requested)
@@ -126,10 +126,10 @@
         loadingChannel.set(false)
     }
 
-    async function unsubscribe(): Promise<void> {
+    async function unsubscribe(asymSharedKey?: string): Promise<void> {
         stopReadingChannel()
         loadingChannel.set(true)
-        const response = await requestUnsubscription($selectedChannel?.channelAddress)
+        const response = await requestUnsubscription($selectedChannel?.channelAddress, asymSharedKey)
         if (response) {
             subscriptionStatus.set(SubscriptionState.NotSubscribed)
             await updateSubscriptions()
