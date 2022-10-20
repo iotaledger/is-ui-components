@@ -81,7 +81,7 @@
             return
         }
         // ----------------------------------------------------------
-        await acceptSubscription($selectedChannel?.channelAddress, subscriptionId, true)
+        await acceptSubscription($selectedChannel?.channelAddress, $selectedChannel?.type, subscriptionId, true)
         await updateSubscriptions()
         loadingChannel.set(false)
     }
@@ -97,7 +97,7 @@
             return
         }
         // ----------------------------------------------------------
-        await rejectSubscription($selectedChannel?.channelAddress, subscriptionId, true)
+        await rejectSubscription($selectedChannel?.channelAddress, $selectedChannel?.type, subscriptionId, true)
         await updateSubscriptions()
         loadingChannel.set(false)
     }

@@ -13,13 +13,18 @@
     export let loading: boolean = false
     export let onSubscriptionAction: (...__any: any[]) => void = () => {}
 
+    let asymSharedKey
     $: isUserOwner = isUserOwnerOfChannel($authenticatedUserDID, channel)
-    let asymSharedKey = $asymSharedKeysStorage.get(`${$authenticatedUserDID}-${channel.channelAddress}`)
+    $: $asymSharedKeysStorage, setAsymvar()
+
+    function setAsymvar() {
+        asymSharedKey = $asymSharedKeysStorage.get(`${$authenticatedUserDID}-${channel.channelAddress}`)
+    }
 
     const BUTTON_MESSAGE = {
         [SubscriptionState.NotSubscribed]: 'Subscribe',
         [SubscriptionState.Requested]: 'Waiting for approval',
-        [SubscriptionState.Authorized]: 'Unsubscribe',
+        //[SubscriptionState.Authorized]: 'Unsubscribe',
     }
 </script>
 
@@ -50,7 +55,7 @@
                 <div class="text-secondary fw-bolder mt-1 text-break">{channel?.channelAddress || '-'}</div>
             </div>
         </div>
-        {#if !isUserOwner && subscriptionStatus}
+        {#if !isUserOwner && subscriptionStatus && subscriptionStatus !== SubscriptionState.Authorized}
             <div class="d-flex align-items-center ms-lg-3">
                 <Button
                     size="sm"
