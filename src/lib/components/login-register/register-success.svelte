@@ -22,7 +22,7 @@
         <div class="mb-3">
             <Icon type="identity" size={48} />
         </div>
-        <span class="border-bottom text-break px-2 px-md-5 pb-4 text-center mb-4">{identity?.doc?.id}</span>
+        <span class="border-bottom text-break px-2 px-md-5 pb-4 text-center mb-4">{identity?.id}</span>
         <div class="d-flex justify-content-between align-items-center w-100 mb-1">
             <p>Type</p>
             <p>{type}</p>

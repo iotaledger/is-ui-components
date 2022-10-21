@@ -38,6 +38,8 @@ export const isAsyncLoadingChannels: Reset<boolean> = reset(false)
 export const subscriptionStatus: Reset<SubscriptionState> = reset(undefined)
 export const loadingChannel: Reset<boolean> = reset(false)
 export const asymSharedKeysStorage: Reset<Map<string, string>> = persistKeyValueData('asymSharedKeys', new Map<string, string>())
+let asymSharedKeyStore: Map<string, string>
+asymSharedKeysStorage?.subscribe(($asks) => (asymSharedKeyStore = $asks))
 
 let haltSearchAll = false
 // used to keep track of the last search query
@@ -60,6 +62,7 @@ export function resetStreamsState(): void {
     isAsyncLoadingChannels.reset()
     loadingChannel.reset()
     asymSharedKeysStorage.reset()
+    asymSharedKeyStore?.clear()
 }
 
 // Note: this is an async function that returns nothing, but fills the searchChannelsResults store.
@@ -287,11 +290,11 @@ export async function requestSubscription(channelAddress: string, asymSharedKey?
     }
 }
 
-export async function requestUnsubscription(channelAddress: string): Promise<boolean> {
+export async function requestUnsubscription(channelAddress: string, asymSharedKey?: string): Promise<boolean> {
     if (get(isAuthenticated)) {
         try {
             const subscription = await channelClient.findSubscription(channelAddress, get(authenticationData)?.did)
-            await channelClient.removeSubscription(channelAddress, subscription.id)
+            await channelClient.revokeSubscription(channelAddress, { id: subscription.id }, asymSharedKey)
             return true
         } catch (e) {
             showNotification({
@@ -310,10 +313,22 @@ export async function requestUnsubscription(channelAddress: string): Promise<boo
 
 export async function acceptSubscription(
     channelAddress: string,
+    channelType: ChannelType,
     id: string,
-    triggerReadChannel = false,
-    asymSharedKey?: string
+    triggerReadChannel = false
 ): Promise<AuthorizeSubscriptionResponse> {
+    const asymSharedKey = asymSharedKeyStore
+        ? asymSharedKeyStore.get(`${get(authenticatedUserDID)}-${channelAddress}`)
+        : undefined
+
+    if (channelType === ChannelType.privatePlus && !asymSharedKey) {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'Could not accept the subscription. Please unlock the channel.',
+        })
+        return
+    }
+
     let authorizedResponse: AuthorizeSubscriptionResponse
     stopReadingChannel()
     try {
@@ -333,37 +348,58 @@ export async function acceptSubscription(
         console.error(Error, e)
     }
     if (triggerReadChannel) {
-        startReadingChannel(channelAddress)
+        startReadingChannel(channelAddress, asymSharedKey)
     }
     return authorizedResponse
 }
 
-export async function rejectSubscription(channelAddress: string, id: string, triggerReadChannel = false): Promise<boolean> {
+export async function rejectSubscription(
+    channelAddress: string,
+    channelType: ChannelType,
+    id: string,
+    triggerReadChannel = false
+): Promise<boolean> {
     let isRejected = false
-    if (get(isAuthenticated)) {
-        stopReadingChannel()
-        try {
-            await channelClient.revokeSubscription(channelAddress, {
-                id,
-            })
-            isRejected = true
-        } catch (e) {
-            showNotification({
-                type: NotificationType.Error,
-                message: 'There was an error getting subscription state',
-            })
-            console.error(Error, e)
-        }
-        if (triggerReadChannel) {
-            startReadingChannel(channelAddress)
-        }
-        return isRejected
-    } else {
+    if (!get(isAuthenticated)) {
         showNotification({
             type: NotificationType.Error,
             message: 'Cant perform action, user not authenticated',
         })
+        return isRejected
     }
+    const asymSharedKey = asymSharedKeyStore
+        ? asymSharedKeyStore.get(`${get(authenticatedUserDID)}-${channelAddress}`)
+        : undefined
+
+    if (channelType === ChannelType.privatePlus && !asymSharedKey) {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'Could not revoke the subscription. Please unlock the channel.',
+        })
+        return isRejected
+    }
+
+    stopReadingChannel()
+    try {
+        await channelClient.revokeSubscription(
+            channelAddress,
+            {
+                id,
+            },
+            asymSharedKey
+        )
+        isRejected = true
+    } catch (e) {
+        showNotification({
+            type: NotificationType.Error,
+            message: 'There was an error getting subscription state',
+        })
+        console.error(Error, e)
+    }
+    if (triggerReadChannel) {
+        startReadingChannel(channelAddress, asymSharedKey)
+    }
+    return isRejected
 }
 
 export async function getSubscriptions(channelAddress: string): Promise<Subscription[]> {

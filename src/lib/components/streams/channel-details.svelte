@@ -127,13 +127,13 @@
             />
         </div>
     {/if}
-    {#if channel.type === ChannelType.privatePlus && !asymSharedKey && subscriptionStatusValue === SubscriptionState.Authorized}
+    {#if channel.type === ChannelType.privatePlus && !asymSharedKey}
         <Box>
             <div class="d-flex flex-column align-items-center justify-content-center">
                 <div class="icon ">
                     <Icon type="lock" size={140} />
                 </div>
-                <h1 class="mt-3 mb-4">Unlock Channel Data</h1>
+                <h1 class="mt-3 mb-4">Unlock Channel</h1>
             </div>
             <div class="w-100 mb-2">
                 <Dropzone on:drop={handleFilesSelect} accept="application/json"

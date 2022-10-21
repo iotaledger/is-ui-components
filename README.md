@@ -193,8 +193,21 @@ VITE_IOTA_IS_SDK_GATEWAY_URL="XXXXXXXXXX"
 ```
 
 For instance it could look as the following:
+
 ```bash
+VITE_IOTA_IS_SDK_API_KEY=my-secret-api-key
 VITE_IOTA_IS_SDK_GATEWAY_URL=http://0.0.0.0:3000
+VITE_NETWORK_EXPLORER=https://explorer.iota.org/mainnet/message/
+```
+
+You can also connect the is-ui-components to the two services without a gateway this can be done by setting the `.env` file as following:
+
+```bash
+VITE_IOTA_IS_SDK_API_KEY=my-secret-api-key
+VITE_IOTA_SSI_BRIDGE_URL=http://localhost:3001
+VITE_IOTA_AUDIT_TRAIL_URL=http://localhost:3002
+VITE_IOTA_USE_GATEWAY_URL=true
+VITE_NETWORK_EXPLORER=https://explorer.iota.org/mainnet/message/
 ```
 
 4. Start the is-ui-components
