@@ -7,12 +7,13 @@ import { NotificationType, UserRoles } from './types'
 import type { JwtUser } from './types'
 import { persistent } from './stores'
 
+const useGatewayUrl = (import.meta.env.VITE_IOTA_USE_GATEWAY_URL as string)?.toLowerCase() !== 'false'
 const config: ClientConfig = {
+    useGatewayUrl: useGatewayUrl,
     apiKey: import.meta.env.VITE_IOTA_IS_SDK_API_KEY as string,
     isGatewayUrl: import.meta.env.VITE_IOTA_IS_SDK_GATEWAY_URL as string,
-    auditTrailUrl: import.meta.env.VITE_IOTA_AUDIT_TRAIL_URL as string,
-    ssiBridgeUrl: import.meta.env.VITE_IOTA_SSI_BRIDGE_URL as string,
-    useGatewayUrl: (import.meta.env.VITE_IOTA_USE_GATEWAY_URL as string)?.toLowerCase() === 'true',
+    auditTrailUrl: !useGatewayUrl ? (import.meta.env.VITE_IOTA_AUDIT_TRAIL_URL as string) : undefined,
+    ssiBridgeUrl: !useGatewayUrl ? (import.meta.env.VITE_IOTA_SSI_BRIDGE_URL as string) : undefined,
     apiVersionAuditTrail: ApiVersion.v0_1,
     apiVersionSsiBridge: ApiVersion.v0_2,
 }
